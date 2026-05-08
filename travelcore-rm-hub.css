@@ -839,7 +839,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   display: flex; flex-direction: column;
   position: relative; border-radius: 0;
   cursor: pointer; transition: box-shadow .1s;
-  background: var(--hotel-bg, var(--seg-bg, var(--surface-3)));
+  background: var(--hotel-bg, var(--seg-bg, #FFFFFF));
   overflow: hidden;
   border: 1px solid #DDE1E2;
   padding: 8px;
