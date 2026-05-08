@@ -15092,6 +15092,7 @@ window.calHideCapTip = function() {
       havgChildren:'#d33030', tavgChildren:'#f87171',
       havgLos:'#0891b2', tavgLos:'#22d3ee',
       havgLeadTime:'#6366f1', tavgLeadTime:'#a5b4fc',
+      htotalGuests:'#0369a1', ttotalGuests:'#0ea5e9',
       hly:'#93c5fd', tly:'#6ee7b7', hstly:'#bfdbfe', tstly:'#a7f3d0',
       hfcst:'#fbbf24', tfcst:'#fde68a',
       availRooms:'#16a34a', availGuar:'#ea580c',
@@ -15118,7 +15119,8 @@ window.calHideCapTip = function() {
     ];
     var SRC_KEYS  = ['hocc','tocc','hadr','tadr','hrev','trev','hpickup','tpickup',
                      'hrn','trn','hrevpar','trevpar','havgAdults','tavgAdults',
-                     'havgChildren','tavgChildren','havgLos','tavgLos','havgLeadTime','tavgLeadTime'];
+                     'havgChildren','tavgChildren','havgLos','tavgLos','havgLeadTime','tavgLeadTime',
+                     'htotalGuests','ttotalGuests'];
     var SINGLE_KEYS = ['availRooms','availGuar','bizMixTO','bizMixDirect','bizMixOTA',
                        'rateTO','ratePromo','rateBase'];
 
