@@ -237,7 +237,7 @@ body.dark .theme-toggle .icon-moon { display: none; }
 .nav-item.active svg { color: var(--accent); }
 
 /* ═══ MAIN ═══ */
-.main { flex: 1; margin-left: 220px; overflow-x: clip; overflow-y: visible; } /* overflow-x:clip caps horizontal without creating a scroll container (unlike hidden/auto) so sticky children still bind to viewport */
+.main { flex: 1; margin-left: 220px; overflow: visible; }
 
 .page-content { padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 16px; }
 
