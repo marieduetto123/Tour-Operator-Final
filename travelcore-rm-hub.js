@@ -3075,31 +3075,94 @@ function clearCalSelection() {
       _pb += _pGrpEnd();
     }
 
-    // ── Daily Metrics ──
+    // ── Computed values for TO sub-rows ──
+    var _toAdr   = Math.max(80, adr - 20 - Math.abs((dm*3+dd*7)%15));
+    var _toRev   = Math.floor(toRms * _toAdr);
+    var _toRevS  = _toRev >= 1000000 ? '$'+((_toRev/1000000).toFixed(1))+'M' : '$'+Math.round(_toRev/1000)+'k';
+    var _toRevpar = Math.max(50, (adr+80) - 30 - Math.abs((dm*5+dd*3)%20));
+    var _hRevpar  = Math.round(adr * hotel / 100);
+    var _hPickup  = Math.floor(v%25+5);
+    var _hAvgA    = (_dmAvgA + 0.3).toFixed(1);
+    var _hAvgC    = (_dmAvgC + 0.1).toFixed(1);
+    var _hTotA    = Math.round(rnSold * parseFloat(_hAvgA));
+    var _hTotC    = Math.round(rnSold * parseFloat(_hAvgC));
+    var _hTotG    = _hTotA + _hTotC;
+    var _hLos     = (2.8+v%5*0.3+0.4).toFixed(1)+'n';
+    var _hLead    = (18+v%60+12)+'d';
+
+    // ── Daily Metrics ── (matches weekly: Occupancy, Online/Offline, ADR, Revenue with Hotel/TO/STLY sub-rows)
     _pb += _pGrpStart('Daily Metrics', _C1, 'dm');
     _pb += _pSect('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]));
     _pb += _pSub('Travel Distribution Hubs', toRms+' rms / '+to+'%', _C1);
     _pb += _pSub('Other Segments', otherRms+' rms / '+otherPct+'%', _C2);
     _pb += _pSub('STLY', hotelSDLY+'%', _CSTLY);
-    _pb += _pSub('Remaining', freeRms+' rms / '+freePct+'%', _CREM, true);
+    _pb += _pSub('Total Hotel Occupancy', freeRms+' rms / '+freePct+'%', _CREM, true);
     _pb += _pSect('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
     _pb += _pSub('Online', onlinePct+'%', _C1);
     _pb += _pSub('Offline', offlinePct+'%', _C2);
     _pb += _pSect('ADR', '$'+adr, _pBar(adrBar, _C1));
+    _pb += _pSub('TO ADR', '$'+_toAdr, _C1);
     _pb += _pSub('Hotel ADR', '$'+adr, _C2);
-    _pb += _pRef('$'+adrSDLY, '+'+(adr-adrSDLY));
+    _pb += _pSub('STLY', '$'+adrSDLY, _CSTLY);
     _pb += _pSect('Revenue', '$'+Math.floor(rev/1000)+'k', _pBar(revBar, _C1));
+    _pb += _pSub('TO Revenue', _toRevS, _C1);
     _pb += _pSub('Hotel Revenue', '$'+Math.floor(rev/1000)+'k', _C2);
-    _pb += _pRef('$'+Math.floor(sdlyR/1000)+'k', '+'+Math.round((rev-sdlyR)/sdlyR*100)+'%');
+    _pb += _pSub('STLY', '$'+Math.floor(sdlyR/1000)+'k', _CSTLY);
     _pb += _pGrpEnd();
 
-    // ── More Metrics ──
+    // ── More Metrics ── (matches weekly: each metric shows TO value + Hotel/STLY sub-rows)
     _pb += _pGrpStart('More Metrics', _C1, 'mm');
-    detRows.forEach(function(r, ri) {
-      var bp = Math.min(92, 30 + Math.abs((dm*(ri+3)+dd*7)%55));
-      _pb += _pSect(r[0], String(r[1]), _pBar(bp, _C1));
-      _pb += _pRef(String(r[2]), String(r[3]));
+    // RN Sold (TO + Hotel + STLY)
+    _pb += _pSect('RN Sold', toRms, _pBar(Math.min(92, 55+(v%37)), _C1));
+    _pb += _pSub('TO RN', String(toRms), _C1);
+    _pb += _pSub('Hotel RN', String(rnSold), _C2);
+    _pb += _pSub('STLY', String(Math.floor(rnSold*0.88)), _CSTLY);
+    // REVPAR (TO + Hotel + STLY)
+    _pb += _pSect('REVPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
+    _pb += _pSub('Hotel', '$'+_hRevpar, _C2);
+    _pb += _pSub('STLY', '$'+Math.floor(adr*0.92), _CSTLY);
+    // Pickup (each active window)
+    pickupDayValues.forEach(function(dv, i) {
+      if (!wvMetricState['dm_pickup_' + i]) return;
+      var sc = dv<=1?0.3:dv<=3?0.6:dv<=7?1:Math.min(2,dv/7);
+      var toP = Math.max(0, Math.round(_basePickup * sc));
+      var hP  = Math.max(0, Math.round(_hPickup * sc));
+      _pb += _pSect('Pickup '+dv, '+'+toP, _pBar(Math.min(92, 30+v%50), _C1));
+      _pb += _pSub('Hotel', '+'+hP, _C2);
+      _pb += _pSub('TO', '+'+toP, _C1);
     });
+    // Avg Adults (TO + Hotel)
+    _pb += _pSect('Avg Adults', _dmAvgA.toFixed(1), _pBar(Math.min(92, 55+v%30), _C1));
+    _pb += _pSub('T Avg Adults', _dmAvgA.toFixed(1), _C1);
+    _pb += _pSub('Hotel', _hAvgA, _C2);
+    // Avg Children (TO + Hotel)
+    _pb += _pSect('Avg Children', _dmAvgC.toFixed(1), _pBar(Math.min(92, 20+v%40), _C1));
+    _pb += _pSub('T Avg Children', _dmAvgC.toFixed(1), _C1);
+    _pb += _pSub('Hotel', _hAvgC, _C2);
+    // Total Adults (TO + Hotel)
+    _pb += _pSect('Total Adults', _totAdultsTO, _pBar(Math.min(92, 60+v%28), _C1));
+    _pb += _pSub('T Total Adults', String(_totAdultsTO), _C1);
+    _pb += _pSub('Hotel', String(_hTotA), _C2);
+    // Total Children (TO + Hotel)
+    _pb += _pSect('Total Children', _totChildrenTO, _pBar(Math.min(92, 15+v%35), _C1));
+    _pb += _pSub('T Total Children', String(_totChildrenTO), _C1);
+    _pb += _pSub('Hotel', String(_hTotC), _C2);
+    // Total Guests (TO + Hotel)
+    _pb += _pSect('Total Guests', _totGuestsTO, _pBar(Math.min(92, 55+v%35), _C1));
+    _pb += _pSub('T Guests', String(_totGuestsTO), _C1);
+    _pb += _pSub('Hotel', String(_hTotG), _C2);
+    // Avg LOS (TO + Hotel)
+    _pb += _pSect('Avg LOS', _avgLos, _pBar(Math.min(92, 40+v%40), _C1));
+    _pb += _pSub('T Avg LOS', _avgLos, _C1);
+    _pb += _pSub('Hotel', _hLos, _C2);
+    // Lead Time (TO + Hotel)
+    _pb += _pSect('Lead Time', _avgLead, _pBar(Math.min(92, 25+v%55), _C1));
+    _pb += _pSub('T Lead Time', _avgLead, _C1);
+    _pb += _pSub('Hotel', _hLead, _C2);
+    // Avail Rooms (hotel-only)
+    _pb += _pSect('Avail Rooms', availRooms+' rm', _pBar(Math.min(92, Math.max(5, hotel*0.8)), _C1));
+    // Avail Guar.
+    _pb += _pSect('Avail Guar.', availGuar+' rm', _pBar(Math.min(92, 10+v%50), _C1));
     _pb += _pGrpEnd();
 
     // ── Meal Plans ──
@@ -3231,17 +3294,43 @@ function clearCalSelection() {
     var _rtRows = _rtAll.map(function(r, i) {
       var d = _rtData[i];
       var availClr = d.avail === 0 ? '#ef4444' : '#16a34a';
-      return '<div class="wv-cap-rt-row">'
-        +'<div class="wv-cap-rt-name">'
+      var tentSold = Math.floor(Math.abs((dm*(i+2)+dd*(i+4))%5));
+      var ooo      = Math.floor(Math.abs((dm*(i+1)+dd*(i+3))%3));
+      var totalOcc = d.toSold + d.other + tentSold + ooo;
+      // Main row: room type with avail count
+      var html = '<div style="margin-bottom:6px">';
+      html += '<div style="display:flex;align-items:center;gap:4px;padding:2px 0">'
         +'<span class="wv-cap-rt-sw" style="background:'+RT_COLORS[i]+'"></span>'
-        +'<span class="wv-cap-rt-lbl">'+r[0]+(d.avail===0?' <span class="wv-rt-closed-badge">CLOSED</span>':'')+'</span>'
-        +'</div>'
-        +'<span class="wv-cap-td">'+d.inv+'</span>'
-        +'<span class="wv-cap-td" style="color:#006461">'+d.toSold+'</span>'
-        +'<span class="wv-cap-td" style="color:#3b82f6">'+d.other+'</span>'
-        +'<span class="wv-cap-td" style="color:#fb923c">'+d.allocRem+'</span>'
-        +'<span class="wv-cap-td" style="color:'+availClr+'">'+d.avail+'</span>'
+        +'<span style="font-size:12px;font-weight:600;color:#111827;flex:1">'+r[0]+(d.avail===0?' <span class="wv-rt-closed-badge">CLOSED</span>':'')+'</span>'
+        +'<span style="font-size:12px;font-weight:700;color:'+availClr+'">'+d.avail+' avail</span>'
+        +'<span style="font-size:10px;color:#9ca3af">/'+d.inv+'</span>'
         +'</div>';
+      // Stacked bar for this room type
+      var tsPct = d.inv > 0 ? Math.round(d.toSold / d.inv * 100) : 0;
+      var osPct = d.inv > 0 ? Math.round(d.other / d.inv * 100) : 0;
+      var alPct = d.inv > 0 ? Math.round(d.allocRem / d.inv * 100) : 0;
+      var avPct = Math.max(0, 100 - tsPct - osPct - alPct);
+      html += '<div style="height:5px;border-radius:2px;overflow:hidden;display:flex;margin:2px 0 4px 11px">'
+        +'<div style="width:'+tsPct+'%;background:#006461;height:100%"></div>'
+        +'<div style="width:'+osPct+'%;background:#3b82f6;height:100%"></div>'
+        +'<div style="width:'+alPct+'%;background:#fb923c;opacity:.6;height:100%"></div>'
+        +'<div style="width:'+avPct+'%;background:#d1fae5;height:100%"></div>'
+        +'</div>';
+      // Sub-rows (matching weekly: TO Sold, Other Segments, Tentative Sold, Out-of-Order, Alloc Rem., Total Hotel Occ)
+      function _rtSub(lbl, val, clr) {
+        return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0 1px 11px">'
+          +'<span style="width:5px;height:5px;border-radius:50%;background:'+clr+';flex-shrink:0"></span>'
+          +'<span style="font-size:11px;color:#6b7280;flex:1">'+lbl+'</span>'
+          +'<span style="font-size:11px;font-weight:600;color:'+clr+'">'+val+'</span></div>';
+      }
+      html += _rtSub('TO Sold', d.toSold, '#006461');
+      html += _rtSub('Other Segments', d.other, '#3b82f6');
+      html += _rtSub('Tentative Sold (Group)', tentSold, '#8b5cf6');
+      html += _rtSub('Out-of-Order', ooo, '#ef4444');
+      html += _rtSub('Alloc Rem.', d.allocRem, '#fb923c');
+      html += _rtSub('Total Hotel Occupancy', totalOcc, '#374151');
+      html += '</div>';
+      return html;
     }).join('');
     _pb += _pGrpStart('Room Availability' + (_hasAnyFilter ? ' (Filtered)' : ''), _C1, 'ra');
     _pb += _rtCapBar + _rtTblHdr + _rtRows;
