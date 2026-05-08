@@ -868,7 +868,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cell-day-hdr .mo-lock-ico { position: absolute; left: 8px; top: 24px; line-height: 0; z-index: 2; }
 .cell-day-hdr .cell-eye { position: absolute; right: 8px; top: 8px; z-index: 2; }
 .day-num {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
   font-size: 13px; font-weight: 500; color: #374151;
   font-family: 'Inter', sans-serif;
   z-index: 0; pointer-events: none;
