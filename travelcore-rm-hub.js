@@ -10232,6 +10232,7 @@ document.addEventListener('click', function(e) {
     dd.style.width = '368px';
     dd.style.maxHeight = maxH + 'px';
     dd.style.display = 'block';
+    if (window.cmSyncOnOpen) window.cmSyncOnOpen();
     e.stopPropagation(); return;
   }
   // Metric checkbox clicks are handled by inline onclick="cmToggleMetric()" — just stop propagation here
@@ -14683,6 +14684,14 @@ window.calHideCapTip = function() {
   };
 
   // ── Apply: commit metric selections and re-render ──────────────
+  // ── Called on dropdown open: sync checked state + apply disabled ─
+  window.cmSyncOnOpen = function() {
+    document.querySelectorAll('#calMetricsDropdown .cal-md-cb[data-cm-key]').forEach(function(cb) {
+      cb.classList.toggle('checked', cmMetrics.indexOf(cb.dataset.cmKey) >= 0);
+    });
+    updateHint();
+  };
+
   window.cmApplyMetrics = function() {
     var dd = document.getElementById('calMetricsDropdown');
     if (dd) dd.style.display = 'none';
