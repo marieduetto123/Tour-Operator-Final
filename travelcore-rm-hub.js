@@ -2872,18 +2872,30 @@ function clearCalSelection() {
     }
 
     var _basePickup = Math.max(1, Math.floor((v%25+5)*_filterMult));
+    // Derived values for extra More Metrics rows
+    var _dmAvgA = (1.8+v%3*0.1), _dmAvgC = (0.3+v%2*0.1);
+    var _totAdultsTO   = Math.round(toRms * _dmAvgA);
+    var _totChildrenTO = Math.round(toRms * _dmAvgC);
+    var _totGuestsTO   = _totAdultsTO + _totChildrenTO;
+    var _avgLos        = (2.8+v%5*0.3).toFixed(1) + 'n';
+    var _avgLosStly    = (Math.max(1, 2.8+v%5*0.3-0.2)).toFixed(1) + 'n';
+    var _avgLead       = (18+v%60) + 'd';
+    var _avgLeadStly   = Math.max(5, 18+v%60-5) + 'd';
     var detRows = [
       ['RN Sold',      rnSold,                            Math.floor(rnSold*0.88),          '+' + Math.floor(v%30+5)],
-      ['ADR',          '$' + adr,                         '$' + adrSDLY,                    '+' + (3+v%12)+'%'],
-      ['Revenue',      '$' + Math.floor(rev/1000) + 'k',  '$' + Math.floor(sdlyR/1000)+'k','+' + (5+v%15)+'%'],
       ...pickupDayValues.map(function(dv, i) {
         if (!wvMetricState['dm_pickup_' + i]) return null;
         var sc  = dv<=1?0.3:dv<=3?0.6:dv<=7?1:Math.min(2,dv/7);
         var val = Math.max(0, Math.round(_basePickup * sc));
         return ['Pickup ' + dv, '+' + val, '+0', '+' + Math.floor((v%15+5)*sc)];
       }).filter(Boolean),
-      ['Avg Adults',   (1.8+v%3*.1).toFixed(1),           '1.9',                            '-0.1'],
-      ['Avg Children', (0.3+v%2*.1).toFixed(1),           '0.4',                            '-0.1'],
+      ['Avg Adults',   _dmAvgA.toFixed(1),               '1.9',                            '-0.1'],
+      ['Avg Children', _dmAvgC.toFixed(1),               '0.4',                            '-0.1'],
+      ['Total Adults',   _totAdultsTO,                   Math.round(_totAdultsTO*0.93),    '+' + Math.floor(v%8+2)],
+      ['Total Children', _totChildrenTO,                 Math.round(_totChildrenTO*0.93),  '+' + Math.floor(v%5+1)],
+      ['Total Guests',   _totGuestsTO,                   Math.round(_totGuestsTO*0.93),    '+' + Math.floor(v%10+3)],
+      ['Avg LOS',        _avgLos,                        _avgLosStly,                      '+0.2n'],
+      ['Avg Lead Time',  _avgLead,                       _avgLeadStly,                     '+5d'],
       ['REVPAR',       '$' + Math.round(adr*hotel/100),   '$' + Math.floor(adr*0.92),       '+' + (10+v%20)+'%'],
       ['Avail Rooms',  availRooms,                         availRooms+3,                     '-' + (Math.floor(v%8)+1)],
       ['Avail Guar.',  availGuar,                          availGuar+2,                      '-' + (Math.floor(v%4)+1)],
@@ -3108,6 +3120,31 @@ function clearCalSelection() {
     // ── TO Rates ──
     _pb += _pGrpStart('Tour Operator Rates', _C1, 'to');
     _pb += toRatesHTML;
+    _pb += _pGrpEnd();
+
+    // ── Business Mix ──
+    var _toMixPct    = 28 + Math.abs((dm*7+dd*5)%25);
+    var _dirMixPct   = 30 + Math.abs((dm*5+dd*9)%20);
+    var _otaMixPct   = 20 + Math.abs((dm*9+dd*3)%18);
+    var _otherMixPct = Math.max(0, 100 - _toMixPct - _dirMixPct - _otaMixPct);
+    var _bizMixSegs  = [
+      { label:'TO',     pct:_toMixPct,    color:'#006461' },
+      { label:'Direct', pct:_dirMixPct,   color:'#0284c7' },
+      { label:'OTA',    pct:_otaMixPct,   color:'#D97706' },
+      { label:'Other',  pct:_otherMixPct, color:'#9ca3af' },
+    ];
+    var _bizBarHtml = '<div class="wv-meals-bar" style="margin:4px 0 6px">'
+      + _bizMixSegs.map(function(s){ return '<div style="width:'+s.pct+'%;background:'+s.color+';height:100%"></div>'; }).join('')
+      + '</div>';
+    var _bizRowsHtml = _bizMixSegs.map(function(s){
+      return '<div class="wv-meal-row">'
+        +'<span class="wv-meal-dot" style="background:'+s.color+'"></span>'
+        +'<span class="wv-meal-name">'+s.label+'</span>'
+        +'<span class="wv-meal-pct">'+s.pct+'%</span>'
+        +'</div>';
+    }).join('');
+    _pb += _pGrpStart('Business Mix', _C1, 'biz');
+    _pb += _bizBarHtml + _bizRowsHtml;
     _pb += _pGrpEnd();
 
     var _popupBodyEl = document.getElementById('popupBody');
