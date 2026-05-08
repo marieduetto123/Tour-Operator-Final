@@ -1659,7 +1659,7 @@ function renderCalendar() {
         if (isCompact) return '';
         // Use cmBuildRows to get what user selected in Cell Metrics panel
         var rows = (typeof window.cmBuildRows === 'function')
-          ? window.cmBuildRows(cellMetricVals)
+          ? window.cmBuildRows(cellMetricVals, calDisplayView === 1)
           : [
               { label: 'H-Occ', value: hotel + '%', raw: hotel, color: '#5883ed' },
               { label: 'TO-Occ', value: to + '%',    raw: to,    color: '#006461' },
@@ -14963,7 +14963,7 @@ window.calHideCapTip = function() {
 
   // ── Build metric rows for a cell ──────────────────────────────
   // Exposed globally so renderCalendar can call it
-  window.cmBuildRows = function(cellVals) {
+  window.cmBuildRows = function(cellVals, useFull) {
     // New granular key map
     var KEY_MAP = {
       hocc:'hotelOcc', tocc:'toOcc', hadr:'hotelAdr', tadr:'toAdr',
@@ -15052,6 +15052,39 @@ window.calHideCapTip = function() {
       rateTO:'TO-R', ratePromo:'Prmo%', rateBase:'Base',
       htotalGuests:'#0369a1', ttotalGuests:'#0ea5e9',
     };
+    // Full (unabbreviated) labels — used when cells have enough space (1-month view)
+    var KEY_LABELS_FULL = {
+      hocc:'H-Occupancy', tocc:'TO-Occupancy', hadr:'H-ADR', tadr:'TO-ADR',
+      hrev:'H-Revenue', trev:'TO-Revenue', hpickup:'H-Pickup', tpickup:'TO-Pickup',
+      hrn:'H-Room Nights', trn:'TO-Room Nights', hrevpar:'H-RevPAR', trevpar:'TO-RevPAR',
+      havgAdults:'H-Avg Adults', tavgAdults:'TO-Avg Adults',
+      havgChildren:'H-Avg Children', tavgChildren:'TO-Avg Children',
+      havgLos:'H-LOS', tavgLos:'TO-LOS',
+      havgLeadTime:'H-Lead Time', tavgLeadTime:'TO-Lead Time',
+      htotalGuests:'H-Guests', ttotalGuests:'TO-Guests',
+      hlyOcc:'H-LY-Occupancy', tlyOcc:'TO-LY-Occupancy',
+      hlyAdr:'H-LY-ADR', tlyAdr:'TO-LY-ADR',
+      hlyRev:'H-LY-Revenue', tlyRev:'TO-LY-Revenue',
+      hlyRn:'H-LY-Room Nights', tlyRn:'TO-LY-Room Nights',
+      hlyRevpar:'H-LY-RevPAR', tlyRevpar:'TO-LY-RevPAR',
+      hlyLos:'H-LY-LOS', tlyLos:'TO-LY-LOS',
+      hstlyOcc:'H-STLY-Occupancy', tstlyOcc:'TO-STLY-Occupancy',
+      hstlyAdr:'H-STLY-ADR', tstlyAdr:'TO-STLY-ADR',
+      hstlyRev:'H-STLY-Revenue', tstlyRev:'TO-STLY-Revenue',
+      hstlyRn:'H-STLY-Room Nights', tstlyRn:'TO-STLY-Room Nights',
+      hstlyRevpar:'H-STLY-RevPAR', tstlyRevpar:'TO-STLY-RevPAR',
+      hstlyLos:'H-STLY-LOS', tstlyLos:'TO-STLY-LOS',
+      hfcstOcc:'H-Fcst-Occupancy', tfcstOcc:'TO-Fcst-Occupancy',
+      hfcstAdr:'H-Fcst-ADR', tfcstAdr:'TO-Fcst-ADR',
+      hfcstRev:'H-Fcst-Revenue', tfcstRev:'TO-Fcst-Revenue',
+      hfcstRn:'H-Fcst-Room Nights', tfcstRn:'TO-Fcst-Room Nights',
+      hfcstRevpar:'H-Fcst-RevPAR', tfcstRevpar:'TO-Fcst-RevPAR',
+      hfcstLos:'H-Fcst-LOS', tfcstLos:'TO-Fcst-LOS',
+      hly:'H-LY', tly:'TO-LY', hstly:'H-STLY', tstly:'TO-STLY', hfcst:'H-Fcst', tfcst:'TO-Fcst',
+      availRooms:'Avail. Rooms', availGuar:'Avail. Guar',
+      bizMixTO:'TO Mix', bizMixDirect:'Direct Mix', bizMixOTA:'OTA Mix',
+      rateTO:'TO Rate', ratePromo:'Promo %', rateBase:'Base Rate',
+    };
     var KEY_COLORS = {
       hocc:'#5883ed', tocc:'#006461', hadr:'#7c3aed', tadr:'#4f46e5',
       hrev:'#ea580c', trev:'#b45309', hpickup:'#16a34a', tpickup:'#0d9488',
@@ -15090,6 +15123,9 @@ window.calHideCapTip = function() {
     var SINGLE_KEYS = ['availRooms','availGuar','bizMixTO','bizMixDirect','bizMixOTA',
                        'rateTO','ratePromo','rateBase'];
 
+    // Pick full or abbreviated labels based on available cell space
+    var labels = useFull ? KEY_LABELS_FULL : KEY_LABELS;
+
     var rows = [];
 
     cmMetrics.forEach(function(key) {
@@ -15125,7 +15161,7 @@ window.calHideCapTip = function() {
         cmSegs.forEach(function(s){ selMult += (segMults[s] || 0); });
         var scale = totalMult > 0 ? selMult / totalMult : 1;
         var v = Math.round(baseVal * scale);
-        var metricLbl = KEY_LABELS[key] ? KEY_LABELS[key].replace(/^[HT]-/,'') : key;
+        var metricLbl = labels[key] ? labels[key].replace(/^[HT]-/,'') : key;
         var clr = KEY_COLORS[key] || '#006461';
         rows.push({ label: metricLbl, color: clr, value: String(v), raw: v });
         return;
@@ -15135,7 +15171,7 @@ window.calHideCapTip = function() {
       if (COMP_KEYS.indexOf(key) >= 0) {
         var isH   = key.charAt(0) === 'h';
         var mult  = COMP_MULTS[key] || 1;
-        var lbl   = KEY_LABELS[key] || key;
+        var lbl   = labels[key] || KEY_LABELS[key] || key;
         var clr   = KEY_COLORS[key] || (isH ? '#93c5fd' : '#6ee7b7');
         // Determine base value from the metric suffix
         var baseVal = 0;
@@ -15168,7 +15204,7 @@ window.calHideCapTip = function() {
       if (SRC_KEYS.indexOf(key) >= 0) {
         var rawKey = KEY_MAP[key];
         var v = cellVals[rawKey] || 0;
-        var lbl = KEY_LABELS[key] || key;
+        var lbl = labels[key] || KEY_LABELS[key] || key;
         var clr = KEY_COLORS[key] || '#6b7280';
         var formatted;
         var k = key.toLowerCase();
@@ -15200,7 +15236,7 @@ window.calHideCapTip = function() {
       // Single/shared keys (Business Mix, Selling Rates, Avail)
       if (SINGLE_KEYS.indexOf(key) >= 0) {
         var v = cellVals[key] || 0;
-        var lbl2 = KEY_LABELS[key] || key;
+        var lbl2 = labels[key] || KEY_LABELS[key] || key;
         var clr2 = KEY_COLORS[key] || '#6b7280';
         var fmt2;
         if (key === 'availRooms' || key === 'availGuar') fmt2 = Math.round(v) + ' rm';
