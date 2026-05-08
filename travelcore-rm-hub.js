@@ -14590,19 +14590,18 @@ window.calHideCapTip = function() {
       var tr = cb.closest('tr');
       if (atLimit && !isChecked) {
         cb.classList.add('cm-disabled');
+        cb.style.pointerEvents = 'none';
+        cb.style.cursor = 'default';
       } else {
         cb.classList.remove('cm-disabled');
+        cb.style.pointerEvents = '';
+        cb.style.cursor = '';
       }
       if (tr && !processedTrs.has(tr)) {
         processedTrs.add(tr);
         var hasChecked = Array.from(tr.querySelectorAll('.cal-md-cb[onclick*="cmToggleMetric"]')).some(function(c) { return c.classList.contains('checked'); });
-        if (atLimit && !hasChecked) {
-          tr.style.opacity = '0.38';
-          tr.style.pointerEvents = 'none';
-        } else {
-          tr.style.opacity = '';
-          tr.style.pointerEvents = '';
-        }
+        tr.style.opacity = (atLimit && !hasChecked) ? '0.38' : '';
+        tr.style.pointerEvents = '';
       }
     });
   }
@@ -14671,7 +14670,7 @@ window.calHideCapTip = function() {
       if (idx >= 0) cmMetrics.splice(idx, 1);
       updateHint(false);
     } else {
-      // Adding — show warning if over limit
+      if (countCheckedMetrics() >= 4) return; // hard cap at 4
       cb.classList.add('checked');
       if (cmMetrics.indexOf(key) < 0) cmMetrics.push(key);
       updateHint(true);
