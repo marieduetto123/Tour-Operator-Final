@@ -89,8 +89,8 @@ body {
   align-items: stretch;
   justify-content: space-between;
   padding: 0 14px 0 24px;
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 0; left: 0; right: 0;
   z-index: 100;
   flex-shrink: 0;
 }
@@ -174,8 +174,8 @@ body.dark .theme-toggle .icon-moon { display: none; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 0 0 24px;
   flex-shrink: 0;
-  position: sticky; top: 40px; z-index: 99;
-  width: 100%;
+  position: fixed; top: 40px; left: 0; right: 0;
+  z-index: 99;
 }
 .breadcrumb { display: flex; align-items: center; font-size: 12px; }
 .breadcrumb .bc-home    { color: #006461; font-weight: 400; }
@@ -197,7 +197,7 @@ body.dark .theme-toggle .icon-moon { display: none; }
 .property-picker .pp-arrow { width: 14px; height: 14px; }
 
 /* ═══ LAYOUT ═══ */
-.layout { display: flex; flex: 1; }
+.layout { display: flex; flex: 1; padding-top: 72px; }
 
 /* ═══ SIDEBAR ═══ */
 .sidebar {
