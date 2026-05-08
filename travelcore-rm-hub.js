@@ -1571,12 +1571,9 @@ function renderCalendar() {
   var moRangeEl = document.getElementById('moShufRange');
   if (moRangeEl) moRangeEl.textContent = rangeLabel;
 
-  // Grid columns
-  // 12M/6M: 6 per row; 3-5M: 3 per row; 1-2M: as-is
+  // Grid columns — max 4 per row
   var gridCols = calView;
-  if (calDisplayView === 12) gridCols = 6;
-  else if (calDisplayView === 6) gridCols = 6;
-  else if (calDisplayView >= 3 && calDisplayView <= 5) gridCols = 3;
+  if (calDisplayView >= 3) gridCols = Math.min(calView, 4);
   container.style.gridTemplateColumns = 'repeat(' + gridCols + ', 1fr)';
 
   const DOW = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
