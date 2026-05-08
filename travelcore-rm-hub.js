@@ -2663,11 +2663,13 @@ function clearCalSelection() {
     ?.addEventListener('click', () => {
       calStartIdx -= (calDisplayView >= 6 ? calDisplayView : 1);
       clamp(); renderAndRestoreCompact();
+      if (typeof calDRSyncToNav === 'function') calDRSyncToNav();
     });
   document.getElementById('calNext')
     ?.addEventListener('click', () => {
       calStartIdx += (calDisplayView >= 6 ? calDisplayView : 1);
       clamp(); renderAndRestoreCompact();
+      if (typeof calDRSyncToNav === 'function') calDRSyncToNav();
     });
 
   // Monthly tab-bar shuffler (mirrors calPrev/calNext)
@@ -2675,18 +2677,20 @@ function clearCalSelection() {
     ?.addEventListener('click', () => {
       calStartIdx -= (calDisplayView >= 6 ? calDisplayView : 1);
       clamp(); renderAndRestoreCompact();
+      if (typeof calDRSyncToNav === 'function') calDRSyncToNav();
     });
   document.getElementById('moShufNext')
     ?.addEventListener('click', () => {
       calStartIdx += (calDisplayView >= 6 ? calDisplayView : 1);
       clamp(); renderAndRestoreCompact();
+      if (typeof calDRSyncToNav === 'function') calDRSyncToNav();
     });
 
   // Legacy selectors (kept for safety)
   document.querySelector('.cal-nav-left .cal-nav-btn:first-child')
-    ?.addEventListener('click', () => { calStartIdx--; clamp(); renderCalendar(); });
+    ?.addEventListener('click', () => { calStartIdx--; clamp(); renderCalendar(); if (typeof calDRSyncToNav === 'function') calDRSyncToNav(); });
   document.querySelector('.cal-nav-left .cal-nav-btn:last-child')
-    ?.addEventListener('click', () => { calStartIdx++; clamp(); renderCalendar(); });
+    ?.addEventListener('click', () => { calStartIdx++; clamp(); renderCalendar(); if (typeof calDRSyncToNav === 'function') calDRSyncToNav(); });
 
   document.querySelector('.cal-nav-right .cal-selector select')
     ?.addEventListener('change', e => {
@@ -14456,6 +14460,18 @@ setTimeout(function() {
     if (wrap && wrap.contains(e.target)) return;
     panel.style.display = 'none';
   }, true);
+
+  /* ── Sync picker state to current nav position (called after arrow nav) ── */
+  window.calDRSyncToNav = function() {
+    drSelStartIdx = calStartIdx;
+    drSelEndIdx   = Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1);
+    drPhase       = 2;
+    drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
+    var startM = ALL_MONTHS[drSelStartIdx];
+    var endM   = ALL_MONTHS[drSelEndIdx];
+    var lbl = document.getElementById('calDRLabel');
+    if (lbl) lbl.textContent = (startM ? startM.name : '') + ' – ' + (endM ? endM.name : '');
+  };
 
   /* ── Compatibility no-ops ── */
   window.applyOutOfRange     = function() {};
