@@ -1572,16 +1572,18 @@ function renderCalendar() {
   if (moRangeEl) moRangeEl.textContent = rangeLabel;
 
   // Grid columns
-  // 12M: show 6 per row (wraps to 2 rows of 6); 6M: single row of 6
+  // 12M/6M: 6 per row; 3-5M: 3 per row; 1-2M: as-is
   var gridCols = calView;
   if (calDisplayView === 12) gridCols = 6;
   else if (calDisplayView === 6) gridCols = 6;
+  else if (calDisplayView >= 3 && calDisplayView <= 5) gridCols = 3;
   container.style.gridTemplateColumns = 'repeat(' + gridCols + ', 1fr)';
 
-  const DOW = ['S','M','T','W','T','F','S'];
+  const DOW = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   container.innerHTML = visible.map(m => {
     let cells = '';
-    for (let i = 0; i < m.firstDay; i++) {
+    const mondayFirst = (m.firstDay + 6) % 7;
+    for (let i = 0; i < mondayFirst; i++) {
       cells += `<div class="cal-day empty"></div>`;
     }
     for (let d = 1; d <= m.days; d++) {
@@ -2518,7 +2520,7 @@ window.calSetDisplayView = function(n) {
   // Apply compact CSS class + view class
   var grid = document.getElementById('calMonths');
   if (grid) {
-    if (n === 6 || n === 12) { grid.classList.add('cal-compact'); }
+    if (n >= 3) { grid.classList.add('cal-compact'); }
     else { grid.classList.remove('cal-compact'); }
     if (n === 12) grid.classList.add('cal-12m');
     else grid.classList.remove('cal-12m');
@@ -2537,7 +2539,7 @@ window.calSetDisplayView = function(n) {
   setTimeout(function() {
     var g = document.getElementById('calMonths');
     if (g) {
-      if (n === 6 || n === 12) g.classList.add('cal-compact');
+      if (n >= 3) g.classList.add('cal-compact');
       else g.classList.remove('cal-compact');
       if (n === 12) g.classList.add('cal-12m');
       else g.classList.remove('cal-12m');
@@ -2653,7 +2655,7 @@ function clearCalSelection() {
   function renderAndRestoreCompact() {
     renderCalendar();
     var g = document.getElementById('calMonths');
-    if (g && (calDisplayView === 6 || calDisplayView === 12)) g.classList.add('cal-compact');
+    if (g && calDisplayView >= 3) g.classList.add('cal-compact');
     if (calDisplayView === 12) g && g.classList.add('cal-12m');
     if (typeof applyOutOfRange === 'function') applyOutOfRange();
   }
