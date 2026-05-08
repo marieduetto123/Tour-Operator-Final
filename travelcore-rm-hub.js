@@ -2872,7 +2872,7 @@ function clearCalSelection() {
     }
 
     var _basePickup = Math.max(1, Math.floor((v%25+5)*_filterMult));
-    // Derived values for extra More Metrics rows
+    // Derived values for More Metrics rows
     var _dmAvgA = (1.8+v%3*0.1), _dmAvgC = (0.3+v%2*0.1);
     var _totAdultsTO   = Math.round(toRms * _dmAvgA);
     var _totChildrenTO = Math.round(toRms * _dmAvgC);
@@ -2883,6 +2883,7 @@ function clearCalSelection() {
     var _avgLeadStly   = Math.max(5, 18+v%60-5) + 'd';
     var detRows = [
       ['RN Sold',      rnSold,                            Math.floor(rnSold*0.88),          '+' + Math.floor(v%30+5)],
+      ['REVPAR',       '$' + Math.round(adr*hotel/100),   '$' + Math.floor(adr*0.92),       '+' + (10+v%20)+'%'],
       ...pickupDayValues.map(function(dv, i) {
         if (!wvMetricState['dm_pickup_' + i]) return null;
         var sc  = dv<=1?0.3:dv<=3?0.6:dv<=7?1:Math.min(2,dv/7);
@@ -2895,8 +2896,7 @@ function clearCalSelection() {
       ['Total Children', _totChildrenTO,                 Math.round(_totChildrenTO*0.93),  '+' + Math.floor(v%5+1)],
       ['Total Guests',   _totGuestsTO,                   Math.round(_totGuestsTO*0.93),    '+' + Math.floor(v%10+3)],
       ['Avg LOS',        _avgLos,                        _avgLosStly,                      '+0.2n'],
-      ['Avg Lead Time',  _avgLead,                       _avgLeadStly,                     '+5d'],
-      ['REVPAR',       '$' + Math.round(adr*hotel/100),   '$' + Math.floor(adr*0.92),       '+' + (10+v%20)+'%'],
+      ['Lead Time',      _avgLead,                       _avgLeadStly,                     '+5d'],
       ['Avail Rooms',  availRooms,                         availRooms+3,                     '-' + (Math.floor(v%8)+1)],
       ['Avail Guar.',  availGuar,                          availGuar+2,                      '-' + (Math.floor(v%4)+1)],
     ];
@@ -3105,24 +3105,61 @@ function clearCalSelection() {
     // ── Meal Plans ──
     _pb += _pGrpStart('Meal Plans', _C1, 'mp');
     _pb += '<div style="padding:4px 0">'+mealBarHtml+'</div>';
+    _pb += '<div style="display:flex;justify-content:flex-end;gap:10px;padding:1px 0 2px;margin-bottom:-2px">'
+      +'<span style="font-size:7px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;width:36px;text-align:right">Hotel</span>'
+      +'<span style="font-size:7px;font-weight:700;color:#006461;text-transform:uppercase;letter-spacing:.3px;width:36px;text-align:right">TO</span>'
+      +'</div>';
+    // Meal Plans — with Hotel/TO sub-rows and Summary row (matches weekly daily view)
+    var _mpToPct = to / Math.max(1, hotel);
+    var _mpAvgA = 1.8 + (dm*11+dd*7)%3 * 0.1, _mpAvgC = 0.3 + (dm*7+dd*13)%5 * 0.1;
+    var _mpBaseAdr = adr, _mpToAdrGross = Math.round(adr * 0.82);
     mealPlans.forEach(function(mp){
-      var rn = Math.round(rnSold * mp.pct / 100);
-      var seats = Math.round(rn * _popAvgGPR);
-      _pb += _pSect(mp.short, mp.pct+'% · '+rn+' rms · '+seats+' seats', _pBar(mp.pct, _C1), mp.color);
+      var totalPlanRooms = Math.round(rnSold * mp.pct / 100);
+      var toRoomsAmt     = Math.round(totalPlanRooms * _mpToPct);
+      var hGuests = Math.round(totalPlanRooms * (_mpAvgA + _mpAvgC));
+      var tGuests = Math.round(toRoomsAmt * (_mpAvgA + _mpAvgC));
+      var hRev = Math.round(totalPlanRooms * _mpBaseAdr);
+      var tRev = Math.round(toRoomsAmt * _mpToAdrGross);
+      var hRevStr = hRev >= 1000 ? '$'+Math.round(hRev/1000)+'k' : '$'+hRev;
+      var tRevStr = tRev >= 1000 ? '$'+Math.round(tRev/1000)+'k' : '$'+tRev;
+      var toShare = totalPlanRooms > 0 ? Math.round(toRoomsAmt / totalPlanRooms * 100) : 0;
+      var lyPct = Math.max(1, mp.pct - 3 + (dm+dd)%5 - 2);
+      var diff  = mp.pct - lyPct;
+      // Summary row: dot | name | pct | total rooms | TO rooms
+      _pb += '<div class="wv-occ-br-row" style="grid-template-columns:8px 1fr 28px 30px 30px;padding:3px 0">'
+        +'<span class="wv-occ-br-dot" style="background:'+mp.color+'"></span>'
+        +'<span class="wv-occ-br-lbl" style="font-weight:700">'+mp.short+'</span>'
+        +'<span class="wv-occ-br-pct">'+mp.pct+'%</span>'
+        +'<span class="wv-occ-br-rms">'+totalPlanRooms+'</span>'
+        +'<span class="wv-occ-br-rms" style="color:#006461">'+toRoomsAmt+'</span>'
+        +'</div>';
+      // Sub-rows: Rooms, Guests, Revenue, ADR
+      function _mpRow(lbl, hVal, tVal) {
+        return '<div style="display:flex;align-items:center;padding:1px 0 1px 14px;gap:4px">'
+          +'<span style="font-size:11px;color:#6b7280;flex:1">'+lbl+'</span>'
+          +'<span style="font-size:11px;color:#374151;min-width:36px;text-align:right">'+hVal+'</span>'
+          +'<span style="font-size:11px;color:#006461;min-width:36px;text-align:right">'+tVal+'</span>'
+          +'</div>';
+      }
+      _pb += _mpRow('Rooms', totalPlanRooms+' rm', toRoomsAmt+' rm');
+      _pb += _mpRow('Guests', hGuests, tGuests);
+      _pb += _mpRow('Revenue', hRevStr, tRevStr);
+      _pb += _mpRow('ADR Gross', '$'+_mpBaseAdr, '$'+_mpToAdrGross);
+      _pb += _mpRow('TO Share', toShare+'%', (100-toShare)+'% hotel');
+      _pb += '<div style="border-bottom:1px solid #f0f0f0;margin:3px 0"></div>';
     });
+    // Summary row
+    var _mpSumHtml = mealPlans.map(function(mp){
+      var rooms = Math.round(rnSold * mp.pct / 100);
+      var guests = Math.round(rooms * (_mpAvgA + _mpAvgC));
+      return '<span style="font-size:10px;color:#374151">'
+        +'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+mp.color+';vertical-align:middle;margin-right:2px"></span>'
+        +mp.short+' '+mp.pct+'% · '+rooms+' rms · '+guests+' TG</span>';
+    }).join('<br>');
+    _pb += '<div style="padding:4px 0;font-size:11px">'+_mpSumHtml+'</div>';
     _pb += _pGrpEnd();
 
-    // ── Room Availability ──
-    _pb += _pGrpStart('Room Availability' + (_hasAnyFilter ? ' (Filtered)' : ''), _C1, 'ra');
-    _pb += rtHTML;
-    _pb += _pGrpEnd();
-
-    // ── TO Rates ──
-    _pb += _pGrpStart('Tour Operator Rates', _C1, 'to');
-    _pb += toRatesHTML;
-    _pb += _pGrpEnd();
-
-    // ── Business Mix ──
+    // ── Business Mix ── (matches weekly: before Room Availability)
     var _toMixPct    = 28 + Math.abs((dm*7+dd*5)%25);
     var _dirMixPct   = 30 + Math.abs((dm*5+dd*9)%20);
     var _otaMixPct   = 20 + Math.abs((dm*9+dd*3)%18);
@@ -3145,6 +3182,101 @@ function clearCalSelection() {
     }).join('');
     _pb += _pGrpStart('Business Mix', _C1, 'biz');
     _pb += _bizBarHtml + _bizRowsHtml;
+    _pb += _pGrpEnd();
+
+    // ── Room Availability — stacked capacity bar + table (matches weekly daily view) ──
+    var _rtAll = [['Standard',51],['Superior',36],['Deluxe',27],['Suite',12],['Jr. Suite',15],['Family',9]];
+    var _rtTotalCap = _rtAll.reduce(function(s,r){ return s+r[1]; }, 0);
+    var _rtData = _rtAll.map(function(r, i) {
+      var inv = r[1];
+      var totalSoldRt = Math.min(inv, Math.floor(inv * hotel / 110));
+      var toSoldRt    = Math.min(totalSoldRt, Math.round(totalSoldRt * to / Math.max(1, hotel)));
+      var otherSoldRt = totalSoldRt - toSoldRt;
+      var toAlloc     = Math.floor(inv * 0.8 + Math.abs((dm*(i+3)+dd*(i+5))%15));
+      var toAllocRem  = Math.max(0, toAlloc - toSoldRt);
+      var avail       = Math.max(0, inv - totalSoldRt);
+      return { inv:inv, toSold:toSoldRt, other:otherSoldRt, allocRem:toAllocRem, avail:avail };
+    });
+    var _rtTotToSold  = _rtData.reduce(function(s,d){ return s+d.toSold; }, 0);
+    var _rtTotOther   = _rtData.reduce(function(s,d){ return s+d.other; }, 0);
+    var _rtTotAlloc   = _rtData.reduce(function(s,d){ return s+d.allocRem; }, 0);
+    var _rtTotAvail   = _rtData.reduce(function(s,d){ return s+d.avail; }, 0);
+    var _rtToSoldPct  = Math.round(_rtTotToSold / _rtTotalCap * 100);
+    var _rtOtherPct   = Math.round(_rtTotOther  / _rtTotalCap * 100);
+    var _rtAllocPct   = Math.round(_rtTotAlloc  / _rtTotalCap * 100);
+    var _rtAvailPct   = Math.max(0, 100 - _rtToSoldPct - _rtOtherPct - _rtAllocPct);
+    var _rtCapBar = '<div class="wv-cap-bar-wrap">'
+      +'<div class="wv-cap-bar">'
+      +'<div style="width:'+_rtToSoldPct+'%;background:#006461;height:100%" title="TO Sold"></div>'
+      +'<div style="width:'+_rtOtherPct+'%;background:#3b82f6;height:100%" title="Other Sold"></div>'
+      +'<div style="width:'+_rtAllocPct+'%;background:#fb923c;opacity:.6;height:100%" title="T Alloc Remaining"></div>'
+      +'<div style="width:'+_rtAvailPct+'%;background:#d1fae5;height:100%" title="Available"></div>'
+      +'</div>'
+      +'<div class="wv-cap-legend">'
+      +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#006461"></span>TO Sold<b>'+_rtTotToSold+'</b></span>'
+      +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#3b82f6"></span>Other <b>'+_rtTotOther+'</b></span>'
+      +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#fb923c"></span>T Alloc Rem. <b>'+_rtTotAlloc+'</b></span>'
+      +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#16a34a"></span>Avail <b>'+_rtTotAvail+'</b></span>'
+      +'</div>'
+      +'<div class="wv-cap-total">Capacity: <b>'+_rtTotalCap+' rooms</b></div>'
+      +'</div>';
+    var _rtTblHdr = '<div class="wv-cap-tbl-hdr">'
+      +'<span class="wv-cap-th-type">Room Type</span>'
+      +'<span class="wv-cap-th">Cap</span>'
+      +'<span class="wv-cap-th" style="color:#006461">TO</span>'
+      +'<span class="wv-cap-th" style="color:#3b82f6">Other</span>'
+      +'<span class="wv-cap-th" style="color:#fb923c">Alloc↑</span>'
+      +'<span class="wv-cap-th" style="color:#16a34a">Avail</span>'
+      +'</div>';
+    var _rtRows = _rtAll.map(function(r, i) {
+      var d = _rtData[i];
+      var availClr = d.avail === 0 ? '#ef4444' : '#16a34a';
+      return '<div class="wv-cap-rt-row">'
+        +'<div class="wv-cap-rt-name">'
+        +'<span class="wv-cap-rt-sw" style="background:'+RT_COLORS[i]+'"></span>'
+        +'<span class="wv-cap-rt-lbl">'+r[0]+(d.avail===0?' <span class="wv-rt-closed-badge">CLOSED</span>':'')+'</span>'
+        +'</div>'
+        +'<span class="wv-cap-td">'+d.inv+'</span>'
+        +'<span class="wv-cap-td" style="color:#006461">'+d.toSold+'</span>'
+        +'<span class="wv-cap-td" style="color:#3b82f6">'+d.other+'</span>'
+        +'<span class="wv-cap-td" style="color:#fb923c">'+d.allocRem+'</span>'
+        +'<span class="wv-cap-td" style="color:'+availClr+'">'+d.avail+'</span>'
+        +'</div>';
+    }).join('');
+    _pb += _pGrpStart('Room Availability' + (_hasAnyFilter ? ' (Filtered)' : ''), _C1, 'ra');
+    _pb += _rtCapBar + _rtTblHdr + _rtRows;
+    _pb += _pGrpEnd();
+
+    // ── Travel Co. Rates — with EBB/Contract tags + Base Rate row (matches weekly daily view) ──
+    var _ratesDow = (new Date(2026, dm-1, dd)).getDay();
+    var _isEbbDay = _ratesDow < 3; // Sun/Mon/Tue = EBB day
+    var _tcRatesHTML = toNames.map(function(name, i) {
+      var origIdx = toNamesAll.indexOf(name);
+      if (origIdx < 0) origIdx = i;
+      var toRate  = adr - 15 + Math.abs((dm*(origIdx+3) + dd*(origIdx+5)) % 50);
+      var toAllot = 5  + Math.abs((dm*(origIdx+2) + dd*(origIdx+3)) % 20);
+      var toUsed  = Math.max(0, toAllot - Math.floor(hotel / 20));
+      var remRooms = toAllot - toUsed;
+      var promoTag = _isEbbDay
+        ? '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#16a34a;color:#fff;flex-shrink:0">EBB 10%</span>'
+        : '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#2563eb;color:#fff;flex-shrink:0">Contract</span>';
+      return '<div class="wv-to-rate-row">'
+        +'<span class="wv-to-dot" style="background:'+toColors[i]+'"></span>'
+        +'<span class="wv-to-name">'+name+'</span>'
+        +'<span style="font-size:11px;color:#6b7280;margin-right:2px">'+remRooms+'r</span>'
+        +promoTag
+        +'<span class="wv-to-rate" style="margin-left:4px">$'+toRate+'</span>'
+        +'</div>';
+    }).join('');
+    var _baseSegRate = adr + 8;
+    var _baseRateLine = '<div class="wv-to-rate-row" style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">'
+      +'<span class="wv-to-dot" style="background:#9333ea"></span>'
+      +'<span class="wv-to-name" style="font-weight:700;color:#374151">Base Rate</span>'
+      +'<span style="flex:1"></span>'
+      +'<span class="wv-to-rate" style="font-weight:700;color:#9333ea">$'+_baseSegRate+'</span>'
+      +'</div>';
+    _pb += _pGrpStart('Travel Co. Rates', _C1, 'to');
+    _pb += _tcRatesHTML + _baseRateLine;
     _pb += _pGrpEnd();
 
     var _popupBodyEl = document.getElementById('popupBody');
