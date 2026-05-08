@@ -15149,7 +15149,7 @@ window.calHideCapTip = function() {
             + '<span class="cal-pu-val" style="color:' + clr + '">+' + pv + '</span>'
             + '</div>';
         });
-        rows.push({ _html: '<div class="cal-pu-grid">' + cells + '</div>', label:'Pkp', color: clr, value:'', raw:0 });
+        rows.push({ _html: '<div class="cal-pu-grid">' + cells + '</div>', label: useFull ? 'Pickup' : 'PU', color: clr, value:'', raw:0 });
         return;
       }
 
