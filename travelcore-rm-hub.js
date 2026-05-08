@@ -1521,10 +1521,10 @@ const CAL_METRIC_DEFS = {
   toPickup:    { label: 'TO-Pkp',   color: '#0d9488', maxVal: 30,    fmt: function(v){ return (v>=0?'+':'') + v; },              name: 'TO Pickup',        group: 'Pickup'     },
   hotelRn:     { label: 'H-RN',    color: '#2e65e8', maxVal: 210,   fmt: function(v){ return String(v); },                      name: 'Hotel RN Sold',   group: 'RN Sold'    },
   toRn:        { label: 'TO-RN',    color: '#0284c7', maxVal: 210,   fmt: function(v){ return String(v); },                      name: "TO RN Sold",       group: 'RN Sold'    },
-  hotelTrev:   { label: 'H-TRV',   color: '#9333ea', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'Hotel REVPAR',    group: 'REVPAR'     },
-  toTrev:      { label: 'TO-TRV',   color: '#7c3aed', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'TO REVPAR',        group: 'REVPAR'     },
-  lyRevpar:    { label: 'LY-RVP',  color: '#d8b4fe', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'LY REVPAR',       group: 'REVPAR'     },
-  fcstRevpar:  { label: 'Fc-RVP',  color: '#fef08a', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'Fcst REVPAR',     group: 'REVPAR'     },
+  hotelTrev:   { label: 'H-TRV',   color: '#9333ea', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'Hotel RevPAR',    group: 'RevPAR'     },
+  toTrev:      { label: 'TO-TRV',   color: '#7c3aed', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'TO RevPAR',        group: 'RevPAR'     },
+  lyRevpar:    { label: 'LY-RVP',  color: '#d8b4fe', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'LY RevPAR',       group: 'RevPAR'     },
+  fcstRevpar:  { label: 'Fc-RVP',  color: '#fef08a', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'Fcst RevPAR',     group: 'RevPAR'     },
   remainRooms:  { label: 'Rem',    color: '#16a34a', maxVal: 210,   fmt: function(v){ return String(v); },                        name: 'Remaining Rooms',    group: 'Other'         },
   avgAdults:    { label: 'AdA',    color: '#2e65e8', maxVal: 4,     fmt: function(v){ return v.toFixed(1); },                     name: 'Avg Adults',         group: 'Other'         },
   avgChildren:  { label: 'AdC',   color: '#d33030', maxVal: 2,     fmt: function(v){ return v.toFixed(1); },                     name: 'Avg Children',       group: 'Other'         },
@@ -2090,7 +2090,7 @@ function renderCalMonthlySummary() {
   moRows.push({type:'sect', id:'mos_rev', label:'Revenue /day', parent:'mo_daily'});
   moRows.push({type:'sub', id:'mos_rev_to', label:'TO Revenue', dot:'#004948', parent:'mos_rev', gp:'mo_daily'});
   moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel Revenue', dot:'#52d9ce', parent:'mos_rev', gp:'mo_daily'});
-  moRows.push({type:'sect', id:'mos_revpar', label:'REVPAR', parent:'mo_daily'});
+  moRows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'mo_daily'});
   moRows.push({type:'sub', id:'mos_revpar_stly', label:'STLY', dot:'#818cf8', parent:'mos_revpar', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_pickup', label:'Pickup /day', parent:'mo_daily'});
   moRows.push({type:'sect', id:'mos_onoff', label:'Online / Offline', parent:'mo_daily'});
@@ -2883,7 +2883,7 @@ function clearCalSelection() {
     var _avgLeadStly   = Math.max(5, 18+v%60-5) + 'd';
     var detRows = [
       ['RN Sold',      rnSold,                            Math.floor(rnSold*0.88),          '+' + Math.floor(v%30+5)],
-      ['REVPAR',       '$' + Math.round(adr*hotel/100),   '$' + Math.floor(adr*0.92),       '+' + (10+v%20)+'%'],
+      ['RevPAR',       '$' + Math.round(adr*hotel/100),   '$' + Math.floor(adr*0.92),       '+' + (10+v%20)+'%'],
       ...pickupDayValues.map(function(dv, i) {
         if (!wvMetricState['dm_pickup_' + i]) return null;
         var sc  = dv<=1?0.3:dv<=3?0.6:dv<=7?1:Math.min(2,dv/7);
@@ -3117,8 +3117,8 @@ function clearCalSelection() {
     _pb += _pSub('TO RN', String(toRms), _C1);
     _pb += _pSub('Hotel RN', String(rnSold), _C2);
     _pb += _pSub('STLY', String(Math.floor(rnSold*0.88)), _CSTLY);
-    // REVPAR (TO + Hotel + STLY)
-    _pb += _pSect('REVPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
+    // RevPAR (TO + Hotel + STLY)
+    _pb += _pSect('RevPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
     _pb += _pSub('Hotel', '$'+_hRevpar, _C2);
     _pb += _pSub('STLY', '$'+Math.floor(adr*0.92), _CSTLY);
     // Pickup (each active window)
@@ -4319,7 +4319,7 @@ function buildDailyBView(days, month, activeDay) {
       grp.g_more.push({type:'sub',  id:'rn_stly',  label:compLabel,    dot:'#C4FF45', parent:'rn'});
     }
     if (wvMetricState.dm_trevpar) {
-      grp.g_more.push({type:'sect', id:'revpar_s',    label:'REVPAR',    parent:'g_more'});
+      grp.g_more.push({type:'sect', id:'revpar_s',    label:'RevPAR',    parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:'#52d9ce', parent:'revpar_s'});
       grp.g_more.push({type:'sub',  id:'revpar_stly', label:compLabel,   dot:'#C4FF45', parent:'revpar_s'});
     }
@@ -5155,7 +5155,7 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
       sub('STLY',     CSTLY, false, function(d){ return sCell(d.sdlyRn+' rms', bar(Math.round(d.sdlyRn/WV_CAP*100),CSTLY)); });
     }
     if (wvMetricState.dm_trevpar) {
-      sect('REVPAR', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.hRevpar,d.sdlyRevpar,d.lyRevpar,null,function(v){return '$'+v;}); return sCell('$'+d.hRevpar+cs, bar(Math.min(90,Math.round(d.hRevpar/4)),C1)); });
+      sect('RevPAR', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.hRevpar,d.sdlyRevpar,d.lyRevpar,null,function(v){return '$'+v;}); return sCell('$'+d.hRevpar+cs, bar(Math.min(90,Math.round(d.hRevpar/4)),C1)); });
       sub('Hotel',    C2,    false, function(d){ return sCell('$'+d.hRevpar, bar(Math.min(90,Math.round(d.hRevpar/4)),C2)); });
       sub('STLY',     CSTLY, false, function(d){ return sCell('$'+d.sdlyRevpar, bar(Math.min(90,Math.round(d.sdlyRevpar/4)),CSTLY)); });
     }
@@ -5595,7 +5595,7 @@ function buildDailyHView(days, activeMonth, activeDay) {
       + refChips([{k:'stly',lbl:'STLY',v:d.fR(d.sdlyR)},{k:'ly',lbl:'LY',v:d.fR(d.lyR)},{k:'fcst',lbl:'Fcst',v:d.fR(d.fcstR)}]);
   });
 
-  par('REVPAR','#9333ea');
+  par('RevPAR','#9333ea');
   row('T / Hotel', function(d){
     return valH('$'+d.revpar, '$'+(d.revpar+22), '#9333ea')
       + dualBar(Math.round(d.revpar/4), Math.round((d.revpar+22)/4), '#9333ea')
@@ -5820,7 +5820,7 @@ window._buildWv7dSummaryHtml = function(d) {
   rows.push({type:'sect', id:'mos_rev', label:'Revenue', parent:'wv7d_daily'});
   rows.push({type:'sub', id:'mos_rev_to',  label:'TO Revenue',    dot:'#004948', parent:'mos_rev', gp:'wv7d_daily'});
   rows.push({type:'sub', id:'mos_rev_htl', label:'Hotel Revenue', dot:'#52d9ce', parent:'mos_rev', gp:'wv7d_daily'});
-  rows.push({type:'sect', id:'mos_revpar', label:'REVPAR', parent:'wv7d_daily'});
+  rows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'wv7d_daily'});
   rows.push({type:'sub', id:'mos_revpar_stly', label:'STLY', dot:'#818cf8', parent:'mos_revpar', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_pickup', label:'Pickup', parent:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_onoff', label:'Online / Offline', parent:'wv7d_daily'});
@@ -6318,7 +6318,7 @@ function initDailyHGrid(days, activeMonth, activeDay, containerEl) {
   row('T / Hotel', function(d){
     return valH(d.fR(d.toRev),d.fR(d.hnRev),'#ea580c')+dualBar(d.revBar,Math.min(95,d.revBar+10),'#ea580c')+refChips([{k:'stly',lbl:'STLY',v:d.fR(d.sdlyR)},{k:'ly',lbl:'LY',v:d.fR(d.lyR)},{k:'fcst',lbl:'Fcst',v:d.fR(d.fcstR)}]);
   });
-  par('REVPAR','#9333ea');
+  par('RevPAR','#9333ea');
   row('T / Hotel', function(d){
     return valH('$'+d.revpar,'$'+(d.revpar+22),'#9333ea')+dualBar(Math.round(d.revpar/4),Math.round((d.revpar+22)/4),'#9333ea')+refChips([{k:'stly',lbl:'STLY',v:'$'+d.sdlyRevpar},{k:'ly',lbl:'LY',v:'$'+d.lyRevpar}]);
   });
@@ -7169,7 +7169,7 @@ function buildReportView(days) {
         {child:'LY',    fn:function(d){return{t:fmtRev(d.lyR),   clr:'#9ca3af'};}},
         {child:'Fcst',  fn:function(d){return{t:fmtRev(d.fcstR), clr:'#f59e0b'};}},
       ]},
-      { lbl:'REVPAR', cols:[
+      { lbl:'RevPAR', cols:[
         {child:'T',     fn:function(d){return{t:'$'+d.revpar,      clr:'#9333ea',bold:true};}},
         {child:'Hotel', fn:function(d){return{t:'$'+d.hotelRevpar, clr:'#374151'};}},
         {child:'STLY',  fn:function(d){return{t:'$'+d.sdlyRevpar,  clr:'#9ca3af'};}},
@@ -7759,7 +7759,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
         [{k:'stly',l:'STLY',v:'$'+sdlyAdr},{k:'ly',l:'LY',v:'$'+lyAdr},{k:'fcst',l:'Fcst',v:'$'+fcstAdr}])
     +mRow2('Revenue',totalRevStr,totalHotelRevStr,Math.min(92,Math.round(sumRev/sumHotelRev*70)),70,'#ea580c',
         [{k:'stly',l:'STLY',v:sdlyRev},{k:'ly',l:'LY',v:lyRev},{k:'fcst',l:'Fcst',v:fcstRev}])
-    +mRow2('REVPAR','$'+avgRevpar,'$'+avgHotelRevpar,Math.round(avgRevpar/4),Math.round(avgHotelRevpar/4),'#9333ea',
+    +mRow2('RevPAR','$'+avgRevpar,'$'+avgHotelRevpar,Math.round(avgRevpar/4),Math.round(avgHotelRevpar/4),'#9333ea',
         [{k:'stly',l:'STLY',v:'$'+sdlyRevpar},{k:'ly',l:'LY',v:'$'+lyRevpar}])
     +mRow2('Pickup','+'+sumPickup,'+'+sumHotelPickup,null,null,'#16a34a')
     +stackBar([{p:avgFitPct,c:'#006461'},{p:avgDynPct,c:'#0891b2'},{p:avgSerPct,c:'#6366f1'},{p:Math.max(0,avgTo-avgFitPct-avgDynPct-avgSerPct),c:'#5883ed'}])
@@ -8225,7 +8225,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
             ['Avg Children',   dmAvgChildren,  null,  null,  null,  '#d33030', Math.min(92, 20+v%40),               'dm_avgChildren',  hotelAvgChildren,  Math.min(92, 20+v%40+8)],
             ['Total Adults',   dmTotalAdults,  null,  null,  null,  '#2e65e8', Math.min(92, 60+v%28),               'dm_totalAdults',  hotelTotalAdults,  Math.min(92, 60+v%28+8)],
             ['Total Children', dmTotalChildren,null,  null,  null,  '#d33030', Math.min(92, 15+v%35),               'dm_totalChildren',hotelTotalChildren,Math.min(92, 15+v%35+8)],
-            ['REVPAR',         '$'+dmToTrev,   '$'+S.trev, '$'+L.trev, null,  '#2e65e8', Math.min(92, 65+v%25),    'dm_trevpar',      '$'+(adr+80),      Math.min(92, 65+v%25+10)],
+            ['RevPAR',         '$'+dmToTrev,   '$'+S.trev, '$'+L.trev, null,  '#2e65e8', Math.min(92, 65+v%25),    'dm_trevpar',      '$'+(adr+80),      Math.min(92, 65+v%25+10)],
             ['Avail Rooms',    availRooms,     null,  null,  null,  '#16a34a', Math.min(92, Math.max(5, hotel*0.8)),'dm_availRooms',   '__hotelOnly',     null],
             ['Avail Guar.',    Math.floor(8+v%5), null,null, null,  '#2e65e8', Math.min(92, 10+v%50),               'dm_availGuar',    null,              null],
             ['Avg LOS',        (2.8+v%5*.3).toFixed(1)+'n', null,null,null,'#0891b2', Math.min(92, 40+v%40), 'dm_avgLos',       hotelAvgLos,       Math.min(92, 40+v%40+8)],
@@ -12956,7 +12956,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Room Nights</div><div class="ins-promo-kpi-val">'+fmtN(rtRn)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Revenue</div><div class="ins-promo-kpi-val">'+fmt(rtRev)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR</div><div class="ins-promo-kpi-val">'+fmtE(rtAdr)+'</div></div>'
-        +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">REVPAR</div><div class="ins-promo-kpi-val">'+fmtE(rtRevpar)+'</div></div>'
+        +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">RevPAR</div><div class="ins-promo-kpi-val">'+fmtE(rtRevpar)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg LOS</div><div class="ins-promo-kpi-val">'+rtLos+' n</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Adults</div><div class="ins-promo-kpi-val">'+rtAvgA+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Children</div><div class="ins-promo-kpi-val">'+rtAvgC+'</div></div>'
@@ -12996,7 +12996,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR</div><div class="ins-promo-kpi-val">'+fmtE(mpAdrNet)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR Net</div><div class="ins-promo-kpi-val">'+fmtE(mpAdrNet)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR Gross</div><div class="ins-promo-kpi-val">'+fmtE(mpAdrGross)+'</div></div>'
-        +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">REVPAR</div><div class="ins-promo-kpi-val">'+fmtE(mpRevpar)+'</div></div>'
+        +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">RevPAR</div><div class="ins-promo-kpi-val">'+fmtE(mpRevpar)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg LOS</div><div class="ins-promo-kpi-val">'+mpLos+' n</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Adults</div><div class="ins-promo-kpi-val">'+mpAvgA+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Children</div><div class="ins-promo-kpi-val">'+mpAvgC+'</div></div>'
@@ -13058,7 +13058,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Room Nights</div><div class="ins-promo-kpi-val">'+fmtN(chRn)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Revenue</div><div class="ins-promo-kpi-val">'+fmt(chRev)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR</div><div class="ins-promo-kpi-val">'+fmtE(chAdr)+'</div></div>'
-        +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">REVPAR</div><div class="ins-promo-kpi-val">'+fmtE(chRevpar)+'</div></div>'
+        +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">RevPAR</div><div class="ins-promo-kpi-val">'+fmtE(chRevpar)+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg LOS</div><div class="ins-promo-kpi-val">'+chLos+' n</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Adults</div><div class="ins-promo-kpi-val">'+chAvgA+'</div></div>'
         +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Children</div><div class="ins-promo-kpi-val">'+chAvgC+'</div></div>'
@@ -13385,7 +13385,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Room Nights</div><div class="ins-promo-kpi-val">'+fmtN(rtRn)+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Revenue</div><div class="ins-promo-kpi-val">'+fmt(rtRev)+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR</div><div class="ins-promo-kpi-val">'+fmtE(rtAdr)+'</div></div>'
-                +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">REVPAR</div><div class="ins-promo-kpi-val">'+fmtE(rtRevpar)+'</div></div>'
+                +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">RevPAR</div><div class="ins-promo-kpi-val">'+fmtE(rtRevpar)+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg LOS</div><div class="ins-promo-kpi-val">'+rtLos+' n</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Adults</div><div class="ins-promo-kpi-val">'+rtAvgA+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Children</div><div class="ins-promo-kpi-val">'+rtAvgC+'</div></div>'
@@ -13434,7 +13434,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR</div><div class="ins-promo-kpi-val">'+fmtE(mpAdr)+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR Net</div><div class="ins-promo-kpi-val">'+fmtE(mpAdrNet)+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">ADR Gross</div><div class="ins-promo-kpi-val">'+fmtE(mpAdrGross)+'</div></div>'
-                +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">REVPAR</div><div class="ins-promo-kpi-val">'+fmtE(mpRevpar)+'</div></div>'
+                +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">RevPAR</div><div class="ins-promo-kpi-val">'+fmtE(mpRevpar)+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg LOS</div><div class="ins-promo-kpi-val">'+mpLos+' n</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Adults</div><div class="ins-promo-kpi-val">'+mpAvgA+'</div></div>'
                 +'<div class="ins-promo-kpi"><div class="ins-promo-kpi-label">Avg Children</div><div class="ins-promo-kpi-val">'+mpAvgC+'</div></div>'
