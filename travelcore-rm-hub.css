@@ -7969,11 +7969,12 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   border: 2px solid #B0B7BB; box-sizing: content-box;
 }
 .hm-change-colour-btn {
-  font-size: 11px; font-weight: 600; color: #4F5B60; font-family: Lato, sans-serif;
-  background: none; border: 1px solid #B0B7BB; border-radius: 4px;
-  padding: 3px 8px; cursor: pointer; white-space: nowrap;
+  font-size: 12px; font-weight: 400; color: #4F5B60; font-family: Lato, sans-serif;
+  background: none; border: none; border-radius: 4px;
+  padding: 4px 12px; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center;
 }
-.hm-change-colour-btn:hover { background: #F0F2F3; }
+.hm-change-colour-btn:hover { background: #F5F5F5; color: #1C1C1C; }
 .hm-threshold-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .hm-threshold-name { font-size: 14px; font-weight: 700; color: #1C1C1C; font-family: Lato, sans-serif; }
 .hm-threshold-desc { font-size: 14px; font-weight: 400; color: #4F5B60; font-family: Lato, sans-serif; }
