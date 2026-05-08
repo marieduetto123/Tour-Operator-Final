@@ -1699,7 +1699,7 @@ function renderCalendar() {
               else if (v.indexOf('%') >= 0) compStr = Math.round(compRaw) + '%';
               else if (v.indexOf('n') >= 0) compStr = compRaw.toFixed ? compRaw.toFixed(1) + 'n' : Math.round(compRaw) + 'n';
               else if (v.indexOf('d') >= 0) compStr = Math.round(compRaw) + 'd';
-              else if (v.indexOf('rn') >= 0) compStr = Math.round(compRaw) + ' rn';
+              else if (v.indexOf('RN') >= 0) compStr = Math.round(compRaw) + ' RN';
               else compStr = String(Math.round(compRaw));
             }
             compHtml = '<span class="cell-cmp"> / <span class="' + upOrDown + '">' + compStr + '</span></span>';
@@ -2383,14 +2383,14 @@ function renderCalMonthlySummary() {
           case 'mos_rev_to':    v1 = mo.avgRev; break;
           case 'mos_rev_htl':   v1 = mo.avgHRev; break;
           case 'mos_revpar_stly': v1 = '$'+mo.sdlyRevpar; break;
-          case 'mos_rn_stly':   v1 = mo.sdlyRn+' rn'; break;
+          case 'mos_rn_stly':   v1 = mo.sdlyRn+' RN'; break;
           case 'mos_onoff_on':  v1 = mo.avgOnline+'%'; break;
           case 'mos_onoff_off': v1 = (100-mo.avgOnline)+'%'; break;
-          case 'mos_seg_fit':   v1 = mo.avgFit+'% · '+mo.fitRm+' rm'; break;
-          case 'mos_seg_dyn':   v1 = mo.avgDyn+'% · '+mo.dynRm+' rm'; break;
-          case 'mos_seg_ser':   v1 = mo.avgSer+'% · '+mo.serRm+' rm'; break;
-          case 'mos_seg_oth':   v1 = mo.avgOtherSeg+'% · '+mo.othRm+' rm'; break;
-          case 'mos_seg_rem':   v1 = mo.avgFree+'% · '+mo.freeRm+' rm'; break;
+          case 'mos_seg_fit':   v1 = mo.avgFit+'% · '+mo.fitRm+' RN'; break;
+          case 'mos_seg_dyn':   v1 = mo.avgDyn+'% · '+mo.dynRm+' RN'; break;
+          case 'mos_seg_ser':   v1 = mo.avgSer+'% · '+mo.serRm+' RN'; break;
+          case 'mos_seg_oth':   v1 = mo.avgOtherSeg+'% · '+mo.othRm+' RN'; break;
+          case 'mos_seg_rem':   v1 = mo.avgFree+'% · '+mo.freeRm+' RN'; break;
           case 'mos_mp_ai':     { var _moAiRm=Math.round(mo.avgHRn*mo.avgAi/100),_moAiSt=Math.round(_moAiRm*(parseFloat(mo.hAvgA)+parseFloat(mo.hAvgC))); v1=mo.avgAi+'% · '+_moAiRm+'r · '+_moAiSt+' seats'; } break;
           case 'mos_mp_bb':     { var _moBbRm=Math.round(mo.avgHRn*mo.avgBb/100),_moBbSt=Math.round(_moBbRm*(parseFloat(mo.hAvgA)+parseFloat(mo.hAvgC))); v1=mo.avgBb+'% · '+_moBbRm+'r · '+_moBbSt+' seats'; } break;
           case 'mos_mp_hb':     { var _moHbRm=Math.round(mo.avgHRn*mo.avgHb/100),_moHbSt=Math.round(_moHbRm*(parseFloat(mo.hAvgA)+parseFloat(mo.hAvgC))); v1=mo.avgHb+'% · '+_moHbRm+'r · '+_moHbSt+' seats'; } break;
@@ -2413,12 +2413,12 @@ function renderCalMonthlySummary() {
           var moAlRem2 = Math.max(0, moAlloc2 - moToS2);
           var moAvRm2  = Math.max(0, moInv2 - moSold2);
           var remCls = '';
-          if      (row.rtSub === 'to')        v1 = moToS2 + ' rm';
-          else if (row.rtSub === 'other')     v1 = moOtS2 + ' rm';
-          else if (row.rtSub === 'tentative') { var moTent2 = Math.max(0, Math.floor(2+Math.abs((mo.nm*(row.rtIdx+4)+mo.nd*(row.rtIdx+2))%6))); v1 = moTent2 + ' rm'; }
-          else if (row.rtSub === 'ooo')       { var moOoo2  = Math.max(0, Math.floor(Math.abs((mo.nm*(row.rtIdx+1)+mo.nd*(row.rtIdx+3))%4))); v1 = moOoo2 + ' rm'; }
-          else if (row.rtSub === 'alloc')     v1 = moAlRem2 + ' rm';
-          else if (row.rtSub === 'avail')     { v1 = moAvRm2 + ' rm'; remCls = moAvRm2 === 0 ? ' wb-sub-val-rem' : ''; }
+          if      (row.rtSub === 'to')        v1 = moToS2 + ' RN';
+          else if (row.rtSub === 'other')     v1 = moOtS2 + ' RN';
+          else if (row.rtSub === 'tentative') { var moTent2 = Math.max(0, Math.floor(2+Math.abs((mo.nm*(row.rtIdx+4)+mo.nd*(row.rtIdx+2))%6))); v1 = moTent2 + ' RN'; }
+          else if (row.rtSub === 'ooo')       { var moOoo2  = Math.max(0, Math.floor(Math.abs((mo.nm*(row.rtIdx+1)+mo.nd*(row.rtIdx+3))%4))); v1 = moOoo2 + ' RN'; }
+          else if (row.rtSub === 'alloc')     v1 = moAlRem2 + ' RN';
+          else if (row.rtSub === 'avail')     { v1 = moAvRm2 + ' RN'; remCls = moAvRm2 === 0 ? ' wb-sub-val-rem' : ''; }
           cc = '<span class="wb-sub-val' + remCls + '">' + v1 + '</span>';
         } else {
           cc = '<span class="wb-sub-val">' + v1 + '</span>';
@@ -3165,9 +3165,9 @@ function clearCalSelection() {
     _pb += _pSub('T Lead Time', _avgLead, _C1);
     _pb += _pSub('Hotel', _hLead, _C2);
     // Avail Rooms (hotel-only)
-    _pb += _pSect('Avail Rooms', availRooms+' rm', _pBar(Math.min(92, Math.max(5, hotel*0.8)), _C1));
+    _pb += _pSect('Avail Rooms', availRooms+' RN', _pBar(Math.min(92, Math.max(5, hotel*0.8)), _C1));
     // Avail Guar.
-    _pb += _pSect('Avail Guar.', availGuar+' rm', _pBar(Math.min(92, 10+v%50), _C1));
+    _pb += _pSect('Avail Guar.', availGuar+' RN', _pBar(Math.min(92, 10+v%50), _C1));
     _pb += _pGrpEnd();
 
     // ── Meal Plans ──
@@ -3209,7 +3209,7 @@ function clearCalSelection() {
           +'<span style="font-size:11px;color:#006461;min-width:36px;text-align:right">'+tVal+'</span>'
           +'</div>';
       }
-      _pb += _mpRow('Rooms', totalPlanRooms+' rm', toRoomsAmt+' rm');
+      _pb += _mpRow('Rooms', totalPlanRooms+' RN', toRoomsAmt+' RN');
       _pb += _mpRow('Guests', hGuests, tGuests);
       _pb += _mpRow('Revenue', hRevStr, tRevStr);
       _pb += _mpRow('ADR Gross', '$'+_mpBaseAdr, '$'+_mpToAdrGross);
@@ -4814,7 +4814,7 @@ function buildDailyBView(days, month, activeDay) {
           var _mTGpr2 = parseFloat(d.avgA)+parseFloat(d.avgC);
           var _mSfx = row.id.split('_').pop();
           switch (_mSfx) {
-            case 'rm':  v1 = _mHRm2+' rm'; v2 = 'T: '+_mTRm2; break;
+            case 'rm':  v1 = _mHRm2+' RN'; v2 = 'T: '+_mTRm2; break;
             case 'g':   v1 = String(Math.round(_mHRm2*_mHGpr2)); v2 = 'T: '+Math.round(_mTRm2*_mTGpr2); break;
             case 'rv':  { var _mHR=Math.round(_mHRm2*d.adr),_mTR=Math.round(_mTRm2*d.toAdr); v1=_mHR>=1000?'$'+Math.round(_mHR/1000)+'k':'$'+_mHR; v2='T: '+(_mTR>=1000?'$'+Math.round(_mTR/1000)+'k':'$'+_mTR); } break;
             case 'adr': v1 = '$'+d.adr; v2 = 'T: $'+d.toAdr; break;
@@ -4828,12 +4828,12 @@ function buildDailyBView(days, month, activeDay) {
           var alloc2 = Math.floor(inv2 * 0.8 + Math.abs((d.dm*(row.rtIdx+3)+d.dd*(row.rtIdx+5))%15));
           var alRem2 = Math.max(0, alloc2 - toS2);
           var avRm2  = Math.max(0, inv2 - sold2);
-          if      (row.rtSub === 'to')    v1 = toS2 + ' rm';
-          else if (row.rtSub === 'other') v1 = otS2 + ' rm';
-          else if (row.rtSub === 'tentative') { var tent2 = Math.max(0, Math.floor(2+Math.abs((d.dm*(row.rtIdx+4)+d.dd*(row.rtIdx+2))%6))); v1 = tent2 + ' rm'; }
-          else if (row.rtSub === 'ooo') { var ooo2 = Math.max(0, Math.floor(Math.abs((d.dm*(row.rtIdx+1)+d.dd*(row.rtIdx+3))%4))); v1 = ooo2 + ' rm'; }
-          else if (row.rtSub === 'alloc') v1 = alRem2 + ' rm';
-          else if (row.rtSub === 'avail') { v1 = avRm2 + ' rm'; remCls = avRm2 === 0 ? ' wb-sub-val-rem' : ''; }
+          if      (row.rtSub === 'to')    v1 = toS2 + ' RN';
+          else if (row.rtSub === 'other') v1 = otS2 + ' RN';
+          else if (row.rtSub === 'tentative') { var tent2 = Math.max(0, Math.floor(2+Math.abs((d.dm*(row.rtIdx+4)+d.dd*(row.rtIdx+2))%6))); v1 = tent2 + ' RN'; }
+          else if (row.rtSub === 'ooo') { var ooo2 = Math.max(0, Math.floor(Math.abs((d.dm*(row.rtIdx+1)+d.dd*(row.rtIdx+3))%4))); v1 = ooo2 + ' RN'; }
+          else if (row.rtSub === 'alloc') v1 = alRem2 + ' RN';
+          else if (row.rtSub === 'avail') { v1 = avRm2 + ' RN'; remCls = avRm2 === 0 ? ' wb-sub-val-rem' : ''; }
         } else {
         switch (row.id) {
           // close outs
@@ -4867,10 +4867,10 @@ function buildDailyBView(days, month, activeDay) {
             }
           } break;
           // occupancy
-          case 'occ_tdh':    v1 = d.toRn+' rms';    v2 = d.to+'%';                         break;
-          case 'occ_other':  v1 = d.otherRms+' rms'; v2 = d.otherPct+'%';                  break;
-          case 'occ_stly':   { var cRn=wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn; var cH=wvCompare.has('stly')?d.sdlyH:wvCompare.has('ly')?d.lyH:wvCompare.has('fcst')?d.fcstH:d.sdlyH; v1=cRn+' rms'; v2=cH+'%'; } break;
-          case 'occ_rem':    v1 = d.freeRms+' rms';  v2 = Math.max(0,100-d.hotel)+'%';     break;
+          case 'occ_tdh':    v1 = d.toRn+' RN';    v2 = d.to+'%';                         break;
+          case 'occ_other':  v1 = d.otherRms+' RN'; v2 = d.otherPct+'%';                  break;
+          case 'occ_stly':   { var cRn=wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn; var cH=wvCompare.has('stly')?d.sdlyH:wvCompare.has('ly')?d.lyH:wvCompare.has('fcst')?d.fcstH:d.sdlyH; v1=cRn+' RN'; v2=cH+'%'; } break;
+          case 'occ_rem':    v1 = d.freeRms+' RN';  v2 = Math.max(0,100-d.hotel)+'%';     break;
           // online/offline
           case 'onoff_on':   v1 = d.onlinePct+'%';                                          break;
           case 'onoff_off':  v1 = (100-d.onlinePct)+'%';                                    break;
@@ -4883,9 +4883,9 @@ function buildDailyBView(days, month, activeDay) {
           case 'rev_hotel':  v1 = d.fR(d.hnRev);                                            break;
           case 'rev_stly':   v1 = d.fR(wvCompare.has('stly')?d.sdlyR:wvCompare.has('ly')?d.lyR:wvCompare.has('fcst')?d.fcstR:d.sdlyR); break;
           // rn sold
-          case 'rn_t':       v1 = d.toRn+' rms';                                            break;
-          case 'rn_hotel':   v1 = d.hnRn+' rms';                                            break;
-          case 'rn_stly':    v1 = (wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn)+' rms'; break;
+          case 'rn_t':       v1 = d.toRn+' RN';                                            break;
+          case 'rn_hotel':   v1 = d.hnRn+' RN';                                            break;
+          case 'rn_stly':    v1 = (wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn)+' RN'; break;
           // revpar
           case 'revpar_h':   v1 = '$'+d.hRevpar;                                            break;
           case 'revpar_stly':v1 = '$'+(wvCompare.has('stly')?d.sdlyRevpar:wvCompare.has('ly')?d.lyRevpar:d.sdlyRevpar); break;
@@ -5123,10 +5123,10 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   grp('Daily Metrics', C1);
   if (wvMetricState.capacity) {
     sect('Occupancy', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.hotel,d.sdlyH,d.lyH,d.fcstH,function(v){return v+'%';}); return sCell(d.hotel+'%'+cs, sBar([{p:d.to,c:C1},{p:d.otherPct,c:C2}])); });
-    sub('Travel Distribution Hubs', C1, false, function(d){ return rCell(d.toRn+' rms', d.to+'%'+_wbCmpChip(d.to, 1, d)); });
-    sub('Other Segments', C2, false, function(d){ return rCell(d.otherRms+' rms',d.otherPct+'%'); });
-    sub('STLY', CSTLY, false, function(d){ return rCell(d.sdlyRn+' rms',d.sdlyH+'%'); });
-    sub('Total Hotel Occupancy', CREM, true, function(d){ return rCell(d.freeRms+' rms',Math.max(0,100-d.hotel)+'%',true); });
+    sub('Travel Distribution Hubs', C1, false, function(d){ return rCell(d.toRn+' RN', d.to+'%'+_wbCmpChip(d.to, 1, d)); });
+    sub('Other Segments', C2, false, function(d){ return rCell(d.otherRms+' RN',d.otherPct+'%'); });
+    sub('STLY', CSTLY, false, function(d){ return rCell(d.sdlyRn+' RN',d.sdlyH+'%'); });
+    sub('Total Hotel Occupancy', CREM, true, function(d){ return rCell(d.freeRms+' RN',Math.max(0,100-d.hotel)+'%',true); });
   }
   if (wvMetricState.onlineOffline) {
     sect('Online / Offline', C1, C1, function(d){ return sCell(d.onlinePct+'%', sBar([{p:d.onlinePct,c:C1},{p:100-d.onlinePct,c:C2}])); });
@@ -5155,9 +5155,9 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
     grp('More Metrics', C1);
     if (wvMetricState.dm_rnSold) {
       sect('RN Sold', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.toRn,d.sdlyRn,d.lyRn,d.fcstRn,String); return sCell(d.toRn+cs, bar(Math.round(d.toRn/WV_CAP*100),C1)+'<div style="margin-top:2px">'+bar(Math.round(d.hnRn/WV_CAP*100),C2)+'</div>'); });
-      sub('TO RN',     C1,    false, function(d){ return sCell(d.toRn+' rms'+_wbCmpChip(d.toRn, 4, d), bar(Math.round(d.toRn/WV_CAP*100),C1)); });
-      sub('Hotel RN', C2,    false, function(d){ return sCell(d.hnRn+' rms', bar(Math.round(d.hnRn/WV_CAP*100),C2)); });
-      sub('STLY',     CSTLY, false, function(d){ return sCell(d.sdlyRn+' rms', bar(Math.round(d.sdlyRn/WV_CAP*100),CSTLY)); });
+      sub('TO RN',     C1,    false, function(d){ return sCell(d.toRn+' RN'+_wbCmpChip(d.toRn, 4, d), bar(Math.round(d.toRn/WV_CAP*100),C1)); });
+      sub('Hotel RN', C2,    false, function(d){ return sCell(d.hnRn+' RN', bar(Math.round(d.hnRn/WV_CAP*100),C2)); });
+      sub('STLY',     CSTLY, false, function(d){ return sCell(d.sdlyRn+' RN', bar(Math.round(d.sdlyRn/WV_CAP*100),CSTLY)); });
     }
     if (wvMetricState.dm_trevpar) {
       sect('RevPAR', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.hRevpar,d.sdlyRevpar,d.lyRevpar,null,function(v){return '$'+v;}); return sCell('$'+d.hRevpar+cs, bar(Math.min(90,Math.round(d.hRevpar/4)),C1)); });
@@ -5228,10 +5228,10 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
       sub('Hotel', C2, false, function(d){ return sCell(d.hLead, bar(Math.min(90,parseInt(d.hLead)/90*100),C2)); });
     }
     if (wvMetricState.dm_availRooms) {
-      sect('Avail Rooms', '#16a34a', '#16a34a', function(d){ return sCell(d.availRooms+' rm', bar(Math.min(90,Math.round(d.availRooms/WV_CAP*100)),'#16a34a')); });
+      sect('Avail Rooms', '#16a34a', '#16a34a', function(d){ return sCell(d.availRooms+' RN', bar(Math.min(90,Math.round(d.availRooms/WV_CAP*100)),'#16a34a')); });
     }
     if (wvMetricState.dm_availGuar) {
-      sect('Avail Guar.', C1, C1, function(d){ return sCell(d.availGuar+' rm', bar(Math.min(90,Math.round(d.availGuar/20*100)),C1)); });
+      sect('Avail Guar.', C1, C1, function(d){ return sCell(d.availGuar+' RN', bar(Math.min(90,Math.round(d.availGuar/20*100)),C1)); });
     }
   }
 
@@ -5240,9 +5240,9 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
     grp('Meal Plans', C1);
     [['All Inclusive','aiPct'],['Bed & Breakfast','bbPct'],['Half Board','hbPct'],['Room Only','roPct']].forEach(function(mp){
       var k=mp[1];
-      sect(mp[0], C1, C1, (function(k){ return function(d){ var rn=Math.round(d.hnRn*d[k]/100); return sCell(d[k]+'% · '+rn+' rms', bar(d[k],C1)); }; })(k));
-      sub('TO', C1, false, (function(k){ return function(d){ var pct=Math.max(0,Math.round(d[k]*d.toPct*0.9)); var rn=Math.round(d.toRn*d[k]/100); return sCell(pct+'% · '+rn+' rms', bar(pct,C1)); }; })(k));
-      sub('Hotel', C2, false, (function(k){ return function(d){ var rn=Math.round(d.hnRn*d[k]/100); return sCell(d[k]+'% · '+rn+' rms', bar(d[k],C2)); }; })(k));
+      sect(mp[0], C1, C1, (function(k){ return function(d){ var rn=Math.round(d.hnRn*d[k]/100); return sCell(d[k]+'% · '+rn+' RN', bar(d[k],C1)); }; })(k));
+      sub('TO', C1, false, (function(k){ return function(d){ var pct=Math.max(0,Math.round(d[k]*d.toPct*0.9)); var rn=Math.round(d.toRn*d[k]/100); return sCell(pct+'% · '+rn+' RN', bar(pct,C1)); }; })(k));
+      sub('Hotel', C2, false, (function(k){ return function(d){ var rn=Math.round(d.hnRn*d[k]/100); return sCell(d[k]+'% · '+rn+' RN', bar(d[k],C2)); }; })(k));
     });
     sect('Summary', C1, C1, function(d){
       var _aiR=Math.round(d.hnRn*d.aiPct/100), _bbR=Math.round(d.hnRn*d.bbPct/100), _hbR=Math.round(d.hnRn*d.hbPct/100), _roR=Math.round(d.hnRn*d.roPct/100);
@@ -5291,11 +5291,11 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
           +'<span style="font-size:12px;color:#9ca3af;margin-left:4px">/ '+inv+'</span></div>'
           +sBar([{p:toP,c:C1},{p:otP,c:C2},{p:tnP,c:'#967EF3'},{p:alP,c:C3},{p:Math.max(0,100-toP-otP-tnP-alP),c:C4}]);
       }; })(inv,rtI));
-      sub('TO Sold', C1, false, (function(inv){ return function(d){ var s=Math.min(inv,Math.floor(inv*d.hotel/110)); return rCell(Math.min(s,Math.round(s*d.to/Math.max(1,d.hotel)))+' rm'); }; })(inv));
-      sub('Other Segments', C2, false, (function(inv){ return function(d){ var s=Math.min(inv,Math.floor(inv*d.hotel/110)); var t=Math.min(s,Math.round(s*d.to/Math.max(1,d.hotel))); return rCell((s-t)+' rm'); }; })(inv));
-      sub('Tentative Sold (Group)', '#967EF3', false, (function(inv,rtI){ return function(d){ var tent=Math.max(0,Math.floor(2+Math.abs((d.dm*(rtI+4)+d.dd*(rtI+2))%6))); return rCell(tent+' rm'); }; })(inv,rtI));
-      sub('Out-of-Order', '#ef4444', false, (function(inv,rtI){ return function(d){ var ooo=Math.max(0,Math.floor(Math.abs((d.dm*(rtI+1)+d.dd*(rtI+3))%4))); return rCell(ooo+' rm'); }; })(inv,rtI));
-      sub('Total Hotel Occupancy', CREM, true, (function(inv){ return function(d){ var avRm=Math.max(0,inv-Math.min(inv,Math.floor(inv*d.hotel/110))); return sCell(avRm+' rm', bar(Math.min(90,Math.round(avRm/inv*100)),'#16a34a')); }; })(inv));
+      sub('TO Sold', C1, false, (function(inv){ return function(d){ var s=Math.min(inv,Math.floor(inv*d.hotel/110)); return rCell(Math.min(s,Math.round(s*d.to/Math.max(1,d.hotel)))+' RN'); }; })(inv));
+      sub('Other Segments', C2, false, (function(inv){ return function(d){ var s=Math.min(inv,Math.floor(inv*d.hotel/110)); var t=Math.min(s,Math.round(s*d.to/Math.max(1,d.hotel))); return rCell((s-t)+' RN'); }; })(inv));
+      sub('Tentative Sold (Group)', '#967EF3', false, (function(inv,rtI){ return function(d){ var tent=Math.max(0,Math.floor(2+Math.abs((d.dm*(rtI+4)+d.dd*(rtI+2))%6))); return rCell(tent+' RN'); }; })(inv,rtI));
+      sub('Out-of-Order', '#ef4444', false, (function(inv,rtI){ return function(d){ var ooo=Math.max(0,Math.floor(Math.abs((d.dm*(rtI+1)+d.dd*(rtI+3))%4))); return rCell(ooo+' RN'); }; })(inv,rtI));
+      sub('Total Hotel Occupancy', CREM, true, (function(inv){ return function(d){ var avRm=Math.max(0,inv-Math.min(inv,Math.floor(inv*d.hotel/110))); return sCell(avRm+' RN', bar(Math.min(90,Math.round(avRm/inv*100)),'#16a34a')); }; })(inv));
     });
   }
 
@@ -5948,7 +5948,7 @@ window._buildWv7dSummaryHtml = function(d) {
         case 'mos_rn':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.sumRn+' rn</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+d.avgRnH+'</span></div>'
              +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(92,Math.round(d.sumRn/WV*100))+'%;background:#004948;height:6px"></div></div>'
-             +refChips([{k:'stly',l:'STLY',v:d.sdlyRn+' rn'},{k:'ly',l:'LY',v:d.lyRn+' rn'},{k:'fcst',l:'Fcst',v:d.fcstRn+' rn'}]);
+             +refChips([{k:'stly',l:'STLY',v:d.sdlyRn+' RN'},{k:'ly',l:'LY',v:d.lyRn+' RN'},{k:'fcst',l:'Fcst',v:d.fcstRn+' RN'}]);
           break;
         case 'mos_avga':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+(d.avgTotAdults/Math.max(1,d.sumRn)).toFixed(1)+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+(d.avgHotelTotAdults/Math.max(1,d.avgRnH*d.n7)).toFixed(1)+'</span></div>'
@@ -6022,14 +6022,14 @@ window._buildWv7dSummaryHtml = function(d) {
         case 'mos_rev_to':     v1 = d.totalRevStr; break;
         case 'mos_rev_htl':    v1 = d.totalHotelRevStr; break;
         case 'mos_revpar_stly':v1 = '$'+d.sdlyRevpar; break;
-        case 'mos_rn_stly':    v1 = d.sdlyRn+' rn'; break;
+        case 'mos_rn_stly':    v1 = d.sdlyRn+' RN'; break;
         case 'mos_onoff_on':   v1 = d.avgOnline+'%'; break;
         case 'mos_onoff_off':  v1 = (100-d.avgOnline)+'%'; break;
-        case 'mos_seg_fit':    v1 = d.avgFitPct+'% · '+d.avgFitRms+' rm'; break;
-        case 'mos_seg_dyn':    v1 = d.avgDynPct+'% · '+d.avgDynRms+' rm'; break;
-        case 'mos_seg_ser':    v1 = d.avgSerPct+'% · '+d.avgSerRms+' rm'; break;
-        case 'mos_seg_oth':    v1 = d.avgOtherPct+'% · '+d.avgOtherRms+' rm'; break;
-        case 'mos_seg_rem':    v1 = d.avgFreePct+'% · '+d.avgFreeRms+' rm'; break;
+        case 'mos_seg_fit':    v1 = d.avgFitPct+'% · '+d.avgFitRms+' RN'; break;
+        case 'mos_seg_dyn':    v1 = d.avgDynPct+'% · '+d.avgDynRms+' RN'; break;
+        case 'mos_seg_ser':    v1 = d.avgSerPct+'% · '+d.avgSerRms+' RN'; break;
+        case 'mos_seg_oth':    v1 = d.avgOtherPct+'% · '+d.avgOtherRms+' RN'; break;
+        case 'mos_seg_rem':    v1 = d.avgFreePct+'% · '+d.avgFreeRms+' RN'; break;
         case 'mos_mp_ai':      { var _7gpr=d.avgHotelTotGuests/Math.max(1,d.avgRnH*d.n7),_7aiRm=Math.round(d.avgRnH*d.avgAiPct/100),_7aiSt=Math.round(_7aiRm*_7gpr); v1=d.avgAiPct+'% · '+_7aiRm+'r · '+_7aiSt+' seats'; } break;
         case 'mos_mp_bb':      { var _7gprb=d.avgHotelTotGuests/Math.max(1,d.avgRnH*d.n7),_7bbRm=Math.round(d.avgRnH*d.avgBbPct/100),_7bbSt=Math.round(_7bbRm*_7gprb); v1=d.avgBbPct+'% · '+_7bbRm+'r · '+_7bbSt+' seats'; } break;
         case 'mos_mp_hb':      { var _7gprh=d.avgHotelTotGuests/Math.max(1,d.avgRnH*d.n7),_7hbRm=Math.round(d.avgRnH*d.avgHbPct/100),_7hbSt=Math.round(_7hbRm*_7gprh); v1=d.avgHbPct+'% · '+_7hbRm+'r · '+_7hbSt+' seats'; } break;
@@ -6852,13 +6852,13 @@ function initDailyRevGrid(days, containerEl) {
       rev_t:fR(toRev),  rev_h:fR(hnRev), rev_stly:fR(sdlyR), rev_ly:fR(lyR), rev_fcst:fR(fcstR),
       rp_t:'$'+revpar,  rp_h:'$'+hotelRevpar, rp_stly:'$'+sdlyRevpar, rp_ly:'$'+lyRevpar,
       pk_t:'+'+pickup,  pk_h:'+'+hotelPickup,
-      td_rms:toRms+' rm',    td_pct:to+'%',
-      os_rms:otherRms+' rm', os_pct:otherPct+'%',
-      rem_rms:freeRms+' rm', rem_pct:Math.max(0,Math.round(freePct))+'%',
+      td_rms:toRms+' RN',    td_pct:to+'%',
+      os_rms:otherRms+' RN', os_pct:otherPct+'%',
+      rem_rms:freeRms+' RN', rem_pct:Math.max(0,Math.round(freePct))+'%',
       on_on:onPct+'%', on_off:(100-onPct)+'%',
-      fit_rms:Math.round(250*fitPct/100)+' rm', fit_pct:fitPct+'%',
-      dyn_rms:Math.round(250*dynPct/100)+' rm', dyn_pct:dynPct+'%',
-      ser_rms:Math.round(250*serPct/100)+' rm', ser_pct:serPct+'%',
+      fit_rms:Math.round(250*fitPct/100)+' RN', fit_pct:fitPct+'%',
+      dyn_rms:Math.round(250*dynPct/100)+' RN', dyn_pct:dynPct+'%',
+      ser_rms:Math.round(250*serPct/100)+' RN', ser_pct:serPct+'%',
       biz_to:toMix+'%', biz_dir:dirMix+'%', biz_ota:otaMix+'%', biz_oth:otherMix+'%',
       mp_ai_h:Math.round(hnRn*aiPct/100), mp_ai_t:Math.round(toRn*aiPct/100), mp_ai_pct:aiPct+'%',
       mp_bb_h:Math.round(hnRn*bbPct/100), mp_bb_t:Math.round(toRn*bbPct/100), mp_bb_pct:bbPct+'%',
@@ -7144,15 +7144,15 @@ function buildReportView(days) {
         {child:'Fcst',  fn:function(d){return{t:d.fcstH+'%',   clr:'#f59e0b'};}},
       ]},
       { lbl:'T Dist. Hubs', cols:[
-        {child:'Rooms', fn:function(d){return{t:d.toRms+' rm', clr:'#006461',bold:true};}},
+        {child:'Rooms', fn:function(d){return{t:d.toRms+' RN', clr:'#006461',bold:true};}},
         {child:'%',     fn:function(d){return{t:d.to+'%',      clr:'#006461'};}},
       ]},
       { lbl:'Other Segs', cols:[
-        {child:'Rooms', fn:function(d){return{t:d.otherRms+' rm',clr:'#5883ed'};}},
+        {child:'Rooms', fn:function(d){return{t:d.otherRms+' RN',clr:'#5883ed'};}},
         {child:'%',     fn:function(d){return{t:d.otherPct+'%', clr:'#5883ed'};}},
       ]},
       { lbl:'Remaining', cols:[
-        {child:'Rooms', fn:function(d){return{t:d.freeRms+' rm',clr:'#16a34a',bold:true};}},
+        {child:'Rooms', fn:function(d){return{t:d.freeRms+' RN',clr:'#16a34a',bold:true};}},
         {child:'%',     fn:function(d){return{t:Math.max(0,Math.round(d.freePct))+'%',clr:'#16a34a'};}},
       ]},
       { lbl:'Online/Offline', cols:[
@@ -7189,15 +7189,15 @@ function buildReportView(days) {
     // ── Segments (T only) ────────────────────────────────────────────────────
     { id:'segs', label:'Segments (T)', clr:'#0891b2', metrics:[
       { lbl:'Static FIT', cols:[
-        {child:'Rooms', fn:function(d){return{t:Math.round(250*d.fitPct/100)+' rm',clr:'#006461',bold:true};}},
+        {child:'Rooms', fn:function(d){return{t:Math.round(250*d.fitPct/100)+' RN',clr:'#006461',bold:true};}},
         {child:'%',     fn:function(d){return{t:d.fitPct+'%', clr:'#006461'};}},
       ]},
       { lbl:'TO Dynamic', cols:[
-        {child:'Rooms', fn:function(d){return{t:Math.round(250*d.dynPct/100)+' rm',clr:'#0891b2',bold:true};}},
+        {child:'Rooms', fn:function(d){return{t:Math.round(250*d.dynPct/100)+' RN',clr:'#0891b2',bold:true};}},
         {child:'%',     fn:function(d){return{t:d.dynPct+'%', clr:'#0891b2'};}},
       ]},
       { lbl:'Tour Series', cols:[
-        {child:'Rooms', fn:function(d){return{t:Math.round(250*d.serPct/100)+' rm',clr:'#6366f1',bold:true};}},
+        {child:'Rooms', fn:function(d){return{t:Math.round(250*d.serPct/100)+' RN',clr:'#6366f1',bold:true};}},
         {child:'%',     fn:function(d){return{t:d.serPct+'%', clr:'#6366f1'};}},
       ]},
     ]},
@@ -7785,7 +7785,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
 
   const secMore = sumSec('More Metrics',
     colHdr('#2e65e8')
-    +mRow2('RN Sold',sumRn+' rn',sumHotelRn+' rn',Math.min(92,Math.round(sumRn/sumHotelRn*70)),70,'#2e65e8',
+    +mRow2('RN Sold',sumRn+' RN',sumHotelRn+' RN',Math.min(92,Math.round(sumRn/sumHotelRn*70)),70,'#2e65e8',
         [{k:'stly',l:'STLY',v:sdlyRn},{k:'ly',l:'LY',v:lyRn},{k:'fcst',l:'Fcst',v:fcstRn}])
     +mRow2('Avg Adults',(sumTotAdults/sumRn).toFixed(1),(sumHotelAdults/sumHotelRn).toFixed(1),null,null,'#2e65e8')
     +mRow2('Avg Children',(sumTotChildren/sumRn).toFixed(1),(sumHotelChildren/sumHotelRn).toFixed(1),null,null,'#d33030')
@@ -7794,8 +7794,8 @@ function buildWeekGrid(month, weekStart, activeDay) {
     +mRow2('Total Guests',avgTotGuests,avgHotelTotGuests,null,null,'#0369a1')
     +mRow2('Avg LOS',avgLos,avgHotelLos,null,null,'#0891b2')
     +mRow2('Avg Lead',avgLead,avgHotelLead,null,null,'#6366f1')
-    +mRow2('Avail Rooms',avgAvailRooms+' rm','\u2014',Math.min(92,Math.round(avgAvailRooms/250*100)),null,'#16a34a')
-    +mRow2('Avail Guar.',avgAvailGuar+' rm','\u2014',null,null,'#ea580c')
+    +mRow2('Avail Rooms',avgAvailRooms+' RN','\u2014',Math.min(92,Math.round(avgAvailRooms/250*100)),null,'#16a34a')
+    +mRow2('Avail Guar.',avgAvailGuar+' RN','\u2014',null,null,'#ea580c')
   );
 
   // Meal Plans with per-plan T%
@@ -8376,7 +8376,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
                 +'</div>';
             }
             const detailRows =
-              dmRow('Rooms', totalPlanRooms+' rm', toRoomsAmt+' rm')
+              dmRow('Rooms', totalPlanRooms+' RN', toRoomsAmt+' RN')
               +dmRow('Adults', hAdults, tAdults)
               +dmRow('Children', hChildren, tChildren)
               +dmRow('Guests', hGuests, tGuests)
@@ -15238,7 +15238,7 @@ window.calHideCapTip = function() {
         } else if (k.indexOf('pickup') >= 0) {
           formatted = (v >= 0 ? '+' : '') + Math.round(v);
         } else if (k.indexOf('rn') >= 0) {
-          formatted = Math.round(v) + ' rn';
+          formatted = Math.round(v) + ' RN';
         } else if (k.indexOf('avglos') >= 0 || k.indexOf('los') >= 0) {
           formatted = (parseFloat(v)||0).toFixed(1) + 'n';
         } else if (k.indexOf('lead') >= 0) {
@@ -15258,7 +15258,7 @@ window.calHideCapTip = function() {
         var lbl2 = labels[key] || KEY_LABELS[key] || key;
         var clr2 = KEY_COLORS[key] || '#6b7280';
         var fmt2;
-        if (key === 'availRooms' || key === 'availGuar') fmt2 = Math.round(v) + ' rm';
+        if (key === 'availRooms' || key === 'availGuar') fmt2 = Math.round(v) + ' RN';
         else if (key.indexOf('Mix') >= 0) fmt2 = Math.round(v) + '%';
         else if (key.indexOf('rate') >= 0 || key.indexOf('Rate') >= 0 || key === 'rateTO' || key === 'rateBase') fmt2 = '$' + Math.round(v);
         else if (key === 'ratePromo') fmt2 = Math.round(v) + '%';
