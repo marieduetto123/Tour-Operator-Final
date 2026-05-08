@@ -3058,27 +3058,32 @@ function clearCalSelection() {
         +ruleCards+'</div>';
     })();
 
-    // ── Daily B–style group/section/sub builders ──
+    // ── Figma-style popup builders ──
     var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
-    function _pGrad(c){if(c==='#004948')return'linear-gradient(to right,#004948,#007a75)';if(c==='#52d9ce')return'linear-gradient(to right,#52d9ce,#8aeee8)';if(c==='#445e0d')return'linear-gradient(to right,#445e0d,#6a9014)';if(c==='#D97706')return'linear-gradient(to right,#D97706,#F59E0B)';if(c==='#16a34a')return'linear-gradient(to right,#16a34a,#22c55e)';if(c==='#C4FF45')return'linear-gradient(to right,#C4FF45,#D4FF73)';return c;}
-    function _pBar(pct,c){return'<div class="wv-occ-bar-track" style="margin:2px 0 0;height:6px;border-radius:2px"><div style="width:'+pct+'%;background:'+_pGrad(c)+';height:6px"></div></div>';}
-    function _pSbar(segs){return'<div class="wv-occ-bar-track" style="margin:2px 0 0;height:6px;border-radius:2px">'+segs.map(function(s){return'<div style="width:'+s.p+'%;background:'+_pGrad(s.c)+';height:6px"></div>';}).join('')+'</div>';}
-    function _pGrp(label,clr){return'<div class="pb-grp" style="background:'+clr+';color:#fff;font-size:12px;font-weight:700;padding:4px 8px;margin:0 -10px;letter-spacing:.5px">'+label+'</div>';}
-    function _pGrpStart(label,clr,uid){return'<div class="pb-grp pb-grp-toggle" data-grpid="'+uid+'" style="background:'+clr+';color:#fff;font-size:12px;font-weight:700;padding:4px 8px;margin:0 -10px;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">'+label+'<span class="pb-grp-chevron" style="font-size:11px;opacity:.85;transition:transform .18s">▾</span></div><div class="pb-grp-body" data-grpid="'+uid+'">';}
+    var _sectIdx=0;
+    function _pBar(pct,c){return'<div class="pb-bar-track"><div class="pb-bar-fill" style="width:'+pct+'%;background:'+c+'"></div></div>';}
+    function _pSbar(segs){return'<div class="pb-bar-track pb-bar-split">'+segs.map(function(s){return'<div style="width:'+s.p+'%;background:'+s.c+';height:100%"></div>';}).join('')+'</div>';}
+    function _pGrpStart(label,clr,uid){return'<div class="pb-grp-hdr pb-grp-toggle" data-grpid="'+uid+'"'+(clr==='#dc2626'?' data-accent="red"':'')+'><span class="pb-chev pb-grp-chevron"></span><span class="pb-grp-label">'+label+'</span></div><div class="pb-grp-body" data-grpid="'+uid+'">';}
     function _pGrpEnd(){return'</div>';}
-    function _pSect(label,val,barHtml,dot){return'<div class="pb-sect" style="padding:5px 0 3px;border-bottom:1px solid #f0f0f0"><div style="display:flex;align-items:center;gap:4px;margin-bottom:2px">'+(dot?'<span style="width:6px;height:6px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>':'')+'<span style="font-size:12px;font-weight:600;color:#111827;flex:1">'+label+'</span><span style="font-size:12px;font-weight:700;color:#111827">'+val+'</span></div>'+barHtml+'</div>';}
-    function _pSub(label,val,dot,isRem){var c=isRem?'#388c3f':'#6b7280';return'<div style="display:flex;align-items:center;gap:4px;padding:2px 0 2px 10px">'+(dot?'<span style="width:5px;height:5px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>':'')+'<span style="font-size:12px;color:'+c+';flex:1">'+label+'</span><span style="font-size:12px;font-weight:600;color:'+(isRem?'#388c3f':'#111827')+'">'+val+'</span></div>';}
-    function _pRef(stlyVal,delta){return'<div style="display:flex;gap:6px;padding:1px 0 0 10px"><span class="wv-ref-tag wv-ref-sdly" style="font-size:10px">STLY '+stlyVal+'</span><span class="wv-ref-tag '+(String(delta).startsWith('+')?'wv-ref-fcst':'wv-ref-sdly')+'" style="font-size:10px">'+delta+'</span></div>';}
+    function _pSectS(label,val,barHtml){var sid='ps'+(_sectIdx++);return'<div class="pb-sect"><div class="pb-sect-hdr" data-sectid="'+sid+'"><span class="pb-chev pb-sect-chevron"></span><span class="pb-sect-label">'+label+'</span><span class="pb-sect-val">'+val+'</span></div>'+(barHtml||'')+'<div class="pb-sect-body" data-sectid="'+sid+'">';}
+    function _pSectE(){return'</div></div>';}
+    function _pSect(label,val,barHtml){return'<div class="pb-sect pb-sect-solo"><div class="pb-sect-hdr-solo"><span class="pb-sect-label">'+label+'</span><span class="pb-sect-val">'+val+'</span></div>'+(barHtml||'')+'</div>';}
+    function _pSub(label,val,dot,isRem){return'<div class="pb-sub'+(isRem?' pb-sub-accent':'')+'">'+(dot?'<span class="pb-sub-dot" style="background:'+dot+'"></span>':'<span class="pb-sub-dot-space"></span>')+'<span class="pb-sub-label">'+label+'</span><span class="pb-sub-val">'+val+'</span></div>';}
+    function _pRef(stlyVal,delta){return'<div class="pb-ref"><span class="wv-ref-tag wv-ref-sdly" style="font-size:10px">STLY '+stlyVal+'</span><span class="wv-ref-tag '+(String(delta).startsWith('+')?'wv-ref-fcst':'wv-ref-sdly')+'" style="font-size:10px">'+delta+'</span></div>';}
 
     var _pb = '';
     _pb += _filtLabel;
 
     // ── Close Outs ──
+    _pb += _pGrpStart('Close Outs', '#dc2626', 'co');
     if (hasPopupCl || LOCKED_DAYS.has(dm+'-'+dd)) {
-      _pb += _pGrpStart('Close Outs', '#dc2626', 'co');
       _pb += popupClHtml;
-      _pb += _pGrpEnd();
+    } else {
+      _pb += _pSub('Room Types', '—', '#9ca3af');
+      _pb += _pSub('Board Types', '—', '#9ca3af');
+      _pb += _pSub('Tour Operators', '—', '#9ca3af');
     }
+    _pb += _pGrpEnd();
 
     // ── Computed values for TO sub-rows ──
     var _toAdr   = Math.max(80, adr - 20 - Math.abs((dm*3+dd*7)%15));
@@ -3097,73 +3102,87 @@ function clearCalSelection() {
 
     // ── Daily Metrics ── (matches weekly: Occupancy, Online/Offline, ADR, Revenue with Hotel/TO/STLY sub-rows)
     _pb += _pGrpStart('Daily Metrics', _C1, 'dm');
-    _pb += _pSect('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]));
-    _pb += _pSub('Travel Distribution Hubs', toRms+' RN / '+to+'%', _C1);
-    _pb += _pSub('Other Segments', otherRms+' RN / '+otherPct+'%', _C2);
+    _pb += _pSectS('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]));
+    _pb += _pSub('Travel Distribution Hubs', toRms+' RN  '+to+'%', _C1);
+    _pb += _pSub('Other Segments', otherRms+' RN  '+otherPct+'%', _C2);
     _pb += _pSub('STLY', hotelSDLY+'%', _CSTLY);
-    _pb += _pSub('Total Hotel Occupancy', freeRms+' RN / '+freePct+'%', _CREM, true);
-    _pb += _pSect('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
+    _pb += _pSub('Total Hotel Occupancy', freeRms+' RN  '+freePct+'%', _CREM, true);
+    _pb += _pSectE();
+    _pb += _pSectS('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
     _pb += _pSub('Online', onlinePct+'%', _C1);
     _pb += _pSub('Offline', offlinePct+'%', _C2);
-    _pb += _pSect('ADR', '$'+adr, _pBar(adrBar, _C1));
+    _pb += _pSectE();
+    _pb += _pSectS('ADR', '$'+adr, _pBar(adrBar, _C1));
     _pb += _pSub('TO ADR', '$'+_toAdr, _C1);
     _pb += _pSub('Hotel ADR', '$'+adr, _C2);
     _pb += _pSub('STLY', '$'+adrSDLY, _CSTLY);
-    _pb += _pSect('Revenue', '$'+Math.floor(rev/1000)+'k', _pBar(revBar, _C1));
+    _pb += _pSectE();
+    _pb += _pSectS('Revenue', '$'+Math.floor(rev/1000)+'k', _pBar(revBar, _C1));
     _pb += _pSub('TO Revenue', _toRevS, _C1);
     _pb += _pSub('Hotel Revenue', '$'+Math.floor(rev/1000)+'k', _C2);
     _pb += _pSub('STLY', '$'+Math.floor(sdlyR/1000)+'k', _CSTLY);
+    _pb += _pSectE();
     _pb += _pGrpEnd();
 
     // ── More Metrics ── (matches weekly: each metric shows TO value + Hotel/STLY sub-rows)
     _pb += _pGrpStart('More Metrics', _C1, 'mm');
     // RN Sold (TO + Hotel + STLY)
-    _pb += _pSect('RN Sold', toRms, _pBar(Math.min(92, 55+(v%37)), _C1));
+    _pb += _pSectS('RN Sold', toRms, _pBar(Math.min(92, 55+(v%37)), _C1));
     _pb += _pSub('TO RN', String(toRms), _C1);
     _pb += _pSub('Hotel RN', String(rnSold), _C2);
     _pb += _pSub('STLY', String(Math.floor(rnSold*0.88)), _CSTLY);
+    _pb += _pSectE();
     // RevPAR (TO + Hotel + STLY)
-    _pb += _pSect('RevPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
+    _pb += _pSectS('RevPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
     _pb += _pSub('Hotel', '$'+_hRevpar, _C2);
     _pb += _pSub('STLY', '$'+Math.floor(adr*0.92), _CSTLY);
+    _pb += _pSectE();
     // Pickup (each active window)
     pickupDayValues.forEach(function(dv, i) {
       if (!wvMetricState['dm_pickup_' + i]) return;
       var sc = dv<=1?0.3:dv<=3?0.6:dv<=7?1:Math.min(2,dv/7);
       var toP = Math.max(0, Math.round(_basePickup * sc));
       var hP  = Math.max(0, Math.round(_hPickup * sc));
-      _pb += _pSect('Pickup '+dv, '+'+toP, _pBar(Math.min(92, 30+v%50), _C1));
+      _pb += _pSectS('Pickup '+dv, '+'+toP, _pBar(Math.min(92, 30+v%50), _C1));
       _pb += _pSub('Hotel', '+'+hP, _C2);
       _pb += _pSub('TO', '+'+toP, _C1);
+      _pb += _pSectE();
     });
     // Avg Adults (TO + Hotel)
-    _pb += _pSect('Avg Adults', _dmAvgA.toFixed(1), _pBar(Math.min(92, 55+v%30), _C1));
+    _pb += _pSectS('Avg Adults', _dmAvgA.toFixed(1), _pBar(Math.min(92, 55+v%30), _C1));
     _pb += _pSub('T Avg Adults', _dmAvgA.toFixed(1), _C1);
     _pb += _pSub('Hotel', _hAvgA, _C2);
+    _pb += _pSectE();
     // Avg Children (TO + Hotel)
-    _pb += _pSect('Avg Children', _dmAvgC.toFixed(1), _pBar(Math.min(92, 20+v%40), _C1));
+    _pb += _pSectS('Avg Children', _dmAvgC.toFixed(1), _pBar(Math.min(92, 20+v%40), _C1));
     _pb += _pSub('T Avg Children', _dmAvgC.toFixed(1), _C1);
     _pb += _pSub('Hotel', _hAvgC, _C2);
+    _pb += _pSectE();
     // Total Adults (TO + Hotel)
-    _pb += _pSect('Total Adults', _totAdultsTO, _pBar(Math.min(92, 60+v%28), _C1));
+    _pb += _pSectS('Total Adults', _totAdultsTO, _pBar(Math.min(92, 60+v%28), _C1));
     _pb += _pSub('T Total Adults', String(_totAdultsTO), _C1);
     _pb += _pSub('Hotel', String(_hTotA), _C2);
+    _pb += _pSectE();
     // Total Children (TO + Hotel)
-    _pb += _pSect('Total Children', _totChildrenTO, _pBar(Math.min(92, 15+v%35), _C1));
+    _pb += _pSectS('Total Children', _totChildrenTO, _pBar(Math.min(92, 15+v%35), _C1));
     _pb += _pSub('T Total Children', String(_totChildrenTO), _C1);
     _pb += _pSub('Hotel', String(_hTotC), _C2);
+    _pb += _pSectE();
     // Total Guests (TO + Hotel)
-    _pb += _pSect('Total Guests', _totGuestsTO, _pBar(Math.min(92, 55+v%35), _C1));
+    _pb += _pSectS('Total Guests', _totGuestsTO, _pBar(Math.min(92, 55+v%35), _C1));
     _pb += _pSub('T Guests', String(_totGuestsTO), _C1);
     _pb += _pSub('Hotel', String(_hTotG), _C2);
+    _pb += _pSectE();
     // Avg LOS (TO + Hotel)
-    _pb += _pSect('Avg LOS', _avgLos, _pBar(Math.min(92, 40+v%40), _C1));
+    _pb += _pSectS('Avg LOS', _avgLos, _pBar(Math.min(92, 40+v%40), _C1));
     _pb += _pSub('T Avg LOS', _avgLos, _C1);
     _pb += _pSub('Hotel', _hLos, _C2);
+    _pb += _pSectE();
     // Lead Time (TO + Hotel)
-    _pb += _pSect('Lead Time', _avgLead, _pBar(Math.min(92, 25+v%55), _C1));
+    _pb += _pSectS('Lead Time', _avgLead, _pBar(Math.min(92, 25+v%55), _C1));
     _pb += _pSub('T Lead Time', _avgLead, _C1);
     _pb += _pSub('Hotel', _hLead, _C2);
+    _pb += _pSectE();
     // Avail Rooms (hotel-only)
     _pb += _pSect('Avail Rooms', availRooms+' RN', _pBar(Math.min(92, Math.max(5, hotel*0.8)), _C1));
     // Avail Guar.
@@ -3386,13 +3405,27 @@ function clearCalSelection() {
         var collapsed = body.style.display === 'none';
         body.style.display = collapsed ? '' : 'none';
         var chev = this.querySelector('.pb-grp-chevron');
-        if (chev) chev.style.transform = collapsed ? '' : 'rotate(-90deg)';
+        if (chev) chev.classList.toggle('collapsed', !collapsed);
+      });
+    });
+    // Wire up collapsible section headers
+    _popupBodyEl.querySelectorAll('.pb-sect-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var sid  = this.dataset.sectid;
+        if (!sid) return;
+        var body = _popupBodyEl.querySelector('.pb-sect-body[data-sectid="'+sid+'"]');
+        if (!body) return;
+        var collapsed = body.style.display === 'none';
+        body.style.display = collapsed ? '' : 'none';
+        var chev = this.querySelector('.pb-sect-chevron');
+        if (chev) chev.classList.toggle('collapsed', !collapsed);
       });
     });
 
     // ── Position popup ──
     const rect = cell.getBoundingClientRect();
-    const popW = 320;
+    const popW = 350;
     let left = rect.right + 10;
     let top  = rect.top;
     if (left + popW > window.innerWidth - 12) left = rect.left - popW - 10;
