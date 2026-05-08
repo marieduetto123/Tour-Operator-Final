@@ -6856,7 +6856,7 @@ body.dark .figma-tb-info-tag { background: #222; border-color: #2a2a2a; }
 .cal-md-group-lbl { font-size: 9px; font-weight: 700; color: #9ca3af; letter-spacing: 0.5px; text-transform: uppercase; padding: 6px 12px 2px; }
 .cal-md-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 20px; cursor: pointer; }
 .cal-md-item:hover { background: #f9fafb; }
-.cal-md-cb { width: 18px; height: 18px; border-radius: 2px; background: #e5e7eb; border: 1px solid #DDE1E2; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background .12s, border-color .12s; cursor: pointer; }
+.cal-md-cb { width: 18px; height: 18px; border-radius: 2px; background: #fff; border: 2px solid #4f5b60; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background .12s, border-color .12s; cursor: pointer; }
 .cal-md-cb.checked { background: #006461; border-color: #006461; }
 .cal-md-cb.checked::after { content: ''; display: block; width: 9px; height: 5px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px,-1px); }
 .cal-md-cb.cm-disabled { background: #eaeeef; border: 2px solid #aeb4ba; cursor: not-allowed; }

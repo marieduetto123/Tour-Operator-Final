@@ -14613,9 +14613,6 @@ window.calHideCapTip = function() {
       hint.textContent = checked + ' / 4 rows';
       hint.style.color = checked >= 4 ? '#d32f2f' : '#9ca3af';
     }
-    // Blue info box in segments section — persistent when at limit
-    var infoBox = document.getElementById('cmInfoBox');
-    if (infoBox) infoBox.style.display = checked >= 4 ? 'flex' : 'none';
     var applyBtn = document.getElementById('cmApplyBtn');
     if (applyBtn) { applyBtn.disabled = false; applyBtn.style.background = '#006461'; applyBtn.style.cursor = 'pointer'; applyBtn.style.opacity = '1'; }
     syncDisabled();
