@@ -4324,8 +4324,13 @@ function buildDailyBView(days, month, activeDay) {
       grp.g_more.push({type:'sub',  id:'revpar_stly', label:compLabel,   dot:'#C4FF45', parent:'revpar_s'});
     }
     if (wvMetricState.dm_pickup) {
-      var _anyPU = pickupDayValues.some(function(dv, i) { return wvMetricState['dm_pickup_' + i] !== false; });
-      if (_anyPU) grp.g_more.push({type:'sect', id:'pickup_s', label:'Pickup', parent:'g_more'});
+      pickupDayValues.forEach(function(dv, i) {
+        if (wvMetricState['dm_pickup_' + i] !== false) {
+          grp.g_more.push({type:'sect', id:'pickup_'+i, label:'Pickup '+dv, parent:'g_more', puIdx: i, puDv: dv});
+          grp.g_more.push({type:'sub',  id:'pickup_'+i+'_h', label:'Hotel', dot:'#52d9ce', parent:'pickup_'+i, puIdx: i, puDv: dv});
+          grp.g_more.push({type:'sub',  id:'pickup_'+i+'_t', label:'TO',    dot:'#004948', parent:'pickup_'+i, puIdx: i, puDv: dv});
+        }
+      });
     }
     if (wvMetricState.dm_avgAdults) {
       grp.g_more.push({type:'sect', id:'avga_s', label:'Avg Adults',   parent:'g_more'});
@@ -4369,18 +4374,20 @@ function buildDailyBView(days, month, activeDay) {
   // Group: Meal Plans
   if (wvMetricState.mealsSummary) {
     grp.g_meals.push({type:'top',  id:'g_meals', label:'Meal Plans'});
-    grp.g_meals.push({type:'sect', id:'mp_ai',   label:'All Inclusive',   parent:'g_meals'});
-    grp.g_meals.push({type:'sub',  id:'mp_ai_t', label:'TO',                        dot:'#004948', parent:'mp_ai'});
-    grp.g_meals.push({type:'sub',  id:'mp_ai_h', label:'Hotel',             dot:'#52d9ce', parent:'mp_ai'});
-    grp.g_meals.push({type:'sect', id:'mp_bb',   label:'Bed & Breakfast', parent:'g_meals'});
-    grp.g_meals.push({type:'sub',  id:'mp_bb_t', label:'TO',                        dot:'#004948', parent:'mp_bb'});
-    grp.g_meals.push({type:'sub',  id:'mp_bb_h', label:'Hotel',             dot:'#52d9ce', parent:'mp_bb'});
-    grp.g_meals.push({type:'sect', id:'mp_hb',   label:'Half Board',      parent:'g_meals'});
-    grp.g_meals.push({type:'sub',  id:'mp_hb_t', label:'TO',                        dot:'#004948', parent:'mp_hb'});
-    grp.g_meals.push({type:'sub',  id:'mp_hb_h', label:'Hotel',             dot:'#52d9ce', parent:'mp_hb'});
-    grp.g_meals.push({type:'sect', id:'mp_ro',   label:'Room Only',       parent:'g_meals'});
-    grp.g_meals.push({type:'sub',  id:'mp_ro_t', label:'TO',                        dot:'#004948', parent:'mp_ro'});
-    grp.g_meals.push({type:'sub',  id:'mp_ro_h', label:'Hotel',             dot:'#52d9ce', parent:'mp_ro'});
+    var _mpPlans = [
+      {key:'ai', label:'All Inclusive'},
+      {key:'bb', label:'Bed & Breakfast'},
+      {key:'hb', label:'Half Board'},
+      {key:'ro', label:'Room Only'}
+    ];
+    _mpPlans.forEach(function(p) {
+      grp.g_meals.push({type:'sect', id:'mp_'+p.key,        label:p.label,     parent:'g_meals', mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_rm',  label:'Rooms',     dot:'#004948', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_g',   label:'Guests',    dot:'#52d9ce', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_rv',  label:'Revenue',   dot:'#D97706', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_adr', label:'ADR Gross', dot:'#6366f1', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_sh',  label:'TO Share',  dot:'#9ca3af', parent:'mp_'+p.key, mpKey:p.key});
+    });
     grp.g_meals.push({type:'sect', id:'mp_sum',  label:'Summary',         parent:'g_meals'});
   }
 
@@ -4554,16 +4561,10 @@ function buildDailyBView(days, month, activeDay) {
             + '<span class="wb-grp-label">' + row.label + '</span>'
             + '</div>';
     } else if (row.type === 'sect') {
-      if (row.id === 'pickup_s') {
-        html += '<div class="wb-label-cell wb-sect-lbl">'
-              + '<span class="wb-sect-label">' + row.label + '</span>'
-              + '</div>';
-      } else {
         html += '<div class="wb-label-cell wb-sect-lbl" onclick="wbToggle(\'' + row.id + '\')">'
               + '<span class="wb-chev">' + (collapsed ? chevDown : chevUp) + '</span>'
               + '<span class="wb-sect-label">' + row.label + '</span>'
               + '</div>';
-      }
     } else {
       var dotHtml = row.dot ? '<span class="wb-sub-dot" style="background:' + row.dot + '"></span>' : '';
       html += '<div class="wb-label-cell wb-sub-lbl-cell">'
@@ -4645,6 +4646,21 @@ function buildDailyBView(days, month, activeDay) {
           cellContent = '<div class="wb-sect-val"><span class="wv-occ-total" style="font-weight:700">$'+baseRate+'</span></div>'
             + '<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round(baseRate/280*100))+'%;background:'+wbGrad('#004948')+';height:6px"></div></div>';
 
+        } else if (row.puIdx !== undefined) {
+          // ── Pickup per-window parent row ──
+          var _psc = row.puDv<=1?0.3:row.puDv<=3?0.6:row.puDv<=7?1:Math.min(2,row.puDv/7);
+          var _ppv = Math.max(0, Math.round(d.pickup * _psc));
+          cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">+'+_ppv+'</span></div>'
+            + '<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,_ppv*3)+'%;background:'+wbGrad('#004948')+';height:6px"></div></div>';
+
+        } else if (row.mpKey !== undefined) {
+          // ── Meal Plan parent row (dynamic) ──
+          var _mpPct = d[row.mpKey+'Pct'];
+          var _mpHRm = Math.round(d.hnRn*_mpPct/100), _mpSeats = Math.round(_mpHRm*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC)));
+          cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+_mpPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+_mpHRm+' rms</span></div>'
+            +'<div style="font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px">'+_mpSeats+' seats</div>'
+            + '<div class="wv-occ-bar-track"><div style="width:'+_mpPct+'%;background:'+wbGrad('#004948')+';height:6px"></div></div>';
+
         } else {
         // colors are read from the first sub-row's dot for each section
         function wbBar(pct, clr) {
@@ -4707,30 +4723,6 @@ function buildDailyBView(days, month, activeDay) {
               + wbBarMark(wbBar(Math.min(90,Math.round(d.hRevpar/4)), '#004948'), cvPct);
             break;
           }
-          case 'pickup_s': {
-            var _activePUw = pickupDayValues.filter(function(dv, i) { return wvMetricState['dm_pickup_' + i] !== false; });
-            var _pun = _activePUw.length;
-            if (!_pun) { cellContent = ''; break; }
-            var _puHdrs = '', _puVals = '';
-            _activePUw.forEach(function(dv, idx) {
-              var _sc = dv<=1?0.3:dv<=3?0.6:dv<=7?1:Math.min(2,dv/7);
-              var _pv = Math.max(0, Math.round(d.pickup * _sc));
-              var _pvBar = Math.min(90, _pv * 3);
-              var _hpvBar = Math.min(90, d.hPickup * _sc * 3);
-              var _bL = idx===0 ? '' : 'border-left:1px solid #e0e0e0;';
-              _puHdrs += '<div class="wv-pu-fig-cell" style="'+_bL+'">'+dv+'</div>';
-              _puVals += '<div class="wv-pu-fig-val-cell" style="'+_bL+'">'
-                + '<span class="wv-pu-fig-num">+'+_pv+'</span>'
-                + '<div class="wv-occ-bar-track" style="height:4px;margin:2px 0 1px"><div style="width:'+_pvBar+'%;background:'+wbGrad('#004948')+';height:4px"></div></div>'
-                + '<div class="wv-occ-bar-track" style="height:4px"><div style="width:'+_hpvBar+'%;background:'+wbGrad('#52d9ce')+';height:4px"></div></div>'
-                + '</div>';
-            });
-            cellContent = '<div class="wv-pu-fig-wrap">'
-              + '<div class="wv-pu-fig-hdr-row" style="grid-template-columns:repeat('+_pun+',1fr)">'+_puHdrs+'</div>'
-              + '<div class="wv-pu-fig-val-row" style="grid-template-columns:repeat('+_pun+',1fr)">'+_puVals+'</div>'
-              + '</div>';
-            break;
-          }
           case 'avga_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgA+'</span></div>'
               + wbBar(Math.min(90,parseFloat(d.avgA)/3*100), '#004948') + wbBar(Math.min(90,parseFloat(d.hAvgA)/3*100), '#52d9ce');
@@ -4767,31 +4759,7 @@ function buildDailyBView(days, month, activeDay) {
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.availGuar+' rm</span></div>'
               + wbBar(Math.min(90,Math.round(d.availGuar/20*100)), '#004948');
             break;
-          // ── Meal Plans — each uses its own dot color ────────────────────────
-          case 'mp_ai':
-            { var aiRn=Math.round(d.hnRn*d.aiPct/100),aiSeats=Math.round(aiRn*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC)));
-            cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.aiPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+aiRn+' rms</span></div>'
-              +'<div style="font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px">'+aiSeats+' seats</div>'
-              + wbBar(d.aiPct, '#004948'); }
-            break;
-          case 'mp_bb':
-            { var bbRn=Math.round(d.hnRn*d.bbPct/100),bbSeats=Math.round(bbRn*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC)));
-            cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.bbPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+bbRn+' rms</span></div>'
-              +'<div style="font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px">'+bbSeats+' seats</div>'
-              + wbBar(d.bbPct, '#004948'); }
-            break;
-          case 'mp_hb':
-            { var hbRn=Math.round(d.hnRn*d.hbPct/100),hbSeats=Math.round(hbRn*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC)));
-            cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.hbPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+hbRn+' rms</span></div>'
-              +'<div style="font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px">'+hbSeats+' seats</div>'
-              + wbBar(d.hbPct, '#004948'); }
-            break;
-          case 'mp_ro':
-            { var roRn=Math.round(d.hnRn*d.roPct/100),roSeats=Math.round(roRn*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC)));
-            cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.roPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+roRn+' rms</span></div>'
-              +'<div style="font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px">'+roSeats+' seats</div>'
-              + wbBar(d.roPct, '#004948'); }
-            break;
+          // ── Meal Plans Summary ────────────────────────────────────────────
           case 'mp_sum':
             { var _sumGPR=parseFloat(d.hAvgA)+parseFloat(d.hAvgC);
               var _aiR=Math.round(d.hnRn*d.aiPct/100),_aiSt=Math.round(_aiR*_sumGPR);
@@ -4824,7 +4792,30 @@ function buildDailyBView(days, month, activeDay) {
         // Sub-row
         var v1 = '', v2 = '', remCls = row.isRem ? ' wb-sub-val-rem' : '';
         // Room availability sub-rows (dynamic)
-        if (row.rtSub !== undefined) {
+        if (row.puIdx !== undefined) {
+          // ── Pickup per-window sub-rows ──
+          var _psc2 = row.puDv<=1?0.3:row.puDv<=3?0.6:row.puDv<=7?1:Math.min(2,row.puDv/7);
+          if (row.id.endsWith('_t')) {
+            v1 = '+'+Math.max(0, Math.round(d.pickup * _psc2));
+          } else {
+            v1 = '+'+Math.max(0, Math.round(d.hPickup * _psc2));
+          }
+        } else if (row.mpKey !== undefined) {
+          // ── Meal Plan metric sub-rows ──
+          var _mPct2 = d[row.mpKey+'Pct'];
+          var _mHRm2 = Math.round(d.hnRn*_mPct2/100);
+          var _mTRm2 = Math.round(d.toRn*_mPct2/100);
+          var _mHGpr2 = parseFloat(d.hAvgA)+parseFloat(d.hAvgC);
+          var _mTGpr2 = parseFloat(d.avgA)+parseFloat(d.avgC);
+          var _mSfx = row.id.split('_').pop();
+          switch (_mSfx) {
+            case 'rm':  v1 = _mHRm2+' rm'; v2 = 'T: '+_mTRm2; break;
+            case 'g':   v1 = String(Math.round(_mHRm2*_mHGpr2)); v2 = 'T: '+Math.round(_mTRm2*_mTGpr2); break;
+            case 'rv':  { var _mHR=Math.round(_mHRm2*d.adr),_mTR=Math.round(_mTRm2*d.toAdr); v1=_mHR>=1000?'$'+Math.round(_mHR/1000)+'k':'$'+_mHR; v2='T: '+(_mTR>=1000?'$'+Math.round(_mTR/1000)+'k':'$'+_mTR); } break;
+            case 'adr': v1 = '$'+d.adr; v2 = 'T: $'+d.toAdr; break;
+            case 'sh':  { var _mSh=_mHRm2>0?Math.round(_mTRm2/_mHRm2*100):0; v1=_mSh+'%'; v2=(100-_mSh)+'% hotel'; } break;
+          }
+        } else if (row.rtSub !== undefined) {
           var inv2  = RT_CAPS[row.rtIdx];
           var sold2 = Math.min(inv2, Math.floor(inv2 * d.hotel / 110));
           var toS2  = Math.min(sold2, Math.round(sold2 * d.to / Math.max(1, d.hotel)));
@@ -4893,9 +4884,6 @@ function buildDailyBView(days, month, activeDay) {
           // revpar
           case 'revpar_h':   v1 = '$'+d.hRevpar;                                            break;
           case 'revpar_stly':v1 = '$'+(wvCompare.has('stly')?d.sdlyRevpar:wvCompare.has('ly')?d.lyRevpar:d.sdlyRevpar); break;
-          // pickup
-          case 'pickup_t':   v1 = '+'+d.pickup;                                             break;
-          case 'pickup_h':   v1 = '+'+d.hPickup;                                            break;
           // avg adults / children
           case 'avga_t':     v1 = d.avgA;                                                   break;
           case 'avga_h':     v1 = d.hAvgA;                                                  break;
@@ -4913,15 +4901,6 @@ function buildDailyBView(days, month, activeDay) {
           case 'los_h':      v1 = d.hLos;                                                   break;
           case 'lead_t':     v1 = d.avgLead;                                                break;
           case 'lead_h':     v1 = d.hLead;                                                  break;
-          // meal plans (% · rooms)
-          case 'mp_ai_h':    { var _aiHRm=Math.round(d.hnRn*d.aiPct/100),_aiHSt=Math.round(_aiHRm*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC))); v1=d.aiPct+'% · '+_aiHRm+'r · '+_aiHSt+' seats'; } break;
-          case 'mp_ai_t':    { var _aiTp=Math.max(0,Math.round(d.aiPct*d.toPct*0.9)),_aiTRm=Math.round(d.toRn*d.aiPct/100),_aiTSt=Math.round(_aiTRm*(parseFloat(d.avgA)+parseFloat(d.avgC))); v1=_aiTp+'% · '+_aiTRm+'r · '+_aiTSt+' seats'; } break;
-          case 'mp_bb_h':    { var _bbHRm=Math.round(d.hnRn*d.bbPct/100),_bbHSt=Math.round(_bbHRm*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC))); v1=d.bbPct+'% · '+_bbHRm+'r · '+_bbHSt+' seats'; } break;
-          case 'mp_bb_t':    { var _bbTp=Math.max(0,Math.round(d.bbPct*d.toPct*0.9)),_bbTRm=Math.round(d.toRn*d.bbPct/100),_bbTSt=Math.round(_bbTRm*(parseFloat(d.avgA)+parseFloat(d.avgC))); v1=_bbTp+'% · '+_bbTRm+'r · '+_bbTSt+' seats'; } break;
-          case 'mp_hb_h':    { var _hbHRm=Math.round(d.hnRn*d.hbPct/100),_hbHSt=Math.round(_hbHRm*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC))); v1=d.hbPct+'% · '+_hbHRm+'r · '+_hbHSt+' seats'; } break;
-          case 'mp_hb_t':    { var _hbTp=Math.max(0,Math.round(d.hbPct*d.toPct*0.9)),_hbTRm=Math.round(d.toRn*d.hbPct/100),_hbTSt=Math.round(_hbTRm*(parseFloat(d.avgA)+parseFloat(d.avgC))); v1=_hbTp+'% · '+_hbTRm+'r · '+_hbTSt+' seats'; } break;
-          case 'mp_ro_h':    { var _roHRm=Math.round(d.hnRn*d.roPct/100),_roHSt=Math.round(_roHRm*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC))); v1=d.roPct+'% · '+_roHRm+'r · '+_roHSt+' seats'; } break;
-          case 'mp_ro_t':    { var _roTp=Math.max(0,Math.round(d.roPct*d.toPct*0.9)),_roTRm=Math.round(d.toRn*d.roPct/100),_roTSt=Math.round(_roTRm*(parseFloat(d.avgA)+parseFloat(d.avgC))); v1=_roTp+'% · '+_roTRm+'r · '+_roTSt+' seats'; } break;
           // business mix
           case 'biz_to':     v1 = d.toMix+'%';                                              break;
           case 'biz_dir':    v1 = d.dirMix+'%';                                             break;
