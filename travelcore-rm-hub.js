@@ -10234,18 +10234,9 @@ document.addEventListener('click', function(e) {
     dd.style.display = 'block';
     e.stopPropagation(); return;
   }
-  var cb = e.target.closest('.cal-md-cb[data-cm-key]');
-  if (cb) {
-    e.stopPropagation(); // keep metrics dropdown open
-    var key = cb.dataset.cmKey;
-    var idx = calCellMetrics.indexOf(key);
-    if (idx > -1) {
-      if (calCellMetrics.length > 1) { calCellMetrics.splice(idx, 1); cb.classList.remove('checked'); }
-    } else {
-      if (calCellMetrics.length < 4) { calCellMetrics.push(key); cb.classList.add('checked'); }
-      else { alert('Maximum 4 metrics. Remove one first.'); }
-    }
-    renderCalendar(); return;
+  // Metric checkbox clicks are handled by inline onclick="cmToggleMetric()" — just stop propagation here
+  if (e.target.closest('.cal-md-cb[data-cm-key]')) {
+    e.stopPropagation(); return;
   }
   if (!e.target.closest('#calMetricsWrap') && !e.target.closest('#dailyRevColPanel')) {
     var dd2 = document.getElementById('calMetricsDropdown');
