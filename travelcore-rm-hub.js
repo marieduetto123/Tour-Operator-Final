@@ -3098,10 +3098,10 @@ function clearCalSelection() {
     // ── Daily Metrics ── (matches weekly: Occupancy, Online/Offline, ADR, Revenue with Hotel/TO/STLY sub-rows)
     _pb += _pGrpStart('Daily Metrics', _C1, 'dm');
     _pb += _pSect('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]));
-    _pb += _pSub('Travel Distribution Hubs', toRms+' rms / '+to+'%', _C1);
-    _pb += _pSub('Other Segments', otherRms+' rms / '+otherPct+'%', _C2);
+    _pb += _pSub('Travel Distribution Hubs', toRms+' RN / '+to+'%', _C1);
+    _pb += _pSub('Other Segments', otherRms+' RN / '+otherPct+'%', _C2);
     _pb += _pSub('STLY', hotelSDLY+'%', _CSTLY);
-    _pb += _pSub('Total Hotel Occupancy', freeRms+' rms / '+freePct+'%', _CREM, true);
+    _pb += _pSub('Total Hotel Occupancy', freeRms+' RN / '+freePct+'%', _CREM, true);
     _pb += _pSect('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
     _pb += _pSub('Online', onlinePct+'%', _C1);
     _pb += _pSub('Offline', offlinePct+'%', _C2);
@@ -3222,7 +3222,7 @@ function clearCalSelection() {
       var guests = Math.round(rooms * (_mpAvgA + _mpAvgC));
       return '<span style="font-size:10px;color:#374151">'
         +'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+mp.color+';vertical-align:middle;margin-right:2px"></span>'
-        +mp.short+' '+mp.pct+'% · '+rooms+' rms · '+guests+' TG</span>';
+        +mp.short+' '+mp.pct+'% · '+rooms+' RN · '+guests+' TG</span>';
     }).join('<br>');
     _pb += '<div style="padding:4px 0;font-size:11px">'+_mpSumHtml+'</div>';
     _pb += _pGrpEnd();
@@ -4662,7 +4662,7 @@ function buildDailyBView(days, month, activeDay) {
           // ── Meal Plan parent row (dynamic) ──
           var _mpPct = d[row.mpKey+'Pct'];
           var _mpHRm = Math.round(d.hnRn*_mpPct/100), _mpSeats = Math.round(_mpHRm*(parseFloat(d.hAvgA)+parseFloat(d.hAvgC)));
-          cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+_mpPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+_mpHRm+' rms</span></div>'
+          cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+_mpPct+'%</span><span style="font-size:11px;color:#6b7280;margin-left:4px">'+_mpHRm+' RN</span></div>'
             +'<div style="font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px">'+_mpSeats+' seats</div>'
             + '<div class="wv-occ-bar-track"><div style="width:'+_mpPct+'%;background:'+wbGrad('#004948')+';height:6px"></div></div>';
 
@@ -8076,7 +8076,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
               const sdlyDyn = Math.round(sdlyTo*0.35), lyDyn = Math.round(lyTo*0.35), fcstDyn = Math.round(fcstTo*0.35);
               const sdlySer = Math.max(0,sdlyTo-sdlyFit-sdlyDyn), lySer = Math.max(0,lyTo-lyFit-lyDyn), fcstSer = Math.max(0,fcstTo-fcstFit-fcstDyn);
               function brRow(clr,lbl,rms,pct,extra,rmsCls){
-                return '<div class="wv-occ-br-row'+(extra?' '+extra:'')+'"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+clr+'"></span><span class="wv-occ-br-lbl">'+lbl+'</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms'+(rmsCls?' '+rmsCls:'')+'">'+rms+' rms</span><span class="wv-occ-br-pct">'+pct+'%</span></div></div>';
+                return '<div class="wv-occ-br-row'+(extra?' '+extra:'')+'"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+clr+'"></span><span class="wv-occ-br-lbl">'+lbl+'</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms'+(rmsCls?' '+rmsCls:'')+'">'+rms+' RN</span><span class="wv-occ-br-pct">'+pct+'%</span></div></div>';
               }
               bdRows = brRow('#006461','Static FIT Rates',fitRms,fitPct)
                 +_opCmp(fitPct, sdlyFit, lyFit, fcstFit, function(v){return v+'%';})
@@ -8088,7 +8088,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
                 +brRow('#388C3F','Remaining',freeRms,freePct,'wv-occ-br-remain','wv-remain-count');
             } else {
               function brRow(clr,lbl,rms,pct,extra,rmsCls){
-                return '<div class="wv-occ-br-row'+(extra?' '+extra:'')+'"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+clr+'"></span><span class="wv-occ-br-lbl">'+lbl+'</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms'+(rmsCls?' '+rmsCls:'')+'">'+rms+' rms</span><span class="wv-occ-br-pct">'+pct+'%</span></div></div>';
+                return '<div class="wv-occ-br-row'+(extra?' '+extra:'')+'"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+clr+'"></span><span class="wv-occ-br-lbl">'+lbl+'</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms'+(rmsCls?' '+rmsCls:'')+'">'+rms+' RN</span><span class="wv-occ-br-pct">'+pct+'%</span></div></div>';
               }
               bdRows = brRow('#006461','Travel Distribution Hubs',toRms,to)
                 +_opCmp(to, sdlyTo, lyTo, fcstTo, function(v){return v+'%';})
@@ -15324,8 +15324,8 @@ window.calHideCapTip = function() {
       label: 'Remaining Rooms',
       icon: '🛏',
       svgPath: 'M19 7h-8v7H3V5H1v15h2v-3h18v3h2V11c0-2.21-1.79-4-4-4z',
-      grey:  { desc: 'Remaining rooms less than',  input: { param: 'greyT',  def: 10, unit: 'rms', allowUnitToggle: true } },
-      green: { desc: 'Remaining rooms more than',  input: { param: 'greenT', def: 50, unit: 'rms', allowUnitToggle: true } },
+      grey:  { desc: 'Remaining rooms less than',  input: { param: 'greyT',  def: 10, unit: 'RN', allowUnitToggle: true } },
+      green: { desc: 'Remaining rooms more than',  input: { param: 'greenT', def: 50, unit: 'RN', allowUnitToggle: true } },
       blue:  { desc: 'Between Grey & Green thresholds', input: null }
     },
     mealplan: {
@@ -15340,8 +15340,8 @@ window.calHideCapTip = function() {
       label: 'TO Forecast',
       icon: '📊',
       svgPath: 'M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z',
-      grey:  { desc: 'OTB exceeds the forecast by', input: { param: 'greyT',  def: 20, unit: 'rms', allowUnitToggle: true } },
-      green: { desc: 'OTB is below the forecast by', input: { param: 'greenT', def: 20, unit: 'rms', allowUnitToggle: true } },
+      grey:  { desc: 'OTB exceeds the forecast by', input: { param: 'greyT',  def: 20, unit: 'RN', allowUnitToggle: true } },
+      green: { desc: 'OTB is below the forecast by', input: { param: 'greenT', def: 20, unit: 'RN', allowUnitToggle: true } },
       blue:  { desc: 'OTB within forecast variance', input: null }
     }
   };
@@ -15417,7 +15417,7 @@ window.calHideCapTip = function() {
         var curUnit = (c.cfg.input.allowUnitToggle && hmState[c.key].unitType) ? hmState[c.key].unitType : c.cfg.input.unit;
         var unitToggleHtml = c.cfg.input.allowUnitToggle
           ? '<select class="hm-unit-select" onchange="hmUnitChange(\'' + c.key + '\',this.value)">'
-            + '<option value="rms"' + (curUnit === 'rms' ? ' selected' : '') + '>rms</option>'
+            + '<option value="RN"' + (curUnit === 'RN' ? ' selected' : '') + '>RN</option>'
             + '<option value="%"'   + (curUnit === '%'   ? ' selected' : '') + '>%</option>'
             + '</select>'
           : '<span class="hm-unit-label">' + c.cfg.input.unit + '</span>';
