@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.0/styles/ag-grid.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.0/styles/ag-theme-quartz.css"/>
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.0/dist/ag-grid-community.min.js"></script>
-  <link rel="stylesheet" href="travelcore-rm-hub.css?v=136">
+  <link rel="stylesheet" href="travelcore-rm-hub.css?v=137">
 </head>
 <body>
 
@@ -555,6 +555,11 @@
       <span class="cal-md-swatch" style="background:#f59e0b"></span>
       <span class="cal-md-label">Tour Series</span>
     </label>
+    <!-- ── Info box: visible when 4 metrics selected ── -->
+    <div id="cmInfoBox" style="display:none;margin-top:8px;padding:10px 8px;background:#fff;border:1px solid #00298c;border-radius:4px;align-items:flex-start;gap:8px">
+      <span class="material-icons" style="color:#1b4dc0;font-size:20px;flex-shrink:0;line-height:1.3">info</span>
+      <span style="font-size:14px;color:#1b4dc0;line-height:1.4">Only select up to 4 metrics</span>
+    </div>
   </div>
 
   <!-- ── Metrics selection ──────────────────────────────────────── -->
@@ -563,8 +568,8 @@
       <thead class="cmv4-thead">
         <tr>
           <th style="width:90px"></th>
-          <th style="width:50%">Hotel</th>
-          <th style="width:50%">T.O</th>
+          <th style="width:50%">HOTEL</th>
+          <th style="width:50%">OPERATOR</th>
         </tr>
       </thead>
       <tbody>
@@ -573,13 +578,16 @@
     </table>
   </div>
 
-<div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <button onclick="cmResetMetrics()" style="padding:6px 12px;background:transparent;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;color:#6b7280;cursor:pointer;font-family:inherit">Reset</button>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span id="cmSelectUpTo4" style="display:none;font-size:11px;color:#dc2626;font-weight:600">Select up to 4</span>
-      <button id="cmApplyBtn" onclick="cmApplyMetrics()" style="padding:6px 20px;background:#006461;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Apply</button>
-    </div>
-  </div>
+<!-- ── Modal snackbar: shown when 5th metric click attempted ── -->
+<div id="cmModalSnackbar" style="display:none;margin:0 12px 8px;padding:10px 10px;background:#fee2e2;border-radius:4px;align-items:center;gap:8px">
+  <span class="material-icons" style="color:#dc2626;font-size:20px;flex-shrink:0">error_outline</span>
+  <span style="font-size:13px;color:#1c1c1c;flex:1">De-select a metric first to choose a different one</span>
+  <span onclick="cmModalSnackbarHide()" style="color:#9ca3af;cursor:pointer;font-size:14px;flex-shrink:0;line-height:1">✕</span>
+</div>
+<div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;padding:10px 12px;display:flex;align-items:center;justify-content:flex-end;gap:8px">
+  <button onclick="cmResetMetrics()" style="height:32px;padding:0 12px;background:transparent;border:none;border-radius:4px;font-size:12px;color:#006461;cursor:pointer;font-family:inherit">Reset</button>
+  <button id="cmApplyBtn" onclick="cmApplyMetrics()" style="height:32px;padding:0 12px;background:#006461;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-family:inherit">Apply</button>
+</div>
 </div>
 
                 </div>

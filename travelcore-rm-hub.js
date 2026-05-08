@@ -10229,7 +10229,7 @@ document.addEventListener('click', function(e) {
     var maxH  = Math.min(window.innerHeight - rect.bottom - 12, window.innerHeight * 0.75);
     dd.style.top     = (rect.bottom + 4) + 'px';
     dd.style.left    = rect.left + 'px';
-    dd.style.width = '320px';
+    dd.style.width = '368px';
     dd.style.maxHeight = maxH + 'px';
     dd.style.display = 'block';
     e.stopPropagation(); return;
@@ -14610,13 +14610,14 @@ window.calHideCapTip = function() {
     var checked = countCheckedMetrics();
     var hint = document.getElementById('calCmHint');
     if (hint) {
-      hint.textContent = checked + ' / 4';
-      hint.style.color = checked >= 4 ? '#f59e0b' : '#6b7280';
+      hint.textContent = checked + ' / 4 rows';
+      hint.style.color = checked >= 4 ? '#d32f2f' : '#9ca3af';
     }
+    // Blue info box in segments section — persistent when at limit
+    var infoBox = document.getElementById('cmInfoBox');
+    if (infoBox) infoBox.style.display = checked >= 4 ? 'flex' : 'none';
     var applyBtn = document.getElementById('cmApplyBtn');
-    var limitHint = document.getElementById('cmSelectUpTo4');
     if (applyBtn) { applyBtn.disabled = false; applyBtn.style.background = '#006461'; applyBtn.style.cursor = 'pointer'; applyBtn.style.opacity = '1'; }
-    if (limitHint) limitHint.style.display = 'none';
     syncDisabled();
   }
 
@@ -14670,12 +14671,27 @@ window.calHideCapTip = function() {
       if (idx >= 0) cmMetrics.splice(idx, 1);
       updateHint(false);
     } else {
-      if (countCheckedMetrics() >= 4) { dsSnackbarShow('De-select a metric first to choose a different one'); return; }
+      if (countCheckedMetrics() >= 4) { cmModalSnackbarShow(); return; }
       cb.classList.add('checked');
       if (cmMetrics.indexOf(key) < 0) cmMetrics.push(key);
       updateHint(true);
     }
     // Don't call renderCalendar() here — wait for Apply
+  };
+
+  // ── Modal snackbar (bottom of dropdown) ───────────────────────
+  var _cmSnackTimer = null;
+  window.cmModalSnackbarShow = function() {
+    var el = document.getElementById('cmModalSnackbar');
+    if (!el) return;
+    el.style.display = 'flex';
+    clearTimeout(_cmSnackTimer);
+    _cmSnackTimer = setTimeout(function() { el.style.display = 'none'; }, 3500);
+  };
+  window.cmModalSnackbarHide = function() {
+    var el = document.getElementById('cmModalSnackbar');
+    if (el) el.style.display = 'none';
+    clearTimeout(_cmSnackTimer);
   };
 
   // ── Apply: commit metric selections and re-render ──────────────
