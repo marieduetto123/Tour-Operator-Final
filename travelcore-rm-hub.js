@@ -15345,9 +15345,9 @@ window.calHideCapTip = function() {
     var isStopSales  = type === 'stopsales';
     var isToForecast = type === 'toforecast';
     var colours = [
-      { key: 'grey',  swatch: isStopSales ? '#D33030' : isToForecast ? '#F97316' : '#D9D9D9', label: isStopSales ? 'Closed'  : isToForecast ? 'Above Forecast' : 'Grey',  cfg: def.grey  },
-      { key: 'blue',  swatch: isStopSales ? '#FDCF61' : isToForecast ? '#D7F7ED' : '#D7F7ED', label: isStopSales ? 'Partial' : isToForecast ? 'Within Range'   : 'Blue',  cfg: def.blue  },
-      { key: 'green', swatch: isStopSales ? '#CEF2D1' : '#388C3F',                            label: isStopSales ? 'Open'    : isToForecast ? 'Below Forecast'  : 'Green', cfg: def.green }
+      { key: 'grey',  swatch: isStopSales ? '#D33030' : '#D33030', label: isStopSales ? 'Closed'  : isToForecast ? 'Above Forecast' : 'Grey',  cfg: def.grey  },
+      { key: 'blue',  swatch: isStopSales ? '#FDCF61' : '#FDF6F6', label: isStopSales ? 'Partial' : isToForecast ? 'Within Range'   : 'Blue',  cfg: def.blue  },
+      { key: 'green', swatch: isStopSales ? '#CEF2D1' : '#2E65E8', label: isStopSales ? 'Open'    : isToForecast ? 'Below Forecast'  : 'Green', cfg: def.green }
     ];
 
     rows.innerHTML = colours.map(function(c) {
@@ -15546,7 +15546,7 @@ window.calHideCapTip = function() {
     var isStopSales = hmState.type === 'stopsales';
     var defaults = isStopSales
       ? { grey: '#D33030', blue: '#FDCF61', green: '#CEF2D1' }
-      : { grey: '#D9D9D9', blue: '#D7F7ED', green: '#388C3F' };
+      : { grey: '#D33030', blue: '#FDF6F6', green: '#2E65E8' };
     var gc = hmState.colors.grey  || defaults.grey;
     var bc = hmState.colors.blue  || defaults.blue;
     var gnc = hmState.colors.green || defaults.green;
