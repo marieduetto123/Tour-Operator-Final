@@ -3058,18 +3058,18 @@ function clearCalSelection() {
         +ruleCards+'</div>';
     })();
 
-    // ── Figma-style popup builders ──
+    // ── Figma-style popup builders (Tailwind tw- prefix) ──
     var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
     var _sectIdx=0;
-    function _pBar(pct,c){return'<div class="pb-bar-track"><div class="pb-bar-fill" style="width:'+pct+'%;background:'+c+'"></div></div>';}
-    function _pSbar(segs){return'<div class="pb-bar-track pb-bar-split">'+segs.map(function(s){return'<div style="width:'+s.p+'%;background:'+s.c+';height:100%"></div>';}).join('')+'</div>';}
-    function _pGrpStart(label,clr,uid){return'<div class="pb-grp-hdr pb-grp-toggle" data-grpid="'+uid+'"'+(clr==='#dc2626'?' data-accent="red"':'')+'><span class="pb-chev pb-grp-chevron"></span><span class="pb-grp-label">'+label+'</span></div><div class="pb-grp-body" data-grpid="'+uid+'">';}
+    function _pBar(pct,c){return'<div class="tw-h-1.5 tw-rounded tw-bg-gray-200 tw-overflow-hidden tw-flex tw-mb-0.5"><div class="tw-h-full tw-rounded tw-min-w-[2px]" style="width:'+pct+'%;background:'+c+'"></div></div>';}
+    function _pSbar(segs){return'<div class="tw-h-1.5 tw-rounded tw-bg-gray-200 tw-overflow-hidden tw-flex tw-mb-0.5">'+segs.map(function(s){return'<div style="width:'+s.p+'%;background:'+s.c+';height:100%"></div>';}).join('')+'</div>';}
+    function _pGrpStart(label,clr,uid){var isRed=clr==='#dc2626';return'<div class="pb-grp-toggle tw-flex tw-items-center tw-gap-1 tw-py-2.5 tw-border-b tw-border-gray-200 tw-cursor-pointer tw-select-none" data-grpid="'+uid+'"'+(isRed?' data-accent="red"':'')+'><span class="pb-chev pb-grp-chevron tw-inline-flex tw-items-center tw-justify-center tw-w-4 tw-h-4 tw-shrink-0 tw-text-[10px] tw-transition-transform tw-cursor-pointer'+(isRed?' tw-text-red-600':' tw-text-gray-500')+'"></span><span class="tw-text-sm tw-font-bold tw-flex-1 tw-tracking-wide'+(isRed?' tw-text-red-600':' tw-text-gray-900')+'">'+label+'</span></div><div class="pb-grp-body tw-pb-1" data-grpid="'+uid+'">';}
     function _pGrpEnd(){return'</div>';}
-    function _pSectS(label,val,barHtml){var sid='ps'+(_sectIdx++);return'<div class="pb-sect"><div class="pb-sect-hdr" data-sectid="'+sid+'"><span class="pb-chev pb-sect-chevron"></span><span class="pb-sect-label">'+label+'</span><span class="pb-sect-val">'+val+'</span></div>'+(barHtml||'')+'<div class="pb-sect-body" data-sectid="'+sid+'">';}
+    function _pSectS(label,val,barHtml){var sid='ps'+(_sectIdx++);return'<div><div class="pb-sect-hdr tw-flex tw-items-center tw-gap-1 tw-py-2 tw-cursor-pointer tw-select-none" data-sectid="'+sid+'"><span class="pb-chev pb-sect-chevron tw-inline-flex tw-items-center tw-justify-center tw-w-4 tw-h-4 tw-shrink-0 tw-text-[10px] tw-text-gray-500 tw-transition-transform tw-cursor-pointer"></span><span class="tw-text-[13px] tw-font-medium tw-text-gray-700 tw-flex-1">'+label+'</span><span class="tw-text-[13px] tw-font-bold tw-text-gray-900 tw-text-right tw-min-w-[40px]">'+val+'</span></div>'+(barHtml||'')+'<div class="pb-sect-body tw-pb-1" data-sectid="'+sid+'">';}
     function _pSectE(){return'</div></div>';}
-    function _pSect(label,val,barHtml){return'<div class="pb-sect pb-sect-solo"><div class="pb-sect-hdr-solo"><span class="pb-sect-label">'+label+'</span><span class="pb-sect-val">'+val+'</span></div>'+(barHtml||'')+'</div>';}
-    function _pSub(label,val,dot,isRem){return'<div class="pb-sub'+(isRem?' pb-sub-accent':'')+'">'+(dot?'<span class="pb-sub-dot" style="background:'+dot+'"></span>':'<span class="pb-sub-dot-space"></span>')+'<span class="pb-sub-label">'+label+'</span><span class="pb-sub-val">'+val+'</span></div>';}
-    function _pRef(stlyVal,delta){return'<div class="pb-ref"><span class="wv-ref-tag wv-ref-sdly" style="font-size:10px">STLY '+stlyVal+'</span><span class="wv-ref-tag '+(String(delta).startsWith('+')?'wv-ref-fcst':'wv-ref-sdly')+'" style="font-size:10px">'+delta+'</span></div>';}
+    function _pSect(label,val,barHtml){return'<div class="tw-border-b tw-border-gray-100"><div class="tw-flex tw-items-center tw-gap-1 tw-py-2"><span class="tw-text-[13px] tw-font-medium tw-text-gray-700 tw-flex-1">'+label+'</span><span class="tw-text-[13px] tw-font-bold tw-text-gray-900 tw-text-right tw-min-w-[40px]">'+val+'</span></div>'+(barHtml||'')+'</div>';}
+    function _pSub(label,val,dot,isRem){var accent=isRem?' tw-text-green-600':'';return'<div class="tw-flex tw-items-center tw-gap-1.5 tw-py-[3px] tw-pl-5 tw-min-h-[24px] tw-border-b tw-border-gray-50 last:tw-border-b-0">'+(dot?'<span class="tw-w-1.5 tw-h-1.5 tw-rounded-full tw-shrink-0" style="background:'+dot+'"></span>':'<span class="tw-w-1.5 tw-shrink-0"></span>')+'<span class="tw-text-[13px] tw-flex-1 tw-overflow-hidden tw-whitespace-nowrap tw-text-ellipsis'+(isRem?' tw-text-green-600':' tw-text-gray-500')+'">'+label+'</span><span class="tw-text-[13px] tw-font-semibold tw-text-right tw-whitespace-nowrap'+(isRem?' tw-text-green-600':' tw-text-gray-900')+'">'+val+'</span></div>';}
+    function _pRef(stlyVal,delta){return'<div class="tw-flex tw-gap-1.5 tw-pt-px tw-pl-5"><span class="wv-ref-tag wv-ref-sdly tw-text-[10px]">STLY '+stlyVal+'</span><span class="wv-ref-tag '+(String(delta).startsWith('+')?'wv-ref-fcst':'wv-ref-sdly')+' tw-text-[10px]">'+delta+'</span></div>';}
 
     var _pb = '';
     _pb += _filtLabel;
@@ -3432,10 +3432,11 @@ function clearCalSelection() {
     popup.style.left = left + 'px';
     popup.style.top  = top  + 'px';
     popup.style.maxHeight = (window.innerHeight - top - 20) + 'px';
-    popup.classList.add('visible');
+    popup.classList.remove('tw-hidden');
+    popup.classList.add('tw-flex');
   }
 
-  function closePopup() { popup.classList.remove('visible'); }
+  function closePopup() { popup.classList.add('tw-hidden'); popup.classList.remove('tw-flex'); }
 
   document.getElementById('calMonths').addEventListener('click', e => {
     const cell = e.target.closest('.cal-day:not(.empty)');
