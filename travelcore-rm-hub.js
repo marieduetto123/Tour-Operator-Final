@@ -14577,10 +14577,13 @@ window.calHideCapTip = function() {
     return cmMetrics.length;
   }
 
+  function countCheckedMetrics() {
+    return document.querySelectorAll('#calMetricsDropdown .cal-md-cb[onclick*="cmToggleMetric"].checked').length;
+  }
+
   function syncDisabled() {
-    var rows = countRows();
-    var atLimit = rows >= 4;
-    // Track which TR rows have at least one checked cb — don't dim those
+    var checked = countCheckedMetrics();
+    var atLimit = checked >= 4;
     var processedTrs = new Set();
     document.querySelectorAll('#calMetricsDropdown .cal-md-cb[onclick*="cmToggleMetric"]').forEach(function(cb) {
       var isChecked = cb.classList.contains('checked');
@@ -14592,7 +14595,6 @@ window.calHideCapTip = function() {
       }
       if (tr && !processedTrs.has(tr)) {
         processedTrs.add(tr);
-        // Check if any cb in this TR is checked
         var hasChecked = Array.from(tr.querySelectorAll('.cal-md-cb[onclick*="cmToggleMetric"]')).some(function(c) { return c.classList.contains('checked'); });
         if (atLimit && !hasChecked) {
           tr.style.opacity = '0.38';
@@ -14605,24 +14607,17 @@ window.calHideCapTip = function() {
     });
   }
 
-  // isAdding: true when user just checked a metric — show over-limit warning
-  //           false when user just unchecked — only disable Apply, no warning text
   function updateHint(isAdding) {
-    var rows = countRows();
+    var checked = countCheckedMetrics();
     var hint = document.getElementById('calCmHint');
     if (hint) {
-      hint.textContent = rows + ' / 4 rows';
-      hint.style.color = rows > 4 ? '#dc2626' : rows === 4 ? '#f59e0b' : '#6b7280';
+      hint.textContent = checked + ' / 4';
+      hint.style.color = checked >= 4 ? '#f59e0b' : '#6b7280';
     }
     var applyBtn = document.getElementById('cmApplyBtn');
     var limitHint = document.getElementById('cmSelectUpTo4');
-    if (rows > 4) {
-      if (applyBtn) { applyBtn.disabled = true; applyBtn.style.background = '#9ca3af'; applyBtn.style.cursor = 'not-allowed'; applyBtn.style.opacity = '0.7'; }
-      if (limitHint) limitHint.style.display = (isAdding !== false) ? '' : 'none';
-    } else {
-      if (applyBtn) { applyBtn.disabled = false; applyBtn.style.background = '#006461'; applyBtn.style.cursor = 'pointer'; applyBtn.style.opacity = '1'; }
-      if (limitHint) limitHint.style.display = 'none';
-    }
+    if (applyBtn) { applyBtn.disabled = false; applyBtn.style.background = '#006461'; applyBtn.style.cursor = 'pointer'; applyBtn.style.opacity = '1'; }
+    if (limitHint) limitHint.style.display = 'none';
     syncDisabled();
   }
 
@@ -14686,7 +14681,6 @@ window.calHideCapTip = function() {
 
   // ── Apply: commit metric selections and re-render ──────────────
   window.cmApplyMetrics = function() {
-    if (countRows() > 4) return; // safety guard — button should already be disabled
     var dd = document.getElementById('calMetricsDropdown');
     if (dd) dd.style.display = 'none';
     renderCalendar();
