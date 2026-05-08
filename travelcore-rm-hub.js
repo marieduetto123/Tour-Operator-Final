@@ -1527,7 +1527,7 @@ const CAL_METRIC_DEFS = {
   fcstRevpar:  { label: 'Fc-RVP',  color: '#fef08a', maxVal: 500,   fmt: function(v){ return '$' + v; },                        name: 'Fcst RevPAR',     group: 'RevPAR'     },
   remainRooms:  { label: 'Rem',    color: '#16a34a', maxVal: 210,   fmt: function(v){ return String(v); },                        name: 'Remaining Rooms',    group: 'Other'         },
   avgAdults:    { label: 'AdA',    color: '#2e65e8', maxVal: 4,     fmt: function(v){ return v.toFixed(1); },                     name: 'Avg Adults',         group: 'Other'         },
-  avgChildren:  { label: 'AdC',   color: '#d33030', maxVal: 2,     fmt: function(v){ return v.toFixed(1); },                     name: 'Avg Children',       group: 'Other'         },
+  avgChildren:  { label: 'CHD',   color: '#d33030', maxVal: 2,     fmt: function(v){ return v.toFixed(1); },                     name: 'Avg Children',       group: 'Other'         },
   availRooms:   { label: 'AvR',   color: '#16a34a', maxVal: 210,   fmt: function(v){ return String(v); },                        name: 'Avail Rooms',        group: 'Other'         },
   availGuar:    { label: 'AvG',   color: '#ea580c', maxVal: 30,    fmt: function(v){ return String(v); },                        name: 'Avail Guar.',        group: 'Other'         },
   avgLos:       { label: 'LOS',   color: '#0891b2', maxVal: 14,    fmt: function(v){ return v.toFixed(1) + 'n'; },               name: 'Avg LOS',            group: 'Stay Behaviour'},
@@ -14784,7 +14784,7 @@ window.calHideCapTip = function() {
     avgLos:      { label:'LOS',       color:'#0891b2', fmt: function(v){ return v.toFixed(1)+'n';}, maxVal:14 },
     avgLeadTime: { label:'Lead',      color:'#6366f1', fmt: function(v){ return v+'d'; },         maxVal:365   },
     avgAdults:   { label:'AdA',       color:'#2e65e8', fmt: function(v){ return v.toFixed(1); },  maxVal:4     },
-    avgChildren: { label:'AdC',       color:'#d33030', fmt: function(v){ return v.toFixed(1); },  maxVal:2     },
+    avgChildren: { label:'CHD',       color:'#d33030', fmt: function(v){ return v.toFixed(1); },  maxVal:2     },
     availRooms:  { label:'AvR',       color:'#16a34a', fmt: function(v){ return String(v); },     maxVal:210   },
     availGuar:   { label:'AvG',       color:'#ea580c', fmt: function(v){ return String(v); },     maxVal:30    },
     bizMixTO:    { label:'TO%',       color:'#006461', fmt: function(v){ return v+'%'; },         maxVal:100   },
@@ -15050,7 +15050,6 @@ window.calHideCapTip = function() {
       availRooms:'AR', availGuar:'T-AvG',
       bizMixTO:'TO%', bizMixDirect:'Dir%', bizMixOTA:'OTA%',
       rateTO:'TO-R', ratePromo:'Prmo%', rateBase:'Base',
-      htotalGuests:'#0369a1', ttotalGuests:'#0ea5e9',
     };
     // Full (unabbreviated) labels — used when cells have enough space (1-month view)
     var KEY_LABELS_FULL = {
