@@ -7961,9 +7961,19 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
 .hm-threshold-row.hm-threshold-no-input {
   padding: 8px; gap: 16px;
 }
+.hm-threshold-swatch-col {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0;
+}
 .hm-threshold-swatch {
   width: 23px; height: 23px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid #B0B7BB; box-sizing: content-box;
 }
+.hm-change-colour-btn {
+  font-size: 11px; font-weight: 600; color: #4F5B60; font-family: Lato, sans-serif;
+  background: none; border: 1px solid #B0B7BB; border-radius: 4px;
+  padding: 3px 8px; cursor: pointer; white-space: nowrap;
+}
+.hm-change-colour-btn:hover { background: #F0F2F3; }
 .hm-threshold-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .hm-threshold-name { font-size: 14px; font-weight: 700; color: #1C1C1C; font-family: Lato, sans-serif; }
 .hm-threshold-desc { font-size: 14px; font-weight: 400; color: #4F5B60; font-family: Lato, sans-serif; }

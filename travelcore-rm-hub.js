@@ -15353,6 +15353,8 @@ window.calHideCapTip = function() {
     rows.innerHTML = colours.map(function(c) {
       var currentClr = hmState.colors[c.key] || c.swatch;
       var bodyHtml = '';
+      // Only show the label for stop-sales or TO-forecast; hide generic Grey/Blue/Green
+      var showLabel = isStopSales || isToForecast;
       if (c.cfg.input) {
         var val = hmState[c.key][c.cfg.input.param] !== undefined
           ? hmState[c.key][c.cfg.input.param]
@@ -15365,7 +15367,7 @@ window.calHideCapTip = function() {
             + '</select>'
           : '<span class="hm-unit-label">' + c.cfg.input.unit + '</span>';
         bodyHtml = '<div class="hm-threshold-body">'
-          + '<div class="hm-threshold-name">' + c.label + '</div>'
+          + (showLabel ? '<div class="hm-threshold-name">' + c.label + '</div>' : '')
           + '<div class="hm-threshold-field">'
           + '<div class="hm-threshold-field-label">' + c.cfg.desc + '</div>'
           + '<div style="display:flex;align-items:center;gap:6px">'
@@ -15377,16 +15379,19 @@ window.calHideCapTip = function() {
           + '</div></div>';
       } else {
         bodyHtml = '<div class="hm-threshold-body">'
-          + '<div class="hm-threshold-name">' + c.label + '</div>'
+          + (showLabel ? '<div class="hm-threshold-name">' + c.label + '</div>' : '')
           + '<div class="hm-threshold-between">' + c.cfg.desc + '</div>'
           + '</div>';
       }
       var rowCls = 'hm-threshold-row' + (!c.cfg.input ? ' hm-threshold-no-input' : '');
       return '<div class="' + rowCls + '">'
+        + '<div class="hm-threshold-swatch-col">'
         + '<div class="hm-threshold-swatch hm-swatch-pick" style="background:' + currentClr + ';cursor:pointer;position:relative" title="Click to change colour">'
         + '<input type="color" value="' + currentClr + '" data-hm-swatch="' + c.key + '"'
         + ' onchange="hmSwatchChange(this)" oninput="hmSwatchChange(this)"'
         + ' style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer">'
+        + '</div>'
+        + '<button type="button" class="hm-change-colour-btn" onclick="this.previousElementSibling.querySelector(\'input[type=color]\').click()">Change colour</button>'
         + '</div>'
         + bodyHtml
         + '</div>';
