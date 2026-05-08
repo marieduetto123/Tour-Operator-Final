@@ -1706,7 +1706,7 @@ function renderCalendar() {
             compHtml = '<span class="cell-cmp"> / <span class="' + upOrDown + '">' + compStr + '</span></span>';
           }
 
-          if (r._html) return '<div class="cell-m-row ' + metricColorClass + '">'
+          if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + r._html + '</div>';
           return '<div class="cell-m-row ' + metricColorClass + '">'
