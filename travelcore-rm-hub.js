@@ -1706,7 +1706,9 @@ function renderCalendar() {
             compHtml = '<span class="cell-cmp"> / <span class="' + upOrDown + '">' + compStr + '</span></span>';
           }
 
-          if (r._html) return r._html;
+          if (r._html) return '<div class="cell-m-row ' + metricColorClass + '">'
+            + '<span class="cell-m-label">' + shortLabel + '</span>'
+            + r._html + '</div>';
           return '<div class="cell-m-row ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + '<span class="cell-m-val">' + r.value + compHtml + '</span>'
@@ -15149,7 +15151,8 @@ window.calHideCapTip = function() {
             + '<span class="cal-pu-val" style="color:' + clr + '">+' + pv + '</span>'
             + '</div>';
         });
-        rows.push({ _html: '<div class="cal-pu-grid">' + cells + '</div>', label: useFull ? 'Pickup' : 'PU', color: clr, value:'', raw:0 });
+        var puLbl = (isH ? 'H-' : 'TO-') + (useFull ? 'Pickup' : 'PU');
+        rows.push({ _html: '<div class="cal-pu-grid">' + cells + '</div>', label: puLbl, color: clr, value:'', raw:0 });
         return;
       }
 
