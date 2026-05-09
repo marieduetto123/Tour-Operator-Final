@@ -1648,8 +1648,8 @@ function renderCalendar() {
       // ── Icons (Material: apartment = hotel, confirmation_number = TO) ──
       const icoHotel = `<span class="material-icons cell-m-ico" style="font-size:10px;color:#b0b5ba">apartment</span>`;
       const icoTO    = `<span class="material-icons cell-m-ico" style="font-size:10px;color:#b0b5ba">confirmation_number</span>`;
-      const lockIcoRed    = `<span class="material-icons cell-lock-ico" style="font-size:14px;color:#dc2626">lock</span>`;
-      const lockIcoOrange = `<span class="material-icons cell-lock-ico" style="font-size:14px;color:#FF9800">lock</span>`;
+      // Lock pill SVG (currentColor = inherits text colour)
+      const _lockPillSvg = '<svg viewBox="0 0 10 12" fill="currentColor" width="8" height="9" style="flex-shrink:0;display:inline-block;vertical-align:middle;margin-right:2px"><path d="M8 5.5H7V3.75C7 2.23 5.93 1 4.5 1S2 2.23 2 3.75V5.5H1C.45 5.5 0 5.95 0 6.5v4.5c0 .55.45 1 1 1h7c.55 0 1-.45 1-1V6.5c0-.55-.45-1-1-1zM4.5 9c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zM6 5.5H3V3.75c0-.83.67-1.5 1.5-1.5S6 2.92 6 3.75V5.5z"/></svg>';
       const eyeSvg  = `<button class="cell-eye" aria-label="Quick view" data-month="${m.month}" data-day="${d}"><span class="material-icons" style="font-size:14px">visibility</span></button>`;
 
       // ── Build metric rows from Cell Metrics selection ──
@@ -1749,11 +1749,11 @@ function renderCalendar() {
       cells += `<div class="${classes}" data-month="${m.month}" data-day="${d}"${capTipAttr}>
         <div class="cell-day-hdr">
           <input type="checkbox" class="wv-day-chk mo-day-chk"${moChk} onclick="event.stopPropagation();moDayCheck('${moIso}',this)" title="Select for close-out">
-          ${(isLocked || hasCalCl) ? '<span class="mo-lock-ico" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">' + (isLocked ? lockIcoRed : lockIcoOrange) + '</span>' : ''}
           <span class="day-num">${d}</span>
           <span class="cell-hdr-spacer">${_showEye ? eyeSvg : ''}</span>
         </div>
-        ${isLocked && !isCompact ? '<span class="cell-closed-label">Closed</span>' : ''}
+        ${isLocked && !isCompact ? '<span class="cell-closed-label">' + _lockPillSvg + 'CLOSED</span>' : ''}
+        ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">' + _lockPillSvg + 'PARTIAL CLOSE</span>' : ''}
         ${!isCompact ? `<div class="cell-content">${metricRows}</div>` : ''}
         ${!isCompact && hasCalEvents ? '<span class="cell-event-ico" onmouseenter="calShowEventTip(event,\''+m.month+'-'+d+'\')" onmouseleave="calHideEventTip()"><span class="material-icons" style="font-size:16px;color:#006461">today</span></span>' : ''}
       </div>`;

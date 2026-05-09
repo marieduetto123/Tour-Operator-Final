@@ -867,7 +867,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 /* Hidden by default; revealed only when select mode is active */
 .cell-day-hdr .mo-day-chk { position: absolute; left: 6px; top: 8px; z-index: 2; display: none; }
 .mo-select-active .cell-day-hdr .mo-day-chk { display: block; }
-.cell-day-hdr .mo-lock-ico { position: absolute; left: 6px; top: 24px; line-height: 0; z-index: 2; }
+/* .mo-lock-ico removed — replaced by pill labels */
 .day-num {
   flex: 1; /* take remaining space between checkbox and spacer */
   text-align: center;
@@ -886,21 +886,31 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   position: relative; z-index: 2;
 }
 .cal-day:hover .cell-hdr-spacer { opacity: 1; }
-.cell-lock-ico { flex-shrink: 0; width: 14px; height: 14px; }
-.cell-closed-label {
-  display: inline-flex; align-items: center; justify-content: center;
-  align-self: flex-start; /* don't stretch to full width */
+/* Pill label shared base */
+.cell-closed-label,
+.cell-partial-close-label {
+  display: inline-flex; align-items: center; gap: 0;
+  align-self: flex-start;
   margin-top: 5px;
   padding: 1px 5px;
   border-radius: 3px;
-  background: #fee2e2;
-  color: #d32f2f;
   font-family: 'Lato', sans-serif;
   font-size: 9px; font-weight: 700;
   letter-spacing: 0.3px;
   text-transform: uppercase;
   white-space: nowrap;
+}
+/* CLOSED — red */
+.cell-closed-label {
+  background: #fee2e2;
+  color: #d32f2f;
   pointer-events: none;
+}
+/* PARTIAL CLOSE — amber */
+.cell-partial-close-label {
+  background: #ffe5a6;
+  color: #ff9800;
+  cursor: pointer;
 }
 
 /* Metric rows — Figma layout */
