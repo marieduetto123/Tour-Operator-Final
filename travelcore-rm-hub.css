@@ -845,7 +845,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   overflow: hidden;
   border-right: 1px solid #E5E7EB;
   border-bottom: 1px solid #E5E7EB;
-  padding: 8px 10px;
+  padding: 8px 7px 9px 6px; /* Figma: pt-8 pr-7 pb-9 pl-6 */
 }
 .cal-days { border-top: 1px solid #E5E7EB; border-left: 1px solid #E5E7EB; }
 /* Content layers */
@@ -855,26 +855,35 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cal-day .day-dot { position: relative; z-index: 1; }
 .cal-day:hover { box-shadow: inset 0 0 0 2px #006461; z-index: 1; }
 
-/* Day number row — icons absolute, number centered in cell */
+/* Day number row — Figma: justify-between with checkbox | date | spacer */
 .cell-day-hdr {
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
-  margin-bottom: 0;
+  height: 22px; /* matches 18px checkbox + breathing room */
   position: static !important;
 }
 .cell-hdr-left { display: flex; align-items: center; gap: 3px; position: static; }
-/* Checkbox positioned left, lock below it, eye icon right — relative to .cal-day */
-.cell-day-hdr .mo-day-chk { position: absolute; left: 8px; top: 8px; z-index: 2; }
-.cell-day-hdr .mo-lock-ico { position: absolute; left: 8px; top: 24px; line-height: 0; z-index: 2; }
-.cell-day-hdr .cell-eye { position: absolute; right: 8px; top: 8px; z-index: 2; }
+/* Checkbox positioned left, lock below it — relative to .cal-day */
+.cell-day-hdr .mo-day-chk { position: absolute; left: 6px; top: 8px; z-index: 2; }
+.cell-day-hdr .mo-lock-ico { position: absolute; left: 6px; top: 24px; line-height: 0; z-index: 2; }
 .day-num {
-  position: absolute; left: 0; right: 0; top: 8px;
+  flex: 1; /* take remaining space between checkbox and spacer */
   text-align: center;
   font-size: 13px; font-weight: 500; color: #374151;
   font-family: 'Inter', sans-serif;
-  z-index: 0; pointer-events: none;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 0;
 }
 .day-muted { color: #9CA3AF; }
+/* Spacer on right mirrors checkbox width so day-num is truly centred */
+.cell-hdr-spacer {
+  width: 18px; height: 18px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; /* hidden by default, shows eye on hover */
+  position: relative; z-index: 2;
+}
+.cal-day:hover .cell-hdr-spacer { opacity: 1; }
 .cell-lock-ico { flex-shrink: 0; width: 14px; height: 14px; }
 .cell-closed-label {
   display: flex; align-items: center; justify-content: center;
@@ -889,20 +898,20 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   display: flex; flex-direction: column; gap: 2px;
   flex-shrink: 0;
   margin-top: auto;
-  margin-bottom: 8px;
+  margin-bottom: 8px; /* Figma: metrics 8px above cell bottom padding */
 }
 .cell-m-row {
   display: flex; align-items: center; justify-content: space-between;
-  line-height: 1.1; min-width: 0; overflow: hidden;
+  min-width: 0; overflow: hidden;
 }
 .cell-m-label {
-  font-size: 12px; font-weight: 500;
+  font-size: 12px; font-weight: 500; line-height: 13.2px;
   font-family: 'Inter', sans-serif;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   flex-shrink: 1; min-width: 0;
 }
 .cell-m-val {
-  font-size: 12px; font-weight: 600;
+  font-size: 12px; font-weight: 600; line-height: 13.2px;
   font-family: 'Inter', sans-serif;
   white-space: nowrap; text-align: right;
   flex-shrink: 0;
@@ -1841,15 +1850,12 @@ body.dark .figma-fab { border-color: rgba(255,255,255,.08); }
 
 /* ─── CELL EYE ICON ─── */
 .cell-eye {
-  opacity: 0; pointer-events: none;
   background: rgba(0,100,97,0.08); border: none; cursor: pointer;
   padding: 2px; border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px; color: #006461;
-  transition: opacity .12s, background .12s, color .12s; flex-shrink: 0;
-}
-.cal-day:hover .cell-eye {
-  opacity: 1; pointer-events: auto;
+  width: 18px; height: 18px; color: #006461;
+  transition: background .12s, color .12s; flex-shrink: 0;
+  pointer-events: auto;
 }
 .cell-eye:hover { background: rgba(0,100,97,0.18); color: #004947; }
 .cell-eye .material-icons { font-size: 16px !important; }

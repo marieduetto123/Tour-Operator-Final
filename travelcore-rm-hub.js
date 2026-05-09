@@ -1750,8 +1750,8 @@ function renderCalendar() {
         <div class="cell-day-hdr">
           <input type="checkbox" class="wv-day-chk mo-day-chk"${moChk} onclick="event.stopPropagation();moDayCheck('${moIso}',this)" title="Select for close-out">
           ${(isLocked || hasCalCl) ? '<span class="mo-lock-ico" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">' + (isLocked ? lockIcoRed : lockIcoOrange) + '</span>' : ''}
-          <span class="cell-hdr-left"><span class="day-num">${d}</span></span>
-          ${_showEye ? eyeSvg : ''}
+          <span class="day-num">${d}</span>
+          <span class="cell-hdr-spacer">${_showEye ? eyeSvg : ''}</span>
         </div>
         ${!isCompact ? `<div class="cell-content">${metricRows}</div>` : ''}
         ${!isCompact && hasCalEvents ? '<span class="cell-event-ico" onmouseenter="calShowEventTip(event,\''+m.month+'-'+d+'\')" onmouseleave="calHideEventTip()"><span class="material-icons" style="font-size:16px;color:#006461">today</span></span>' : ''}
