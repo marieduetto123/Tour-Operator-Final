@@ -3060,18 +3060,82 @@ function clearCalSelection() {
         +ruleCards+'</div>';
     })();
 
-    // ── Figma-style popup builders (Tailwind tw- prefix) ──
+    // ── Figma two-column popup builders (200px left | ~148px right) ──
     var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
     var _sectIdx=0;
-    function _pBar(pct,c){return'<div class="tw-h-1.5 tw-rounded tw-bg-gray-200 tw-overflow-hidden tw-flex tw-mb-0.5"><div class="tw-h-full tw-rounded tw-min-w-[2px]" style="width:'+pct+'%;background:'+c+'"></div></div>';}
-    function _pSbar(segs){return'<div class="tw-h-1.5 tw-rounded tw-bg-gray-200 tw-overflow-hidden tw-flex tw-mb-0.5">'+segs.map(function(s){return'<div style="width:'+s.p+'%;background:'+s.c+';height:100%"></div>';}).join('')+'</div>';}
-    function _pGrpStart(label,clr,uid){var isRed=clr==='#dc2626';return'<div class="pb-grp-toggle tw-flex tw-items-center tw-gap-1 tw-py-2.5 tw-border-b tw-border-gray-200 tw-cursor-pointer tw-select-none" data-grpid="'+uid+'"'+(isRed?' data-accent="red"':'')+'><span class="pb-chev pb-grp-chevron tw-inline-flex tw-items-center tw-justify-center tw-w-4 tw-h-4 tw-shrink-0 tw-text-[10px] tw-transition-transform tw-cursor-pointer'+(isRed?' tw-text-red-600':' tw-text-gray-500')+'"></span><span class="tw-text-sm tw-font-bold tw-flex-1 tw-tracking-wide'+(isRed?' tw-text-red-600':' tw-text-gray-900')+'">'+label+'</span></div><div class="pb-grp-body tw-pb-1" data-grpid="'+uid+'">';}
+    // Progress bars — rendered inside right column
+    function _pBar(pct,c){return'<div class="pb-bar"><div class="pb-bar-fill" style="width:'+Math.max(2,pct)+'%;background:'+c+'"></div></div>';}
+    function _pSbar(segs){return'<div class="pb-bar" style="display:flex">'+segs.map(function(s){return'<div style="width:'+s.p+'%;background:'+s.c+';height:100%"></div>';}).join('')+'</div>';}
+    // Group header (44px, full-width, collapsible)
+    function _pGrpStart(label,clr,uid){
+      var isRed=clr==='#dc2626';
+      var lclr=isRed?'#dc2626':'#111827';
+      var bgclr=isRed?'#fff5f5':'#f8fafa';
+      return '<div class="pb-2col pb-grp-toggle" data-grpid="'+uid+'" style="background:'+bgclr+'">'
+        +'<div class="pb-col-l" style="padding-left:0">'
+        +'<span class="pb-chev pb-grp-chevron" style="color:'+(isRed?'#dc2626':'#6b7280')+';margin-left:13px"></span>'
+        +'<span style="font-size:13px;font-weight:700;color:'+lclr+';letter-spacing:0.01em">'+label+'</span>'
+        +'</div>'
+        +'<div class="pb-col-r" style="border-left:none"></div>'
+        +'</div>'
+        +'<div class="pb-grp-body" data-grpid="'+uid+'">';
+    }
     function _pGrpEnd(){return'</div>';}
-    function _pSectS(label,val,barHtml){var sid='ps'+(_sectIdx++);return'<div><div class="pb-sect-hdr tw-flex tw-items-center tw-gap-1 tw-py-2 tw-cursor-pointer tw-select-none" data-sectid="'+sid+'"><span class="pb-chev pb-sect-chevron tw-inline-flex tw-items-center tw-justify-center tw-w-4 tw-h-4 tw-shrink-0 tw-text-[10px] tw-text-gray-500 tw-transition-transform tw-cursor-pointer"></span><span class="tw-text-[13px] tw-font-medium tw-text-gray-700 tw-flex-1">'+label+'</span><span class="tw-text-[13px] tw-font-bold tw-text-gray-900 tw-text-right tw-min-w-[40px]">'+val+'</span></div>'+(barHtml||'')+'<div class="pb-sect-body tw-pb-1" data-sectid="'+sid+'">';}
+    // Primary metric row (53px, collapsible, with value + bar in right col)
+    function _pSectS(label,val,barHtml){
+      var sid='ps'+(_sectIdx++);
+      return '<div>'
+        +'<div class="pb-2col pb-sect-hdr" data-sectid="'+sid+'">'
+        +'<div class="pb-col-l" style="padding-left:0">'
+        +'<span class="pb-chev pb-sect-chevron" style="margin-left:19px"></span>'
+        +'<span style="font-size:13px;font-weight:500;color:#374151;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+label+'</span>'
+        +'</div>'
+        +'<div class="pb-col-r" style="justify-content:flex-start;padding-top:10px;padding-bottom:6px">'
+        +'<div style="font-size:13px;font-weight:700;color:#111827;line-height:1.2">'+val+'</div>'
+        +(barHtml||'')
+        +'</div>'
+        +'</div>'
+        +'<div class="pb-sect-body" data-sectid="'+sid+'">';
+    }
     function _pSectE(){return'</div></div>';}
-    function _pSect(label,val,barHtml){return'<div class="tw-border-b tw-border-gray-100"><div class="tw-flex tw-items-center tw-gap-1 tw-py-2"><span class="tw-text-[13px] tw-font-medium tw-text-gray-700 tw-flex-1">'+label+'</span><span class="tw-text-[13px] tw-font-bold tw-text-gray-900 tw-text-right tw-min-w-[40px]">'+val+'</span></div>'+(barHtml||'')+'</div>';}
-    function _pSub(label,val,dot,isRem){var accent=isRem?' tw-text-green-600':'';return'<div class="tw-flex tw-items-center tw-gap-1.5 tw-py-[3px] tw-pl-5 tw-min-h-[24px] tw-border-b tw-border-gray-50 last:tw-border-b-0">'+(dot?'<span class="tw-w-1.5 tw-h-1.5 tw-rounded-full tw-shrink-0" style="background:'+dot+'"></span>':'<span class="tw-w-1.5 tw-shrink-0"></span>')+'<span class="tw-text-[13px] tw-flex-1 tw-overflow-hidden tw-whitespace-nowrap tw-text-ellipsis'+(isRem?' tw-text-green-600':' tw-text-gray-500')+'">'+label+'</span><span class="tw-text-[13px] tw-font-semibold tw-text-right tw-whitespace-nowrap'+(isRem?' tw-text-green-600':' tw-text-gray-900')+'">'+val+'</span></div>';}
-    function _pRef(stlyVal,delta){return'<div class="tw-flex tw-gap-1.5 tw-pt-px tw-pl-5"><span class="wv-ref-tag wv-ref-sdly tw-text-[10px]">STLY '+stlyVal+'</span><span class="wv-ref-tag '+(String(delta).startsWith('+')?'wv-ref-fcst':'wv-ref-sdly')+' tw-text-[10px]">'+delta+'</span></div>';}
+    // Non-collapsible metric row (44px)
+    function _pSect(label,val,barHtml){
+      return '<div class="pb-2col" style="min-height:44px;border-bottom:1px solid #f3f4f6">'
+        +'<div class="pb-col-l" style="padding-left:33px">'
+        +'<span style="font-size:13px;font-weight:500;color:#374151">'+label+'</span>'
+        +'</div>'
+        +'<div class="pb-col-r" style="justify-content:flex-start;padding-top:8px;padding-bottom:6px">'
+        +'<div style="font-size:13px;font-weight:700;color:#111827">'+val+'</div>'
+        +(barHtml||'')
+        +'</div>'
+        +'</div>';
+    }
+    // Sub-row (32px, bullet dot on left, value right-aligned)
+    function _pSub(label,val,dot,isRem){
+      var lclr=isRem?'#16a34a':'#6b7280';
+      var vclr=isRem?'#16a34a':'#111827';
+      var dotHtml=dot
+        ?'<span style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>'
+        :'<span style="width:9px;flex-shrink:0"></span>';
+      return '<div class="pb-2col pb-sub-row">'
+        +'<div class="pb-col-l" style="padding-left:27px;gap:6px">'
+        +dotHtml
+        +'<span style="font-size:12px;color:'+lclr+';overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+label+'</span>'
+        +'</div>'
+        +'<div class="pb-col-r" style="justify-content:center">'
+        +'<span style="font-size:12px;font-weight:600;color:'+vclr+'">'+val+'</span>'
+        +'</div>'
+        +'</div>';
+    }
+    function _pRef(stlyVal,delta){
+      return '<div class="pb-2col" style="padding-bottom:2px">'
+        +'<div class="pb-col-l" style="padding-left:36px"></div>'
+        +'<div class="pb-col-r" style="flex-direction:row;gap:4px;padding:2px 0;align-items:center">'
+        +'<span class="wv-ref-tag wv-ref-sdly" style="font-size:9px">STLY '+stlyVal+'</span>'
+        +'<span class="wv-ref-tag '+(String(delta).startsWith('+')?'wv-ref-fcst':'wv-ref-sdly')+'" style="font-size:9px">'+delta+'</span>'
+        +'</div>'
+        +'</div>';
+    }
 
     var _pb = '';
     _pb += _filtLabel;
@@ -3193,59 +3257,38 @@ function clearCalSelection() {
 
     // ── Meal Plans ──
     _pb += _pGrpStart('Meal Plans', _C1, 'mp');
-    _pb += '<div style="padding:4px 0">'+mealBarHtml+'</div>';
-    _pb += '<div style="display:flex;justify-content:flex-end;gap:10px;padding:1px 0 2px;margin-bottom:-2px">'
-      +'<span style="font-size:7px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;width:36px;text-align:right">Hotel</span>'
-      +'<span style="font-size:7px;font-weight:700;color:#006461;text-transform:uppercase;letter-spacing:.3px;width:36px;text-align:right">TO</span>'
-      +'</div>';
-    // Meal Plans — with Hotel/TO sub-rows and Summary row (matches weekly daily view)
+    // Summary bar + legend across full width
+    _pb += '<div style="padding:6px 12px 4px">'
+      +'<div class="pb-bar" style="display:flex;height:8px;border-radius:4px">'
+      +mealPlans.map(function(p){ return '<div style="width:'+p.pct+'%;background:'+p.color+';height:100%"></div>'; }).join('')
+      +'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px 12px;padding:5px 0 2px">'
+      +mealPlans.map(function(p){ return '<span style="font-size:10px;color:#374151;display:flex;align-items:center;gap:3px">'
+        +'<span style="width:6px;height:6px;border-radius:50%;background:'+p.color+';flex-shrink:0"></span>'
+        +p.short+' '+p.pct+'%</span>'; }).join('')
+      +'</div></div>';
+    // Meal Plans — each plan as collapsible section with sub-rows
     var _mpToPct = to / Math.max(1, hotel);
     var _mpAvgA = 1.8 + (dm*11+dd*7)%3 * 0.1, _mpAvgC = 0.3 + (dm*7+dd*13)%5 * 0.1;
     var _mpBaseAdr = adr, _mpToAdrGross = Math.round(adr * 0.82);
+    var _mpLongNames = {AI:'All Inclusive', BB:'Bed & Breakfast', HB:'Half Board', RO:'Room Only', FB:'Full Board'};
     mealPlans.forEach(function(mp){
       var totalPlanRooms = Math.round(rnSold * mp.pct / 100);
       var toRoomsAmt     = Math.round(totalPlanRooms * _mpToPct);
       var hGuests = Math.round(totalPlanRooms * (_mpAvgA + _mpAvgC));
-      var tGuests = Math.round(toRoomsAmt * (_mpAvgA + _mpAvgC));
       var hRev = Math.round(totalPlanRooms * _mpBaseAdr);
       var tRev = Math.round(toRoomsAmt * _mpToAdrGross);
       var hRevStr = hRev >= 1000 ? '$'+Math.round(hRev/1000)+'k' : '$'+hRev;
       var tRevStr = tRev >= 1000 ? '$'+Math.round(tRev/1000)+'k' : '$'+tRev;
       var toShare = totalPlanRooms > 0 ? Math.round(toRoomsAmt / totalPlanRooms * 100) : 0;
-      var lyPct = Math.max(1, mp.pct - 3 + (dm+dd)%5 - 2);
-      var diff  = mp.pct - lyPct;
-      // Summary row: dot | name | pct | total rooms | TO rooms
-      _pb += '<div class="wv-occ-br-row" style="grid-template-columns:8px 1fr 28px 30px 30px;padding:3px 0">'
-        +'<span class="wv-occ-br-dot" style="background:'+mp.color+'"></span>'
-        +'<span class="wv-occ-br-lbl" style="font-weight:700">'+mp.short+'</span>'
-        +'<span class="wv-occ-br-pct">'+mp.pct+'%</span>'
-        +'<span class="wv-occ-br-rms">'+totalPlanRooms+'</span>'
-        +'<span class="wv-occ-br-rms" style="color:#006461">'+toRoomsAmt+'</span>'
-        +'</div>';
-      // Sub-rows: Rooms, Guests, Revenue, ADR
-      function _mpRow(lbl, hVal, tVal) {
-        return '<div style="display:flex;align-items:center;padding:1px 0 1px 14px;gap:4px">'
-          +'<span style="font-size:11px;color:#6b7280;flex:1">'+lbl+'</span>'
-          +'<span style="font-size:11px;color:#374151;min-width:36px;text-align:right">'+hVal+'</span>'
-          +'<span style="font-size:11px;color:#006461;min-width:36px;text-align:right">'+tVal+'</span>'
-          +'</div>';
-      }
-      _pb += _mpRow('Rooms', totalPlanRooms+' RN', toRoomsAmt+' RN');
-      _pb += _mpRow('Guests', hGuests, tGuests);
-      _pb += _mpRow('Revenue', hRevStr, tRevStr);
-      _pb += _mpRow('ADR Gross', '$'+_mpBaseAdr, '$'+_mpToAdrGross);
-      _pb += _mpRow('TO Share', toShare+'%', (100-toShare)+'% hotel');
-      _pb += '<div style="border-bottom:1px solid #f0f0f0;margin:3px 0"></div>';
+      _pb += _pSectS(_mpLongNames[mp.short]||mp.short, mp.pct+'% · '+totalPlanRooms+' RN', _pBar(mp.pct, mp.color));
+      _pb += _pSub('Rooms', totalPlanRooms+' RN', mp.color);
+      _pb += _pSub('Guests', hGuests+' guests', mp.color);
+      _pb += _pSub('Revenue', hRevStr, mp.color);
+      _pb += _pSub('ADR Gross', '$'+_mpBaseAdr, mp.color);
+      _pb += _pSub('TO Share', toShare+'%', mp.color);
+      _pb += _pSectE();
     });
-    // Summary row
-    var _mpSumHtml = mealPlans.map(function(mp){
-      var rooms = Math.round(rnSold * mp.pct / 100);
-      var guests = Math.round(rooms * (_mpAvgA + _mpAvgC));
-      return '<span style="font-size:10px;color:#374151">'
-        +'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+mp.color+';vertical-align:middle;margin-right:2px"></span>'
-        +mp.short+' '+mp.pct+'% · '+rooms+' RN · '+guests+' TG</span>';
-    }).join('<br>');
-    _pb += '<div style="padding:4px 0;font-size:11px">'+_mpSumHtml+'</div>';
     _pb += _pGrpEnd();
 
     // ── Business Mix ── (matches weekly: before Room Availability)
@@ -3259,18 +3302,12 @@ function clearCalSelection() {
       { label:'OTA',    pct:_otaMixPct,   color:'#D97706' },
       { label:'Other',  pct:_otherMixPct, color:'#9ca3af' },
     ];
-    var _bizBarHtml = '<div class="wv-meals-bar" style="margin:4px 0 6px">'
-      + _bizMixSegs.map(function(s){ return '<div style="width:'+s.pct+'%;background:'+s.color+';height:100%"></div>'; }).join('')
-      + '</div>';
-    var _bizRowsHtml = _bizMixSegs.map(function(s){
-      return '<div class="wv-meal-row">'
-        +'<span class="wv-meal-dot" style="background:'+s.color+'"></span>'
-        +'<span class="wv-meal-name">'+s.label+'</span>'
-        +'<span class="wv-meal-pct">'+s.pct+'%</span>'
-        +'</div>';
-    }).join('');
     _pb += _pGrpStart('Business Mix', _C1, 'biz');
-    _pb += _bizBarHtml + _bizRowsHtml;
+    _pb += '<div style="padding:6px 12px 4px">'
+      +'<div class="pb-bar" style="display:flex;height:8px;border-radius:4px">'
+      +_bizMixSegs.map(function(s){ return '<div style="width:'+s.pct+'%;background:'+s.color+';height:100%"></div>'; }).join('')
+      +'</div></div>';
+    _bizMixSegs.forEach(function(s){ _pb += _pSub(s.label, s.pct+'%', s.color); });
     _pb += _pGrpEnd();
 
     // ── Room Availability — stacked capacity bar + table (matches weekly daily view) ──
@@ -3317,81 +3354,108 @@ function clearCalSelection() {
       +'<span class="wv-cap-th" style="color:#fb923c">Alloc↑</span>'
       +'<span class="wv-cap-th" style="color:#16a34a">Avail</span>'
       +'</div>';
-    var _rtRows = _rtAll.map(function(r, i) {
+    // Room Availability — each room type as collapsible section
+    _pb += _pGrpStart('Room Availability'+(_hasAnyFilter?' (Filtered)':''), _C1, 'ra');
+    // Capacity summary bar across full width
+    _pb += '<div style="padding:6px 12px 4px">'
+      +'<div class="pb-bar" style="display:flex;height:8px;border-radius:4px">'
+      +'<div style="width:'+_rtToSoldPct+'%;background:#006461;height:100%"></div>'
+      +'<div style="width:'+_rtOtherPct+'%;background:#3b82f6;height:100%"></div>'
+      +'<div style="width:'+_rtAllocPct+'%;background:#fb923c;opacity:.7;height:100%"></div>'
+      +'<div style="width:'+_rtAvailPct+'%;background:#d1fae5;height:100%"></div>'
+      +'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px 8px;padding:4px 0 2px">'
+      +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#006461;flex-shrink:0"></span>TO Sold '+_rtTotToSold+'</span>'
+      +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#3b82f6;flex-shrink:0"></span>Other '+_rtTotOther+'</span>'
+      +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#fb923c;flex-shrink:0"></span>Alloc Rem. '+_rtTotAlloc+'</span>'
+      +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#16a34a;flex-shrink:0"></span>Avail '+_rtTotAvail+'</span>'
+      +'</div>'
+      +'<div style="font-size:9px;color:#9ca3af">Capacity: '+_rtTotalCap+' rooms</div>'
+      +'</div>';
+    _rtAll.forEach(function(r, i) {
       var d = _rtData[i];
       var availClr = d.avail === 0 ? '#ef4444' : '#16a34a';
       var tentSold = Math.floor(Math.abs((dm*(i+2)+dd*(i+4))%5));
       var ooo      = Math.floor(Math.abs((dm*(i+1)+dd*(i+3))%3));
       var totalOcc = d.toSold + d.other + tentSold + ooo;
-      // Main row: room type with avail count
-      var html = '<div style="margin-bottom:6px">';
-      html += '<div style="display:flex;align-items:center;gap:4px;padding:2px 0">'
-        +'<span class="wv-cap-rt-sw" style="background:'+RT_COLORS[i]+'"></span>'
-        +'<span style="font-size:12px;font-weight:600;color:#111827;flex:1">'+r[0]+(d.avail===0?' <span class="wv-rt-closed-badge">CLOSED</span>':'')+'</span>'
-        +'<span style="font-size:12px;font-weight:700;color:'+availClr+'">'+d.avail+' avail</span>'
-        +'<span style="font-size:10px;color:#9ca3af">/'+d.inv+'</span>'
-        +'</div>';
-      // Stacked bar for this room type
       var tsPct = d.inv > 0 ? Math.round(d.toSold / d.inv * 100) : 0;
       var osPct = d.inv > 0 ? Math.round(d.other / d.inv * 100) : 0;
       var alPct = d.inv > 0 ? Math.round(d.allocRem / d.inv * 100) : 0;
       var avPct = Math.max(0, 100 - tsPct - osPct - alPct);
-      html += '<div style="height:5px;border-radius:2px;overflow:hidden;display:flex;margin:2px 0 4px 11px">'
+      var stBarHtml = '<div class="pb-bar" style="display:flex">'
         +'<div style="width:'+tsPct+'%;background:#006461;height:100%"></div>'
         +'<div style="width:'+osPct+'%;background:#3b82f6;height:100%"></div>'
-        +'<div style="width:'+alPct+'%;background:#fb923c;opacity:.6;height:100%"></div>'
+        +'<div style="width:'+alPct+'%;background:#fb923c;opacity:.7;height:100%"></div>'
         +'<div style="width:'+avPct+'%;background:#d1fae5;height:100%"></div>'
         +'</div>';
-      // Sub-rows (matching weekly: TO Sold, Other Segments, Tentative Sold, Out-of-Order, Alloc Rem., Total Hotel Occ)
-      function _rtSub(lbl, val, clr) {
-        return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0 1px 11px">'
-          +'<span style="width:5px;height:5px;border-radius:50%;background:'+clr+';flex-shrink:0"></span>'
-          +'<span style="font-size:11px;color:#6b7280;flex:1">'+lbl+'</span>'
-          +'<span style="font-size:11px;font-weight:600;color:'+clr+'">'+val+'</span></div>';
-      }
-      html += _rtSub('TO Sold', d.toSold, '#006461');
-      html += _rtSub('Other Segments', d.other, '#3b82f6');
-      html += _rtSub('Tentative Sold (Group)', tentSold, '#8b5cf6');
-      html += _rtSub('Out-of-Order', ooo, '#ef4444');
-      html += _rtSub('Alloc Rem.', d.allocRem, '#fb923c');
-      html += _rtSub('Total Hotel Occupancy', totalOcc, '#374151');
-      html += '</div>';
-      return html;
-    }).join('');
-    _pb += _pGrpStart('Room Availability' + (_hasAnyFilter ? ' (Filtered)' : ''), _C1, 'ra');
-    _pb += _rtCapBar + _rtTblHdr + _rtRows;
+      var closedBadge = d.avail === 0
+        ? ' <span style="font-size:9px;font-weight:700;color:#dc2626;background:#fee2e2;padding:1px 4px;border-radius:3px">CLOSED</span>' : '';
+      var valHtml = '<span style="color:'+availClr+';font-size:13px;font-weight:700">'+d.avail+' avail</span>'
+        +'<span style="font-size:10px;color:#9ca3af;font-weight:400;margin-left:3px">/ '+d.inv+'</span>';
+      var sid = 'ps'+(_sectIdx++);
+      _pb += '<div>'
+        +'<div class="pb-2col pb-sect-hdr" data-sectid="'+sid+'" style="'+(d.avail===0?'background:#fff8f8;':'')+'">'
+        +'<div class="pb-col-l" style="padding-left:0">'
+        +'<span class="pb-chev pb-sect-chevron" style="margin-left:19px"></span>'
+        +'<span style="font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:4px">'
+        +'<span style="width:8px;height:8px;border-radius:2px;background:'+RT_COLORS[i]+';flex-shrink:0"></span>'
+        +r[0]+closedBadge
+        +'</span>'
+        +'</div>'
+        +'<div class="pb-col-r" style="justify-content:flex-start;padding-top:10px;padding-bottom:6px">'
+        +valHtml+stBarHtml
+        +'</div>'
+        +'</div>'
+        +'<div class="pb-sect-body" data-sectid="'+sid+'">';
+      _pb += _pSub('TO Sold', d.toSold+' RN', '#006461');
+      _pb += _pSub('Other Segments', d.other+' RN', '#3b82f6');
+      _pb += _pSub('Tentative Sold (Group)', tentSold+' RN', '#8b5cf6');
+      _pb += _pSub('Out-of-Order', ooo+' RN', '#ef4444');
+      _pb += _pSub('Alloc Rem.', d.allocRem+' RN', '#fb923c');
+      _pb += _pSub('Total Hotel Occ.', totalOcc+' RN', '#374151');
+      _pb += _pSectE();
+    });
     _pb += _pGrpEnd();
 
-    // ── Travel Co. Rates — with EBB/Contract tags + Base Rate row (matches weekly daily view) ──
+    // ── Travel Co. Rates ──
     var _ratesDow = (new Date(2026, dm-1, dd)).getDay();
     var _isEbbDay = _ratesDow < 3; // Sun/Mon/Tue = EBB day
-    var _tcRatesHTML = toNames.map(function(name, i) {
+    var _baseSegRate = adr + 8;
+    _pb += _pGrpStart('Travel Co. Rates', _C1, 'to');
+    toNames.forEach(function(name, i) {
       var origIdx = toNamesAll.indexOf(name);
       if (origIdx < 0) origIdx = i;
       var toRate  = adr - 15 + Math.abs((dm*(origIdx+3) + dd*(origIdx+5)) % 50);
       var toAllot = 5  + Math.abs((dm*(origIdx+2) + dd*(origIdx+3)) % 20);
       var toUsed  = Math.max(0, toAllot - Math.floor(hotel / 20));
       var remRooms = toAllot - toUsed;
+      var barPct   = Math.round((toAllot - remRooms) / toAllot * 100);
       var promoTag = _isEbbDay
-        ? '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#16a34a;color:#fff;flex-shrink:0">EBB 10%</span>'
-        : '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#2563eb;color:#fff;flex-shrink:0">Contract</span>';
-      return '<div class="wv-to-rate-row">'
-        +'<span class="wv-to-dot" style="background:'+toColors[i]+'"></span>'
-        +'<span class="wv-to-name">'+name+'</span>'
-        +'<span style="font-size:11px;color:#6b7280;margin-right:2px">'+remRooms+'r</span>'
+        ? '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#16a34a;color:#fff;flex-shrink:0">EBB</span>'
+        : '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;border:1px solid #2563eb;color:#2563eb;flex-shrink:0">Contract</span>';
+      _pb += '<div class="pb-2col pb-sub-row" style="min-height:44px">'
+        +'<div class="pb-col-l" style="padding-left:27px;gap:6px">'
+        +'<span style="width:9px;height:9px;border-radius:50%;background:'+toColors[i]+';flex-shrink:0"></span>'
+        +'<span style="font-size:12px;color:#374151;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+name+'</span>'
+        +'<span style="font-size:10px;color:#9ca3af;flex-shrink:0">'+remRooms+'r</span>'
         +promoTag
-        +'<span class="wv-to-rate" style="margin-left:4px">$'+toRate+'</span>'
+        +'</div>'
+        +'<div class="pb-col-r" style="justify-content:flex-start;padding-top:8px;padding-bottom:4px">'
+        +'<span style="font-size:13px;font-weight:700;color:#111827">$'+toRate+'</span>'
+        +_pBar(barPct, toColors[i])
+        +'</div>'
         +'</div>';
-    }).join('');
-    var _baseSegRate = adr + 8;
-    var _baseRateLine = '<div class="wv-to-rate-row" style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">'
-      +'<span class="wv-to-dot" style="background:#9333ea"></span>'
-      +'<span class="wv-to-name" style="font-weight:700;color:#374151">Base Rate</span>'
-      +'<span style="flex:1"></span>'
-      +'<span class="wv-to-rate" style="font-weight:700;color:#9333ea">$'+_baseSegRate+'</span>'
+    });
+    // Base Rate separator row
+    _pb += '<div class="pb-2col" style="min-height:40px;border-top:1px solid #e5e7eb">'
+      +'<div class="pb-col-l" style="padding-left:27px;gap:6px">'
+      +'<span style="width:9px;height:9px;border-radius:50%;background:#9333ea;flex-shrink:0"></span>'
+      +'<span style="font-size:12px;font-weight:700;color:#374151">Base Rate</span>'
+      +'</div>'
+      +'<div class="pb-col-r" style="justify-content:center">'
+      +'<span style="font-size:13px;font-weight:700;color:#9333ea">$'+_baseSegRate+'</span>'
+      +'</div>'
       +'</div>';
-    _pb += _pGrpStart('Travel Co. Rates', _C1, 'to');
-    _pb += _tcRatesHTML + _baseRateLine;
     _pb += _pGrpEnd();
 
     var _popupBodyEl = document.getElementById('popupBody');

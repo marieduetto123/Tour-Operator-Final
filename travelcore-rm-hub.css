@@ -1849,8 +1849,81 @@ body.dark .figma-fab { border-color: rgba(255,255,255,.08); }
 #dayPopup .wv-cl-chip { font-size: 11px; }
 
 /* Chevron ::before pseudo-element + collapsed state (Tailwind can't do pseudo-content) */
-.pb-chev::before { content: '▾'; }
+.pb-chev::before { content: '▾'; font-size: 10px; }
+.pb-chev {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+  color: #9ca3af;
+}
 .pb-chev.collapsed { transform: rotate(-90deg); }
+
+/* ─── Two-column popup layout (Figma 1127-47701: 200px left | ~148px right) ─── */
+.pb-2col {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+.pb-col-l {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+.pb-col-r {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 8px;
+  border-left: 1px solid #f0f0f0;
+  box-sizing: border-box;
+}
+/* Group header (44px tall) */
+.pb-grp-toggle {
+  min-height: 44px;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  user-select: none;
+}
+.pb-grp-toggle .pb-col-r { border-left: none; }
+/* Primary metric row (53px, collapsible) */
+.pb-sect-hdr {
+  min-height: 53px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  user-select: none;
+  background: #fff;
+}
+.pb-sect-hdr:hover { background: #fafafa; }
+/* Sub-row (32px) */
+.pb-sub-row {
+  min-height: 32px;
+  border-bottom: 1px solid #f9fafb;
+}
+.pb-sub-row:last-child { border-bottom: none; }
+/* Progress bar (6px, inside right col) */
+.pb-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-top: 3px;
+}
+.pb-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  min-width: 2px;
+}
 
 /* 1-month view — larger cells */
 .cal-months-grid[style*="repeat(1"] .cal-day,
