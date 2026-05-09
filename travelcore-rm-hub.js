@@ -4171,7 +4171,7 @@ window.moToggleSelectMode = function() {
   var container = document.getElementById('calMonths') || document.querySelector('.cal-months-grid') || document.querySelector('.wv-months-wrap');
   if (_moSelectMode) {
     if (btn) btn.classList.add('active');
-    if (lbl) lbl.textContent = 'Cancel';
+    // label stays as "Select Dates"
     if (container) container.classList.add('mo-select-active');
   } else {
     if (btn) btn.classList.remove('active');
