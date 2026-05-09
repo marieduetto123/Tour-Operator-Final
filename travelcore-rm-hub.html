@@ -479,8 +479,13 @@
             </div>
           </div>
           <div class="cal-header-right">
-            <!-- Single smart Close/Re-Open button -->
-            <button class="wv-closeout-primary mo-custom-close-btn" id="moCloseOutBtn" onclick="moSmartClose()" style="order:1">
+            <!-- Select Dates toggle -->
+            <button class="mo-select-dates-btn" id="moSelectDatesBtn" onclick="moToggleSelectMode()" style="order:0">
+              <span class="material-icons" style="font-size:16px">check_box_outline_blank</span>
+              <span id="moSelectDatesLabel">Select Dates</span>
+            </button>
+            <!-- Single smart Close/Re-Open button (hidden; moved to footer when select mode active) -->
+            <button class="wv-closeout-primary mo-custom-close-btn" id="moCloseOutBtn" onclick="moSmartClose()" style="order:1;display:none">
               <span class="material-icons" style="font-size:16px">lock</span> Close/Re-Open
             </button>
             <!-- Date Range selector -->
@@ -3429,5 +3434,23 @@
   <button class="ds-snackbar-close" onclick="dsSnackbarHide()" aria-label="Dismiss">
     <span class="material-icons" style="font-size:20px">close</span>
   </button>
+</div>
+
+<!-- ── Monthly calendar: fixed selection footer ───────────────────────── -->
+<div id="moSelFooter" class="mo-sel-footer">
+  <div class="mo-sel-footer-inner">
+    <div class="mo-sel-footer-info">
+      <span class="material-icons" style="font-size:18px;color:#006461">event</span>
+      <span id="moSelCount" class="mo-sel-count">0 dates selected</span>
+    </div>
+    <div class="mo-sel-footer-actions">
+      <button class="mo-sel-footer-cancel" onclick="moToggleSelectMode()">
+        <span class="material-icons" style="font-size:15px">close</span> Cancel
+      </button>
+      <button class="mo-sel-footer-action" onclick="moOpenCloseOut()">
+        <span class="material-icons" style="font-size:15px">lock</span> Close / Re-Open
+      </button>
+    </div>
+  </div>
 </div>
 </body>

@@ -864,7 +864,9 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 }
 .cell-hdr-left { display: flex; align-items: center; gap: 3px; position: static; }
 /* Checkbox positioned left, lock below it — relative to .cal-day */
-.cell-day-hdr .mo-day-chk { position: absolute; left: 6px; top: 8px; z-index: 2; }
+/* Hidden by default; revealed only when select mode is active */
+.cell-day-hdr .mo-day-chk { position: absolute; left: 6px; top: 8px; z-index: 2; display: none; }
+.mo-select-active .cell-day-hdr .mo-day-chk { display: block; }
 .cell-day-hdr .mo-lock-ico { position: absolute; left: 6px; top: 24px; line-height: 0; z-index: 2; }
 .day-num {
   flex: 1; /* take remaining space between checkbox and spacer */
@@ -8215,3 +8217,66 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   padding: 4px 0;
 }
 
+
+/* ── Select Dates button ──────────────────────────────────────────────── */
+.mo-select-dates-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; height: 36px;
+  background: #fff; border: 1px solid #e0e0e0; border-radius: 4px;
+  font-size: 14px; font-family: inherit; color: #1c1c1c;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.mo-select-dates-btn:hover { background: #f9fafb; border-color: #9ca3af; }
+.mo-select-dates-btn.active {
+  background: #006461; border-color: #006461; color: #fff;
+}
+.mo-select-dates-btn.active:hover { background: #004948; }
+
+/* ── Monthly selection fixed footer ──────────────────────────────────── */
+.mo-sel-footer {
+  position: fixed; bottom: 0; left: 220px; right: 0;
+  background: #fff; border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.10);
+  z-index: 200;
+  transform: translateY(100%);
+  transition: transform .22s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+.mo-sel-footer.visible {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.mo-sel-footer-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1400px; margin: 0 auto;
+  padding: 14px 24px;
+  gap: 16px;
+}
+.mo-sel-footer-info {
+  display: flex; align-items: center; gap: 8px;
+}
+.mo-sel-count {
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+  color: #1c1c1c;
+}
+.mo-sel-footer-actions {
+  display: flex; align-items: center; gap: 10px;
+}
+.mo-sel-footer-cancel {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 16px; border-radius: 6px;
+  border: 1px solid #e0e0e0; background: #fff;
+  font-size: 14px; font-family: inherit; color: #6b7280;
+  cursor: pointer; transition: background .12s;
+}
+.mo-sel-footer-cancel:hover { background: #f9fafb; color: #1c1c1c; }
+.mo-sel-footer-action {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 20px; border-radius: 6px;
+  border: none; background: #006461; color: #fff;
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: background .12s;
+}
+.mo-sel-footer-action:hover { background: #004948; }
+.mo-sel-footer-action:disabled { opacity: .5; cursor: default; }

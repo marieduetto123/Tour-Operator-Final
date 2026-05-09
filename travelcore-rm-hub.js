@@ -4097,10 +4097,45 @@ function buildCoHeatmap(days) {
 
 // ── Monthly view day close-out checkboxes ────────────────────────────────────
 var _moSelectedDays = new Set(); // ISO date strings selected for close-out in monthly view
+var _moSelectMode   = false;     // true when "Select Dates" mode is active
+
+window.moToggleSelectMode = function() {
+  _moSelectMode = !_moSelectMode;
+  var btn       = document.getElementById('moSelectDatesBtn');
+  var lbl       = document.getElementById('moSelectDatesLabel');
+  var container = document.getElementById('calMonths') || document.querySelector('.cal-months-grid') || document.querySelector('.wv-months-wrap');
+  if (_moSelectMode) {
+    if (btn) btn.classList.add('active');
+    if (lbl) lbl.textContent = 'Cancel';
+    if (container) container.classList.add('mo-select-active');
+  } else {
+    if (btn) btn.classList.remove('active');
+    if (lbl) lbl.textContent = 'Select Dates';
+    if (container) container.classList.remove('mo-select-active');
+    _moSelectedDays.clear();
+    // uncheck all visible checkboxes
+    document.querySelectorAll('.mo-day-chk').forEach(function(c){ c.checked = false; });
+    _updateMoFooter();
+  }
+};
+
+function _updateMoFooter() {
+  var footer = document.getElementById('moSelFooter');
+  if (!footer) return;
+  var count = _moSelectedDays.size;
+  if (_moSelectMode && count > 0) {
+    footer.classList.add('visible');
+    var countEl = document.getElementById('moSelCount');
+    if (countEl) countEl.textContent = count + ' date' + (count !== 1 ? 's' : '') + ' selected';
+  } else {
+    footer.classList.remove('visible');
+  }
+}
 
 window.moDayCheck = function(dateStr, cb) {
   if (cb.checked) _moSelectedDays.add(dateStr);
   else _moSelectedDays.delete(dateStr);
+  _updateMoFooter();
   _syncCloseOutBtn();
 };
 
