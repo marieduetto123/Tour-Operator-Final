@@ -8158,6 +8158,8 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   text-align: right;
   white-space: nowrap;
 }
+/* When sub-v1 contains block compare lines, allow normal flow */
+.wb-sub-v1:has(.wb-cmp-line) { white-space: normal; }
 .wb-sub-v2 {
   font-family: 'Lato', sans-serif;
   font-size: 13px;
@@ -8190,5 +8192,11 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   height: 32px;
   display: flex;
   align-items: center;
+}
+/* Allow sub-rows to grow taller when compare lines are present */
+.wb-row-sub .wb-data-cell:has(.wb-cmp-line) {
+  height: auto;
+  min-height: 32px;
+  padding: 4px 0;
 }
 

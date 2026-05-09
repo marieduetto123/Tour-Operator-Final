@@ -4718,13 +4718,20 @@ function buildDailyBView(days, month, activeDay) {
                 + '</div>', _cv0);
             break;
           }
-          case 'onoff':
-            cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.onlinePct+'%</span></div>'
+          case 'onoff': {
+            var _onSeed = Math.abs((d.dm*11+d.dd*7)%10);
+            var _onStly = Math.max(20, d.onlinePct - 4 - _onSeed);
+            var _onLy   = Math.max(20, d.onlinePct - 2 - _onSeed/2);
+            var _onFcst = Math.min(90, d.onlinePct + 2 + _onSeed/2);
+            cs = _wvMultiCmpSfx(d.onlinePct, _onStly, _onLy, _onFcst, function(v){ return v+'%'; });
+            cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.onlinePct+'%</span>'+trendBadge(d.onlinePct,_onStly,_onLy,_onFcst)+'</div>'
+              + (cs ? '<div class="wb-cmp-line">'+cs+'</div>' : '')
               + '<div class="wv-occ-bar-track">'
               + '<div style="width:'+d.onlinePct+'%;background:'+wbGrad('#004948')+';height:6px"></div>'
               + '<div style="width:'+(100-d.onlinePct)+'%;background:'+wbGrad('#52d9ce')+';height:6px"></div>'
               + '</div>';
             break;
+          }
           case 'adr': {
             cs = _wvMultiCmpSfx(d.toAdr, d.sdlyA, d.lyA, d.fcstA, function(v){ return '$'+v; });
             var _cv0 = wvCompare.has('stly')?d.sdlyA:wvCompare.has('ly')?d.lyA:wvCompare.has('fcst')?d.fcstA:null;
@@ -4901,8 +4908,27 @@ function buildDailyBView(days, month, activeDay) {
             }
           } break;
           // occupancy
-          case 'occ_tdh':    v1 = d.toRn+' RN';    v2 = d.to+'%';                         break;
-          case 'occ_other':  v1 = d.otherRms+' RN'; v2 = d.otherPct+'%';                  break;
+          case 'occ_tdh': {
+            v1 = d.toRn+' RN'; v2 = d.to+'%';
+            // Show compare using actual TO RN figures (sdlyRn/lyRn/fcstRn)
+            if (wvCompare.size > 0) {
+              var _tdCmp = _wvMultiCmpSfx(d.toRn, d.sdlyRn, d.lyRn, d.fcstRn, String);
+              if (_tdCmp) v1 = '<span style="display:block">'+d.toRn+' RN</span><span class="wb-cmp-line" style="display:block">'+_tdCmp+'</span>';
+            }
+            break;
+          }
+          case 'occ_other': {
+            v1 = d.otherRms+' RN'; v2 = d.otherPct+'%';
+            if (wvCompare.size > 0) {
+              var _othSeed = Math.abs((d.dm*5+d.dd*9)%12);
+              var _othStly = Math.round(d.otherRms*(0.84+_othSeed*0.003));
+              var _othLy   = Math.round(d.otherRms*(0.90+_othSeed*0.003));
+              var _othFcst = Math.round(d.otherRms*(1.04+_othSeed*0.003));
+              var _othCmp  = _wvMultiCmpSfx(d.otherRms, _othStly, _othLy, _othFcst, String);
+              if (_othCmp) v1 = '<span style="display:block">'+d.otherRms+' RN</span><span class="wb-cmp-line" style="display:block">'+_othCmp+'</span>';
+            }
+            break;
+          }
           case 'occ_stly':   { var cRn=wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn; var cH=wvCompare.has('stly')?d.sdlyH:wvCompare.has('ly')?d.lyH:wvCompare.has('fcst')?d.fcstH:d.sdlyH; v1=cRn+' RN'; v2=cH+'%'; } break;
           case 'occ_rem':    v1 = d.freeRms+' RN';  v2 = Math.max(0,100-d.hotel)+'%';     break;
           // online/offline
