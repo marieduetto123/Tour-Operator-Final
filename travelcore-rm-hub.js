@@ -4978,7 +4978,7 @@ function buildDailyBView(days, month, activeDay) {
         if (wvCompare.size > 0 && v1 && row.id.indexOf('_stly') < 0) {
           var _fSeed = Math.abs((d.dm * 7 + d.dd * 13 + (row.rtIdx||0) * 5 + row.id.charCodeAt(row.id.length-1)) % 20);
           var _fNum = parseFloat(String(v1).replace(/[^0-9.\-]/g, ''));
-          if (!isNaN(_fNum) && _fNum !== 0) {
+          if (!isNaN(_fNum)) {
             var _fCmpDefs = [{k:'stly',m:0.84+_fSeed*0.004,l:'STLY'},{k:'ly',m:0.89+_fSeed*0.004,l:'LY'},{k:'fcst',m:0.92+_fSeed*0.008,l:'Fc'}];
             _fCmpDefs.filter(function(x){ return wvCompare.has(x.k); }).forEach(function(x) {
               var _fVal = Math.round(_fNum * x.m), _fDiff = _fNum - _fVal;
