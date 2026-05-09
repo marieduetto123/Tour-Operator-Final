@@ -2553,6 +2553,7 @@ body.dark .wv-range { color: var(--text-primary); }
   border-right: 1px solid var(--border);
   min-width: 0; padding: 0;
   position: relative;
+  overflow: hidden;
 }
 .wv-col:last-child { border-right: none; }
 .wv-col.wv-active { border-left: 2px solid #006461; }
