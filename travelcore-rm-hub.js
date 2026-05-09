@@ -1276,24 +1276,56 @@ let calSelPicking = false; // true after first click, waiting for end
 const TO_FILTER_MULT = { all:1.0, sunwing:0.82, tui:1.18, 'thomas-cook':0.71, 'club-med':1.08 };
 let calFiltTO = 'all';
 let calCompareMode = 'none'; // 'ly', 'stly', 'fcst', 'budget', 'none'
+function calSyncCmpDd() {
+  var _names = { ly:'vs LY', stly:'vs STLY', fcst:'vs Fcst', budget:'vs Budget' };
+  var lbl = document.getElementById('calCmpDdLabel');
+  if (lbl) lbl.textContent = calCompareMode === 'none' ? 'Compare' : (_names[calCompareMode] || 'Compare');
+  var menu = document.getElementById('calCmpDdMenu');
+  if (menu) {
+    menu.querySelectorAll('.wv-cmp-dd-item').forEach(function(item) {
+      var active = item.dataset.cmp === calCompareMode || (item.dataset.cmp === 'none' && calCompareMode === 'none');
+      item.classList.toggle('active', active);
+      var chk = item.querySelector('.wv-cmp-chk');
+      if (chk) chk.checked = active;
+    });
+  }
+}
+function calCmpDdToggle(e) {
+  if (e) e.stopPropagation();
+  var menu = document.getElementById('calCmpDdMenu');
+  var btn  = document.getElementById('calCmpDdBtn');
+  if (!menu || !btn) return;
+  var opening = !menu.classList.contains('open');
+  menu.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+}
 function calSetCompare(val) {
-  calCompareMode = val || 'ly';
+  calCompareMode = val || 'none';
+  calSyncCmpDd();
   renderCalendar();
 }
+// Close cal compare dropdown on outside click
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('calCmpDd');
+  if (dd && !dd.contains(e.target)) {
+    var m = document.getElementById('calCmpDdMenu');
+    var b = document.getElementById('calCmpDdBtn');
+    if (m) m.classList.remove('open');
+    if (b) b.classList.remove('open');
+  }
+});
 // Disable compare dropdown when viewport is too narrow for the current view
 function _calUpdateCompareState() {
-  var sel = document.getElementById('calCompare');
-  var wrap = document.getElementById('calCompareWrap');
-  if (!sel || !wrap) return;
+  var dd = document.getElementById('calCmpDd');
+  if (!dd) return;
   var w = window.innerWidth;
   var v = calDisplayView;
   // 3-month under 2100px or 2-month under 1537px → disable
   var hide = (v === 3 && w < 2100) || (v === 2 && w < 1537);
-  sel.disabled = hide;
-  wrap.classList.toggle('cmp-disabled', hide);
+  dd.classList.toggle('cmp-disabled', hide);
   if (hide && calCompareMode !== 'none') {
     calCompareMode = 'none';
-    sel.value = 'none';
+    calSyncCmpDd();
   }
 }
 window.addEventListener('resize', _calUpdateCompareState);

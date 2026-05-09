@@ -612,15 +612,19 @@
 </div>
 
                 </div>
-            <!-- Compare dropdown -->
-            <div style="position:relative;order:6" id="calCompareWrap">
-              <select class="wv-cmp-select" id="calCompare" onchange="calSetCompare(this.value)">
-                <option value="ly">vs LY</option>
-                <option value="stly">vs STLY</option>
-                <option value="fcst">vs Forecast</option>
-                <option value="budget">vs Budget</option>
-                <option value="none" selected>No Compare</option>
-              </select>
+            <!-- Compare dropdown (Duetto design system) -->
+            <div class="wv-cmp-dd" id="calCmpDd" style="order:6">
+              <button class="wv-cmp-dd-btn" id="calCmpDdBtn" onclick="calCmpDdToggle(event)">
+                <span id="calCmpDdLabel">Compare</span>
+                <span class="material-icons" style="font-size:15px;margin-left:2px;opacity:.65">expand_more</span>
+              </button>
+              <div class="wv-cmp-dd-menu" id="calCmpDdMenu">
+                <div class="wv-cmp-dd-item active" data-cmp="none" onclick="event.stopPropagation();calSetCompare('none')"><input type="checkbox" class="wv-cmp-chk" checked onclick="event.preventDefault();event.stopPropagation()"><span>None</span></div>
+                <div class="wv-cmp-dd-item" data-cmp="ly" onclick="event.stopPropagation();calSetCompare('ly')"><input type="checkbox" class="wv-cmp-chk" onclick="event.preventDefault();event.stopPropagation()"><span>vs LY</span></div>
+                <div class="wv-cmp-dd-item" data-cmp="stly" onclick="event.stopPropagation();calSetCompare('stly')"><input type="checkbox" class="wv-cmp-chk" onclick="event.preventDefault();event.stopPropagation()"><span>vs STLY</span></div>
+                <div class="wv-cmp-dd-item" data-cmp="fcst" onclick="event.stopPropagation();calSetCompare('fcst')"><input type="checkbox" class="wv-cmp-chk" onclick="event.preventDefault();event.stopPropagation()"><span>vs Forecast</span></div>
+                <div class="wv-cmp-dd-item" data-cmp="budget" onclick="event.stopPropagation();calSetCompare('budget')"><input type="checkbox" class="wv-cmp-chk" onclick="event.preventDefault();event.stopPropagation()"><span>vs Budget</span></div>
+              </div>
             </div>
             <!-- Filters (moved next to Cell Metrics) -->
             <div class="cal-filters-wrap" id="calFiltersWrap" style="position:relative;order:3">
