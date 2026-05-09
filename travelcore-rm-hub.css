@@ -886,29 +886,28 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   position: relative; z-index: 2;
 }
 .cal-day:hover .cell-hdr-spacer { opacity: 1; }
-/* Pill label shared base */
+/* Pill chip shared base — Figma 1145-37471 / 1145-37492 */
 .cell-closed-label,
 .cell-partial-close-label {
-  display: inline-flex; align-items: center; gap: 0;
+  display: inline-flex; align-items: center; gap: 6px;
   align-self: flex-start;
-  margin-top: 5px;
-  padding: 1px 5px;
-  border-radius: 3px;
+  margin-top: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
   font-family: 'Lato', sans-serif;
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  font-size: 12px; font-weight: 400;
+  line-height: 1;
   white-space: nowrap;
 }
-/* CLOSED — red */
+/* CLOSED — bg #ffebee, text #991f1f, filled lock */
 .cell-closed-label {
-  background: #fee2e2;
-  color: #d32f2f;
+  background: #ffebee;
+  color: #991f1f;
   pointer-events: none;
 }
-/* PARTIAL CLOSE — amber */
+/* PARTIALLY CLOSED — bg #fff1de, text #ff9800, outlined lock */
 .cell-partial-close-label {
-  background: #ffe5a6;
+  background: #fff1de;
   color: #ff9800;
   cursor: pointer;
 }

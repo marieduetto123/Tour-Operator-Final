@@ -1648,8 +1648,9 @@ function renderCalendar() {
       // ── Icons (Material: apartment = hotel, confirmation_number = TO) ──
       const icoHotel = `<span class="material-icons cell-m-ico" style="font-size:10px;color:#b0b5ba">apartment</span>`;
       const icoTO    = `<span class="material-icons cell-m-ico" style="font-size:10px;color:#b0b5ba">confirmation_number</span>`;
-      // Lock pill SVG (currentColor = inherits text colour)
-      const _lockPillSvg = '<svg viewBox="0 0 10 12" fill="currentColor" width="8" height="9" style="flex-shrink:0;display:inline-block;vertical-align:middle;margin-right:2px"><path d="M8 5.5H7V3.75C7 2.23 5.93 1 4.5 1S2 2.23 2 3.75V5.5H1C.45 5.5 0 5.95 0 6.5v4.5c0 .55.45 1 1 1h7c.55 0 1-.45 1-1V6.5c0-.55-.45-1-1-1zM4.5 9c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zM6 5.5H3V3.75c0-.83.67-1.5 1.5-1.5S6 2.92 6 3.75V5.5z"/></svg>';
+      // Lock icons for pill chips — Figma 1145-37471 / 1145-37492
+      const _lockFilled   = '<svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15" style="flex-shrink:0"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>';
+      const _lockOutlined = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
       const eyeSvg  = `<button class="cell-eye" aria-label="Quick view" data-month="${m.month}" data-day="${d}"><span class="material-icons" style="font-size:14px">visibility</span></button>`;
 
       // ── Build metric rows from Cell Metrics selection ──
@@ -1752,8 +1753,8 @@ function renderCalendar() {
           <span class="day-num">${d}</span>
           <span class="cell-hdr-spacer">${_showEye ? eyeSvg : ''}</span>
         </div>
-        ${isLocked && !isCompact ? '<span class="cell-closed-label">' + _lockPillSvg + 'CLOSED</span>' : ''}
-        ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">' + _lockPillSvg + 'PARTIAL CLOSE</span>' : ''}
+        ${isLocked && !isCompact ? '<span class="cell-closed-label">Closed' + _lockFilled + '</span>' : ''}
+        ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partially Closed' + _lockOutlined + '</span>' : ''}
         ${!isCompact ? `<div class="cell-content">${metricRows}</div>` : ''}
         ${!isCompact && hasCalEvents ? '<span class="cell-event-ico" onmouseenter="calShowEventTip(event,\''+m.month+'-'+d+'\')" onmouseleave="calHideEventTip()"><span class="material-icons" style="font-size:16px;color:#006461">today</span></span>' : ''}
       </div>`;
