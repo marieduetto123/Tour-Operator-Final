@@ -4256,13 +4256,8 @@ window.wvOpenCloseOut = function() {
   }
 };
 
-// Show Close/Re-Open button whenever there are selected monthly dates
-function _syncCloseOutBtn() {
-  var btn = document.getElementById('moCloseOutBtn');
-  if (!btn) return;
-  var count = _moSelectedDays.size;
-  btn.style.display = (_moSelectMode && count > 0) ? '' : 'none';
-}
+// Close/Re-Open button is always visible on monthly calendar
+function _syncCloseOutBtn() {}
 
 // ── Daily B View ─────────────────────────────────────────────────────────────
 var _wbCollapsed    = {};   // shared collapse state (used by both HTML fallback and AG Grid)
