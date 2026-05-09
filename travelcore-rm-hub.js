@@ -1738,7 +1738,7 @@ function renderCalendar() {
         toFcst: to * 1.6 + Math.abs((m.month * 7 + d * 11) % 15)
       };
       const hmClass = (typeof window.hmGetCellClass === 'function') ? window.hmGetCellClass(hmDayData) : '';
-      const classes = ['cal-day', cellClass, hmClass, isLocked ? 'locked' : '', isToday ? 'today' : '', isActionNeeded ? 'action-needed' : '', bulkSelectMode && isLocked ? 'bulk-selectable' : '', isBulkSel ? 'bulk-sel' : '', isInRange ? 'in-range' : ''].filter(Boolean).join(' ');
+      const classes = ['cal-day', cellClass, hmClass, isLocked ? 'locked' : '', isToday ? 'today' : '', isActionNeeded ? 'action-needed' : '', bulkSelectMode && isLocked ? 'bulk-selectable' : '', isBulkSel ? 'bulk-sel' : '', isInRange ? 'in-range' : '', hasCalEvents ? 'has-events' : ''].filter(Boolean).join(' ');
 
       const hotelRooms = toRooms(hotel);
       const toRoomsSold = toRooms(to);
