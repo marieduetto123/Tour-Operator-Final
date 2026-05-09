@@ -1754,7 +1754,7 @@ function renderCalendar() {
           <span class="cell-hdr-spacer">${_showEye ? eyeSvg : ''}</span>
         </div>
         ${isLocked && !isCompact ? '<span class="cell-closed-label">Closed' + _lockFilled + '</span>' : ''}
-        ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partially Closed' + _lockOutlined + '</span>' : ''}
+        ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partial' + _lockOutlined + '</span>' : ''}
         ${!isCompact ? `<div class="cell-content">${metricRows}</div>` : ''}
         ${!isCompact && hasCalEvents ? '<span class="cell-event-ico" onmouseenter="calShowEventTip(event,\''+m.month+'-'+d+'\')" onmouseleave="calHideEventTip()"><span class="material-icons" style="font-size:16px;color:#006461">today</span></span>' : ''}
       </div>`;
@@ -4256,8 +4256,13 @@ window.wvOpenCloseOut = function() {
   }
 };
 
-// No-op — single button is always enabled; kept for compatibility
-function _syncCloseOutBtn() {}
+// Show Close/Re-Open button whenever there are selected monthly dates
+function _syncCloseOutBtn() {
+  var btn = document.getElementById('moCloseOutBtn');
+  if (!btn) return;
+  var count = _moSelectedDays.size;
+  btn.style.display = (_moSelectMode && count > 0) ? '' : 'none';
+}
 
 // ── Daily B View ─────────────────────────────────────────────────────────────
 var _wbCollapsed    = {};   // shared collapse state (used by both HTML fallback and AG Grid)

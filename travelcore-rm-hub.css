@@ -837,7 +837,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 
 /* Day cells — tall with occ content */
 .cal-day {
-  height: 185px; min-width: 0;
+  height: 220px; min-width: 0;
   display: flex; flex-direction: column;
   position: relative; border-radius: 0;
   cursor: pointer; transition: box-shadow .15s;
@@ -1563,7 +1563,7 @@ body.dark .cal-day.today .day-num {
 }
 
 /* Empty / locked */
-.cal-day.empty   { cursor: default; pointer-events: none; height: 120px; border-right-color: transparent; border-bottom-color: transparent; }
+.cal-day.empty   { cursor: default; pointer-events: none; height: 220px; border-right-color: transparent; border-bottom-color: transparent; }
 
 /* ── Compact 6 / 12 month view ── */
 .cal-compact .cal-day {
