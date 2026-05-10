@@ -8300,6 +8300,134 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   padding: 4px 0;
 }
 
+/* Monthly overview + 7-day summary: padded month / summary columns */
+.cal-summary-wrap .wb-hdr-cell {
+  padding: 0 16px;
+}
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_occ"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_adr"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_rev"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_revpar"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_onoff"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_pickup"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_rn"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_avga"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_avgc"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_tota"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_totc"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_totg"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_los"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_lead"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_avail"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_availg"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_bizbar"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id="mos_mpsum"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sect[data-mo-id^="moavrt"]:not([data-mo-id*="_"]) .wb-data-cell {
+  padding: 12px 16px 10px;
+}
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_occ_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_adr_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_rev_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_revpar_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_onoff_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_rn_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_avga_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_avgc_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_tota_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_totc_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_totg_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_los_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_lead_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_biz_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_mp_"] .wb-data-cell,
+.cal-summary-wrap .wb-row-sub[data-mo-id^="moavrt"][data-mo-id*="_"] .wb-data-cell {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_occ_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_adr_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_rev_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_revpar_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_onoff_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_rn_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_avga_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_avgc_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_tota_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_totc_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_totg_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_los_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_lead_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_biz_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="mos_mp_"] .wb-data-cell:has(.wb-cmp-line),
+.cal-summary-wrap .wb-row-sub[data-mo-id^="moavrt"][data-mo-id*="_"] .wb-data-cell:has(.wb-cmp-line) {
+  padding: 4px 16px;
+}
+
+/* Weekly Daily B (#weekView): same padding in day columns */
+#weekView .wb-hdr-cell {
+  padding: 0 16px;
+}
+#weekView .wb-row-sect[data-wb-id="occ"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="adr"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="rev"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="revpar_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="onoff"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="rn"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id^="pickup_"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="avga_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="avgc_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="tota_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="totc_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="totg_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="los_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="lead_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="avail_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="availg_s"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id="biz"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id^="mp_"] .wb-data-cell,
+#weekView .wb-row-sect[data-wb-id^="avrt"] .wb-data-cell {
+  padding: 12px 16px 10px;
+}
+#weekView .wb-row-sub[data-wb-id^="occ_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="adr_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="rev_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="onoff_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="revpar_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="rn_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="pickup_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="avga_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="avgc_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="tota_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="totc_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="totg_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="los_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="lead_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="biz_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="mp_"] .wb-data-cell,
+#weekView .wb-row-sub[data-wb-id^="avrt"] .wb-data-cell {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+#weekView .wb-row-sub[data-wb-id^="occ_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="adr_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="rev_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="onoff_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="revpar_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="rn_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="pickup_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="avga_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="avgc_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="tota_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="totc_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="totg_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="los_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="lead_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="biz_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="mp_"] .wb-data-cell:has(.wb-cmp-line),
+#weekView .wb-row-sub[data-wb-id^="avrt"] .wb-data-cell:has(.wb-cmp-line) {
+  padding: 4px 16px;
+}
+
 
 /* ── Select Dates button ──────────────────────────────────────────────── */
 .mo-select-dates-btn {

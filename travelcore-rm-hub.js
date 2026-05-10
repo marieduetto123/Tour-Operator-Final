@@ -6082,7 +6082,7 @@ window._buildWv7dSummaryHtml = function(d) {
   rows.forEach(function(row) {
     var collapsed = !!_wv7dAccState[row.id];
     var hidden = isHidden(row);
-    html += '<div class="wb-row wb-row-'+row.type+(hidden?' wb-row-hidden':'')+'">';
+    html += '<div class="wb-row wb-row-'+row.type+(hidden?' wb-row-hidden':'')+'" data-mo-id="'+row.id+'">';
 
     // Label cell
     if(row.type==='top'){
