@@ -845,7 +845,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   overflow: hidden;
   border-right: 1px solid #E5E7EB;
   border-bottom: 1px solid #E5E7EB;
-  padding: 8px 7px 9px 6px; /* Figma: pt-8 pr-7 pb-9 pl-6 */
+  padding: 8px 9px 8px 8px; /* Figma 1124:33823: pl-8 pr-9 */
 }
 .cal-days { border-top: 1px solid #E5E7EB; border-left: 1px solid #E5E7EB; }
 /* Content layers */
@@ -865,7 +865,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cell-hdr-left { display: flex; align-items: center; gap: 3px; position: static; }
 /* Checkbox positioned left, lock below it — relative to .cal-day */
 /* Hidden by default; revealed only when select mode is active */
-.cell-day-hdr .mo-day-chk { position: absolute; left: 6px; top: 8px; z-index: 2; display: none; }
+.cell-day-hdr .mo-day-chk { position: absolute; left: 8px; top: 8px; z-index: 2; display: none; }
 .mo-select-active .cell-day-hdr .mo-day-chk { display: block; }
 /* .mo-lock-ico removed — replaced by pill labels */
 .day-num {
@@ -2732,7 +2732,7 @@ body.dark .wv-acc-title { color: #fff; }
 }
 
 /* Detailed metrics table in week view */
-.wv-detailed { padding: 7px 8px 4px; border-bottom: 1px solid var(--border-sub); border-top: 1px solid #f0f0f0; }
+.wv-detailed { padding: 8px 8px 4px; border-bottom: 1px solid var(--border-sub); border-top: 1px solid #f0f0f0; }
 .wv-det-title { font-size: 7px; font-weight: 700; color: #9e9e9e; letter-spacing: 0.35px; text-transform: uppercase; margin-bottom: 4px; }
 /* Bar-chart metric rows */
 .wv-dm-row { margin-bottom: 4px; }
@@ -2749,7 +2749,7 @@ body.dark .wv-acc-title { color: #fff; }
 .wv-dm-delta.neg { color: #d32f2f; }
 
 /* Availability section */
-.wv-avail { padding: 7px 8px 6px; border-bottom: 1px solid var(--border-sub); }
+.wv-avail { padding: 8px 8px 6px; border-bottom: 1px solid var(--border-sub); }
 /* Section titles */
 .wv-avail-sect-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 /* ── Section header shared ─────────────────────────────────── */
@@ -3215,7 +3215,7 @@ body.dark .wv-acc-title { color: #fff; }
 .wv-lock-btn.is-locked { color: #dc2626; }
 
 /* Segment comparison */
-.wv-segment { padding: 6px 8px; }
+.wv-segment { padding: 8px 8px; }
 .wv-seg-title { font-size: 7px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.3px; margin-bottom: 4px; }
 .wv-seg-row { font-size: 7px; color: var(--text-muted); margin-bottom: 2px; display: flex; gap: 3px; align-items: center; }
 .wv-seg-dot { width: 6px; height: 6px; border-radius: 1px; flex-shrink: 0; }
