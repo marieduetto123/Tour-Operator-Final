@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Distribution Hub — Weekly Loading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:              #FAFAFA;
+      --surface-1:       #FFFFFF;
+      --surface-3:       #F5F5F5;
+      --surface-overlay: #EAEEEF;
+      --border:          #DDE1E2;
+      --border-sub:      #EAEEEF;
+      --text-primary:    #1C1C1C;
+      --text-secondary:  #4F5B60;
+      --text-muted:      #8A9096;
+      --table-header-bg: #F8F9FD;
+      --shadow:          0 1px 3px rgba(0,0,0,.2), 0 2px 1px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.14);
+      --accent:          #006461;
+      --accent-bg:       rgba(0,100,97,.07);
+    }
+
+    html, body { overflow-x: hidden; }
+    body {
+      font-family: 'Lato', sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Shimmer — day data cells only ── */
+    @keyframes shimmer {
+      0%   { background-position: -900px 0; }
+      100% { background-position:  900px 0; }
+    }
+    .sk {
+      display: block;
+      background: linear-gradient(90deg, #eaeeef 0%, #f5f7f8 50%, #eaeeef 100%);
+      background-size: 900px 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+      border-radius: 2px;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: 40px; background: #0E2124;
+      display: flex; align-items: stretch; justify-content: space-between;
+      padding: 0 14px 0 24px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: stretch; height: 100%; }
+    .topbar-logo { display: flex; align-items: center; padding-right: 16px; border-right: 1px solid rgba(255,255,255,0.1); margin-right: 4px; }
+    .topbar-tabs { display: flex; align-items: stretch; height: 100%; }
+    .tab {
+      display: flex; align-items: center; gap: 3px;
+      padding: 0 11px; color: rgba(255,255,255,0.65);
+      font-size: 12.5px; text-decoration: none;
+      border-bottom: 2px solid transparent; white-space: nowrap;
+    }
+    .tab.active { color: #C4FF45; border-bottom-color: #C4FF45; }
+    .topbar-icons { display: flex; align-items: center; gap: 2px; }
+    .top-icon-btn {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.65); padding: 8px;
+      border-radius: 4px; display: flex; align-items: center;
+    }
+    .topbar-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #006461; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; margin-left: 4px;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb-bar {
+      height: 32px; background: var(--surface-1);
+      border-bottom: 1px solid var(--border);
+      position: fixed; top: 40px; left: 0; right: 0; z-index: 90;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .breadcrumb { display: flex; align-items: center; font-size: 12px; gap: 2px; }
+    .bc-home { color: #006461; }
+    .bc-sep { display: flex; align-items: center; padding: 0 2px; }
+    .bc-current { color: #4F5B60; }
+    .property-picker {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: 4px;
+      border: 1px solid var(--border); font-size: 12px; cursor: pointer;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; padding-top: 72px; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; min-width: 220px;
+      background: var(--surface-1); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 72px; left: 0; height: calc(100vh - 72px); z-index: 50;
+    }
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px 12px 23px;
+      font-size: 14px; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      border-left: 3px solid transparent;
+    }
+    .nav-item.active {
+      background: var(--accent-bg); border-left-color: var(--accent);
+      color: var(--accent); font-weight: 700;
+    }
+
+    /* ── Main ── */
+    .main { flex: 1; margin-left: 220px; }
+    .page-content { padding: 20px 24px 60px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── Page Header ── */
+    .page-header-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: -20px -24px 0; padding: 0 24px;
+      width: calc(100% + 48px); min-height: 44px;
+      background: var(--surface-1); border-bottom: 1px solid var(--border);
+    }
+    .page-h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .page-header-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ── Controls ── */
+    .ctrl-btn {
+      display: flex; align-items: center; gap: 5px;
+      height: 34px; padding: 0 12px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 4px; font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; font-family: 'Lato', sans-serif; white-space: nowrap;
+    }
+    .ctrl-btn-filled {
+      display: flex; align-items: center; gap: 6px;
+      height: 34px; padding: 0 14px;
+      background: #006461; color: #fff; border: none; border-radius: 4px;
+      font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Lato', sans-serif;
+    }
+    .ctrl-input {
+      display: flex; align-items: center; gap: 6px;
+      height: 34px; padding: 0 10px;
+      border: 1px solid var(--border); border-radius: 4px;
+      background: #fff; min-width: 180px;
+    }
+    .ctrl-select {
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 5px 26px 5px 8px; font-size: 13px; height: 34px;
+      color: var(--text-primary); background: #fff;
+      cursor: pointer; font-family: 'Lato', sans-serif;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%236B7280' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 2px center;
+    }
+
+    /* ── Section Card ── */
+    .section-card { background: #fff; border-radius: 4px; box-shadow: var(--shadow); }
+
+    /* ── wv-topbar ── */
+    .wv-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      background: #fff; position: sticky; top: 72px; z-index: 30; gap: 8px;
+    }
+    .wv-topbar-left { display: flex; align-items: center; gap: 6px; }
+    .wv-topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .wv-back-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 5px 10px 5px 6px; background: none;
+      border: 1px solid var(--border); border-radius: 4px;
+      font-size: 13px; font-weight: 500; color: var(--text-secondary);
+      cursor: pointer; font-family: 'Lato', sans-serif;
+    }
+    .wv-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+    .wv-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+    /* ── Groupby bar ── */
+    .groupby-bar {
+      background: var(--surface-1); border-bottom: 1px solid var(--border);
+      padding: 0 16px; position: sticky; top: 129px; z-index: 20;
+    }
+    .groupby-row { display: flex; align-items: center; padding: 8px 0; gap: 4px; }
+    .groupby-btn {
+      padding: 4px 12px; border-radius: 4px; border: none;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      background: transparent; color: var(--text-secondary); font-family: 'Lato', sans-serif;
+    }
+    .groupby-btn.active { background: #354549; color: #fff; font-weight: 700; }
+    .date-shuffler { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .nav-btn {
+      background: none; border: 1px solid var(--border); border-radius: 4px;
+      width: 28px; height: 28px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: var(--text-secondary);
+    }
+    .range-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+
+    /* ── Table ── */
+    .sk-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .sk-table col.col-label { width: 168px; }
+    .sk-table col.col-date  { width: calc((100% - 168px) / 7); }
+
+    /* Sticky real column headers */
+    .sk-table thead th {
+      background: var(--table-header-bg);
+      border-bottom: 2px solid var(--border);
+      border-right: 1px solid var(--border-sub);
+      padding: 9px 10px; text-align: left;
+      position: sticky; top: 173px; z-index: 10;
+      white-space: nowrap;
+    }
+    .sk-table thead th:last-child { border-right: none; }
+    .th-day { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+    .th-date { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-top: 1px; }
+
+    /* Group header row — real label */
+    .sk-table tbody tr.row-group td {
+      background: #F8F9FD; height: 36px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 10px; vertical-align: middle;
+    }
+    .row-group-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 400; color: #006461;
+    }
+    .wv-acc-chev { display: flex; align-items: center; color: #006461; }
+    /* group summary cells — skeleton */
+    .row-group .cell-sk { vertical-align: middle; padding: 0 10px; border-right: 1px solid var(--border-sub); }
+    .row-group .cell-sk:last-child { border-right: none; }
+
+    /* Metric row — real label, skeleton data */
+    .sk-table tbody tr.row-metric { border-bottom: 1px solid var(--border-sub); }
+    .sk-table tbody tr.row-metric td {
+      padding: 10px 10px; height: 48px;
+      border-right: 1px solid var(--border-sub); vertical-align: middle;
+    }
+    .sk-table tbody tr.row-metric td:last-child { border-right: none; }
+    .row-metric-label {
+      padding-left: 20px; font-size: 12px; color: var(--text-secondary);
+    }
+    .cell-stack { display: flex; flex-direction: column; gap: 5px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ TOPBAR ═══ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <svg width="72" height="20" viewBox="0 0 72 20" fill="none">
+        <text x="0" y="16" font-family="Lato,sans-serif" font-size="17" font-weight="700" fill="#C4FF45">duetto</text>
+      </svg>
+    </div>
+    <nav class="topbar-tabs">
+      <a class="tab" href="#">Home</a>
+      <a class="tab" href="#">Advance</a>
+      <a class="tab" href="#">Pricing &amp; Strategy <span class="material-icons" style="font-size:13px;vertical-align:middle">expand_more</span></a>
+      <a class="tab" href="#">Forecasts &amp; Budgets <span class="material-icons" style="font-size:13px;vertical-align:middle">expand_more</span></a>
+      <a class="tab" href="#">Reports <span class="material-icons" style="font-size:13px;vertical-align:middle">expand_more</span></a>
+      <a class="tab" href="#">Groups <span class="material-icons" style="font-size:13px;vertical-align:middle">expand_more</span></a>
+      <a class="tab active" href="#">Travel Distribution Hub <span class="material-icons" style="font-size:13px;vertical-align:middle">expand_more</span></a>
+    </nav>
+  </div>
+  <div class="topbar-icons">
+    <button class="top-icon-btn"><span class="material-icons" style="font-size:20px">dark_mode</span></button>
+    <button class="top-icon-btn"><span class="material-icons" style="font-size:20px">notifications</span></button>
+    <button class="top-icon-btn"><span class="material-icons" style="font-size:20px">help</span></button>
+    <button class="top-icon-btn"><span class="material-icons" style="font-size:20px">settings</span></button>
+    <div class="topbar-avatar">M</div>
+  </div>
+</header>
+
+<!-- ═══ BREADCRUMB ═══ -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb">
+    <span class="bc-home">Home</span>
+    <span class="bc-sep"><span class="material-icons" style="font-size:12px;color:#585858">chevron_right</span></span>
+    <span class="bc-current">Travel Distribution Hubs</span>
+  </div>
+  <div class="property-picker">
+    <span class="material-icons" style="font-size:18px;color:#19393E">home</span>
+    <span style="color:#1C1C1C;font-size:12px">Hotel Sevilla</span>
+    <span class="material-icons" style="font-size:14px;color:#19393E">expand_more</span>
+  </div>
+</div>
+
+<!-- ═══ LAYOUT ═══ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="#"><span class="material-icons" style="font-size:20px">dashboard</span>Dashboard</a>
+      <a class="nav-item" href="#"><span class="material-icons" style="font-size:20px">people</span>Contacts &amp; Contracts</a>
+      <a class="nav-item" href="#"><span class="material-icons" style="font-size:20px">chat</span>Communications &amp; Notes</a>
+      <a class="nav-item" href="#"><span class="material-icons" style="font-size:20px">settings</span>Configuration</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-content">
+
+      <!-- Page Header — fully real -->
+      <div class="page-header-row">
+        <h1 class="page-h1">Travel Distribution Hub</h1>
+        <div class="page-header-actions">
+          <div class="ctrl-input">
+            <span class="material-icons" style="font-size:18px;color:#AEB4BA">search</span>
+            <span style="font-size:13px;color:#AEB4BA">Search...</span>
+          </div>
+          <button class="ctrl-btn">
+            <span class="material-icons" style="font-size:18px">calendar_today</span>
+            07/17/2025 – 07/25/2025
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ WEEKLY VIEW SECTION ══ -->
+      <div class="section-card">
+
+        <!-- wv-topbar — all real -->
+        <div class="wv-topbar">
+          <div class="wv-topbar-left">
+            <button class="wv-back-btn">
+              <span class="material-icons" style="font-size:16px">chevron_left</span>Back to month
+            </button>
+            <div class="wv-sep"></div>
+            <span class="wv-title">Calendar</span>
+          </div>
+          <div class="wv-topbar-right">
+            <button class="ctrl-btn-filled">
+              <span class="material-icons" style="font-size:16px">lock</span>Close/Re-Open
+            </button>
+            <button class="ctrl-btn">
+              <svg viewBox="0 0 17.4 15.04" width="14" height="13" fill="currentColor" style="flex-shrink:0">
+                <path d="M5.25 5.265H9V13.5H5.25V5.265ZM10.5 6.383H14.25V5.25H10.5V6.383ZM12.75 0H1.5C0.675 0 0 0.675 0 1.5V3.75H14.25V1.5C14.25 0.675 13.575 0 12.75 0ZM0 12C0 12.825 0.675 13.5 1.5 13.5H3.75V5.25H0V12Z"/>
+              </svg>
+              Table Settings
+            </button>
+            <button class="ctrl-btn"><span class="material-icons" style="font-size:16px">filter_list</span>Filters</button>
+            <button class="ctrl-btn"><span class="material-icons" style="font-size:16px">bar_chart</span>Metrics</button>
+            <select class="ctrl-select" style="min-width:140px">
+              <option>No comparison</option>
+              <option>vs Last Year</option>
+              <option>vs Budget</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Groupby bar — fully real -->
+        <div class="groupby-bar">
+          <div class="groupby-row">
+            <button class="groupby-btn">Monthly</button>
+            <button class="groupby-btn active">Weekly</button>
+            <div class="date-shuffler">
+              <button class="nav-btn"><span class="material-icons" style="font-size:18px">chevron_left</span></button>
+              <span class="range-label">21 Apr – 27 Apr 2026</span>
+              <button class="nav-btn"><span class="material-icons" style="font-size:18px">chevron_right</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table: real headers + real row labels, SKELETON only in day data cells -->
+        <table class="sk-table">
+            <colgroup>
+              <col class="col-label">
+              <col class="col-date"><col class="col-date"><col class="col-date">
+              <col class="col-date"><col class="col-date"><col class="col-date"><col class="col-date">
+            </colgroup>
+            <thead>
+              <tr>
+                <th style="font-size:12px;font-weight:600;color:var(--text-muted)">Metric</th>
+                <th><div class="th-day">Mon</div><div class="th-date">21 Apr</div></th>
+                <th><div class="th-day">Tue</div><div class="th-date">22 Apr</div></th>
+                <th><div class="th-day">Wed</div><div class="th-date">23 Apr</div></th>
+                <th><div class="th-day">Thu</div><div class="th-date">24 Apr</div></th>
+                <th><div class="th-day">Fri</div><div class="th-date">25 Apr</div></th>
+                <th><div class="th-day">Sat</div><div class="th-date">26 Apr</div></th>
+                <th><div class="th-day">Sun</div><div class="th-date">27 Apr</div></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const tbody = document.getElementById('tableBody');
+
+  const OPERATORS = ['Sunwing', 'TUI', 'Thomas Cook', 'Club Med'];
+  const METRICS   = ['Base Rate', 'Room Availability', 'Room Nights', 'ADR', 'RevPAR', 'Revenue'];
+
+  // Varied widths per metric row so it looks natural
+  const WIDTHS = [
+    [68,82,55,76,90,62,74],
+    [85,60,78,65,88,70,56],
+    [72,88,64,80,58,76,84],
+    [56,74,90,68,76,85,62],
+    [84,62,78,88,56,70,80],
+    [70,80,58,74,86,64,78],
+  ];
+
+  OPERATORS.forEach(op => {
+    // Group header: real operator name, skeleton summary cells for each day
+    const grpRow = document.createElement('tr');
+    grpRow.className = 'row-group';
+
+    const grpLabelTd = document.createElement('td');
+    grpLabelTd.innerHTML = `
+      <div class="row-group-label">
+        <span class="wv-acc-chev">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#006461" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </span>
+        <span class="wv-acc-title">${op}</span>
+      </div>`;
+    grpRow.appendChild(grpLabelTd);
+
+    for (let d = 0; d < 7; d++) {
+      const td = document.createElement('td');
+      td.className = 'cell-sk';
+      td.innerHTML = `<span class="sk" style="height:11px;width:60%"></span>`;
+      grpRow.appendChild(td);
+    }
+    tbody.appendChild(grpRow);
+
+    // Metric rows: real label, skeleton day cells
+    METRICS.forEach((metric, mi) => {
+      const row = document.createElement('tr');
+      row.className = 'row-metric';
+
+      const labelTd = document.createElement('td');
+      labelTd.innerHTML = `<div class="row-metric-label">${metric}</div>`;
+      row.appendChild(labelTd);
+
+      WIDTHS[mi].forEach(w => {
+        const td = document.createElement('td');
+        td.innerHTML = `
+          <div class="cell-stack">
+            <span class="sk" style="height:12px;width:${w}%"></span>
+            <span class="sk" style="height:8px;width:${Math.max(w - 18, 28)}%"></span>
+          </div>`;
+        row.appendChild(td);
+      });
+
+      tbody.appendChild(row);
+    });
+  });
+</script>
+</body>
+</html>
