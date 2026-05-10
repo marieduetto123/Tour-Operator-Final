@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Calendar – Tailwind</title>
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            lato: ['Lato', 'sans-serif'],
+          },
+          fontSize: {
+            '2xs': ['0.625rem', { lineHeight: '1' }],
+            '3xs': ['0.5625rem', { lineHeight: '1' }],
+            '4xs': ['0.5rem',    { lineHeight: '1' }],
+          },
+          colors: {
+            teal: { DEFAULT: '#006461', hover: '#004947' },
+            'to-gold': '#8C7843',
+          },
+        }
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    /* ─────────────────────────────────────────────────────────────────
+       Custom CSS — ONLY for things Tailwind v3 cannot express:
+       1. CSS custom-property heatmap backgrounds
+       2. Inset box-shadow on hover (Tailwind has no inset-shadow utility)
+       3. Child-reveal via parent:hover
+       4. Gradient footer bar
+       5. Tooltip arrow pseudo-element
+       6. Compact-mode overrides
+    ───────────────────────────────────────────────────────────────── */
+
+    /* ── Heatmap backgrounds via CSS custom properties ── */
+    .cal-day { background: var(--hotel-bg, var(--seg-bg, #ffffff)); }
+
+    .hotel-occ-1  { --hotel-bg: #E7EFFF; }
+    .hotel-occ-2  { --hotel-bg: #D3DFFC; }
+    .hotel-occ-3  { --hotel-bg: #BED0FA; }
+    .hotel-occ-4  { --hotel-bg: #A8BFF7; }
+    .hotel-occ-5  { --hotel-bg: #94B1F5; }
+    .hotel-occ-6  { --hotel-bg: #80A1F2; }
+    .hotel-occ-7  { --hotel-bg: #6B92F0; }
+    .hotel-occ-8  { --hotel-bg: #5883ED; }
+    .hotel-occ-9  { --hotel-bg: #4374EB; }
+    .hotel-occ-10 { --hotel-bg: #2E65E8; }
+
+    .seg-occ-1  { --seg-bg: #FDF6F6; }
+    .seg-occ-2  { --seg-bg: #F9E2E2; }
+    .seg-occ-3  { --seg-bg: #F4CDCD; }
+    .seg-occ-4  { --seg-bg: #F0B7B7; }
+    .seg-occ-5  { --seg-bg: #EBA2A2; }
+    .seg-occ-6  { --seg-bg: #E68989; }
+    .seg-occ-7  { --seg-bg: #E27575; }
+    .seg-occ-8  { --seg-bg: #DD5F5F; }
+    .seg-occ-9  { --seg-bg: #D84848; }
+    .seg-occ-10 { --seg-bg: #D33030; }
+
+    /* Dark theme heatmap */
+    body.dark .hotel-occ-1  { --hotel-bg: rgba(46,101,232,.12); }
+    body.dark .hotel-occ-2  { --hotel-bg: rgba(46,101,232,.20); }
+    body.dark .hotel-occ-3  { --hotel-bg: rgba(46,101,232,.28); }
+    body.dark .hotel-occ-4  { --hotel-bg: rgba(46,101,232,.36); }
+    body.dark .hotel-occ-5  { --hotel-bg: rgba(46,101,232,.44); }
+    body.dark .hotel-occ-6  { --hotel-bg: rgba(46,101,232,.52); }
+    body.dark .hotel-occ-7  { --hotel-bg: rgba(46,101,232,.62); }
+    body.dark .hotel-occ-8  { --hotel-bg: rgba(46,101,232,.72); }
+    body.dark .hotel-occ-9  { --hotel-bg: rgba(46,101,232,.82); }
+    body.dark .hotel-occ-10 { --hotel-bg: rgba(46,101,232,.92); }
+    body.dark .seg-occ-1  { --seg-bg: rgba(211,48,48,.10); }
+    body.dark .seg-occ-2  { --seg-bg: rgba(211,48,48,.18); }
+    body.dark .seg-occ-3  { --seg-bg: rgba(211,48,48,.26); }
+    body.dark .seg-occ-4  { --seg-bg: rgba(211,48,48,.34); }
+    body.dark .seg-occ-5  { --seg-bg: rgba(211,48,48,.44); }
+    body.dark .seg-occ-6  { --seg-bg: rgba(211,48,48,.54); }
+    body.dark .seg-occ-7  { --seg-bg: rgba(211,48,48,.64); }
+    body.dark .seg-occ-8  { --seg-bg: rgba(211,48,48,.74); }
+    body.dark .seg-occ-9  { --seg-bg: rgba(211,48,48,.84); }
+    body.dark .seg-occ-10 { --seg-bg: rgba(211,48,48,.94); }
+
+    /* ── Hover: inset box-shadow (Tailwind v3 has no inset-shadow) ── */
+    .cal-day:hover                   { box-shadow: inset 0 0 0 2px #006461; z-index: 1; }
+    .cal-day.locked:hover            { box-shadow: 0 0 0 2px #dc2626; }
+    .cal-day.today                   { box-shadow: inset 0 0 0 2px #3B82F6; z-index: 1; }
+    body.dark .cal-day.today         { box-shadow: inset 0 0 0 2px #60a5fa; }
+
+    /* ── Reveal eye/spacer on parent hover ── */
+    .cal-day:hover .cell-hdr-spacer  { opacity: 1; }
+
+    /* ── White text on dark blue heatmap cells (tiers 5–10) ── */
+    .hotel-occ-5  .day-num, .hotel-occ-6  .day-num,
+    .hotel-occ-7  .day-num, .hotel-occ-8  .day-num,
+    .hotel-occ-9  .day-num, .hotel-occ-10 .day-num  { color: #fff !important; }
+    .hotel-occ-5  .cell-m-label, .hotel-occ-6  .cell-m-label,
+    .hotel-occ-7  .cell-m-label, .hotel-occ-8  .cell-m-label,
+    .hotel-occ-9  .cell-m-label, .hotel-occ-10 .cell-m-label { color: rgba(255,255,255,.85) !important; }
+    .hotel-occ-5  .cell-m-val,   .hotel-occ-6  .cell-m-val,
+    .hotel-occ-7  .cell-m-val,   .hotel-occ-8  .cell-m-val,
+    .hotel-occ-9  .cell-m-val,   .hotel-occ-10 .cell-m-val   { color: #fff !important; }
+    .hotel-occ-5  .cell-cmp-up,  .hotel-occ-6  .cell-cmp-up,
+    .hotel-occ-7  .cell-cmp-up,  .hotel-occ-8  .cell-cmp-up,
+    .hotel-occ-9  .cell-cmp-up,  .hotel-occ-10 .cell-cmp-up  { color: #86efac !important; }
+    .hotel-occ-5  .cell-cmp-dn,  .hotel-occ-6  .cell-cmp-dn,
+    .hotel-occ-7  .cell-cmp-dn,  .hotel-occ-8  .cell-cmp-dn,
+    .hotel-occ-9  .cell-cmp-dn,  .hotel-occ-10 .cell-cmp-dn  { color: #fca5a5 !important; }
+
+    /* ── White text on dark red seg cells (tiers 5–10) ── */
+    .seg-occ-5  .day-num, .seg-occ-6  .day-num,
+    .seg-occ-7  .day-num, .seg-occ-8  .day-num,
+    .seg-occ-9  .day-num, .seg-occ-10 .day-num    { color: #fff !important; }
+    .seg-occ-5  .cell-m-label, .seg-occ-6  .cell-m-label,
+    .seg-occ-7  .cell-m-label, .seg-occ-8  .cell-m-label,
+    .seg-occ-9  .cell-m-label, .seg-occ-10 .cell-m-label { color: rgba(255,255,255,.85) !important; }
+    .seg-occ-5  .cell-m-val,   .seg-occ-6  .cell-m-val,
+    .seg-occ-7  .cell-m-val,   .seg-occ-8  .cell-m-val,
+    .seg-occ-9  .cell-m-val,   .seg-occ-10 .cell-m-val   { color: #fff !important; }
+
+    /* Light blue (tiers 1–4): grey date number */
+    .hotel-occ-1 .day-num, .hotel-occ-2 .day-num,
+    .hotel-occ-3 .day-num, .hotel-occ-4 .day-num { color: #8a9096; }
+
+    /* Today: blue date number */
+    .cal-day.today .day-num { color: #3B82F6 !important; font-weight: 600; }
+    body.dark .cal-day.today .day-num { color: #60a5fa !important; }
+
+    /* ── Gradient footer bar ── */
+    .cal-foot-bar {
+      background: linear-gradient(90deg,
+        rgba(244,63,94,.7)  0%,
+        rgba(253,164,175,.5) 25%,
+        rgba(199,210,254,.5) 55%,
+        rgba(99,102,241,.75) 80%,
+        rgba(67,56,202,.9)  100%);
+    }
+
+    /* ── Legend gradient swatches ── */
+    .leg-grad-blue { background: linear-gradient(90deg, #E7EFFF 0%, #80A1F2 50%, #2E65E8 100%); }
+    .leg-grad-red  { background: linear-gradient(90deg, #FDF6F6 0%, #E68989 50%, #D33030 100%); }
+
+    /* ── Tooltip arrow ── */
+    .cal-event-tip::before {
+      content: '';
+      position: absolute;
+      top: -5px; left: 14px;
+      width: 10px; height: 10px;
+      background: #fff;
+      transform: rotate(45deg);
+      border-radius: 2px;
+      border-left: 1px solid #e5e7eb;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* ── Compact mode (6M / 12M) ── */
+    .cal-compact .cal-day          { height: 36px !important; min-height: 36px; padding: 0; }
+    .cal-compact .cal-day.empty    { height: 36px !important; }
+    .cal-compact .cell-day-hdr     { padding: 3px 4px; height: 100%; }
+    .cal-compact .cell-content     { display: none !important; }
+    .cal-compact .cell-closed-label,
+    .cal-compact .cell-partial-close-label { display: none !important; }
+    .cal-compact .day-num          { font-size: 10px !important; }
+    .cal-compact .cal-month-name   { font-size: 11px !important; }
+    .cal-compact .cal-dow span     { font-size: 8px !important; padding: 2px 0 !important; }
+
+    /* ── Calendar grid column layout ── */
+    .cal-months-grid               { display: grid; gap: 0 32px; padding: 12px 0 0; }
+    .cal-months-grid.cal-compact   { gap: 6px; }
+    .view-1  { grid-template-columns: repeat(1, 1fr); }
+    .view-2  { grid-template-columns: repeat(2, 1fr); }
+    .view-3  { grid-template-columns: repeat(3, 1fr); }
+    .view-6  { grid-template-columns: repeat(6, 1fr); }
+    .view-12 { grid-template-columns: repeat(6, 1fr); row-gap: 14px; }
+
+    /* ── Locked day ── */
+    .cal-day.locked                { background: #f5f6f7; cursor: pointer; }
+    body.dark .cal-day.locked      { background: rgba(255,255,255,.04); }
+
+    /* ── Empty cell: hide borders ── */
+    .cal-day.empty                 { border-right-color: transparent !important; border-bottom-color: transparent !important; }
+
+    /* ── Has-events: extra bottom margin for icon ── */
+    .cal-day.has-events .cell-content { margin-bottom: 26px; }
+
+    /* ── Multi-select checkbox (hidden until select mode) ── */
+    .mo-day-chk                    { position: absolute; left: 6px; top: 8px; z-index: 2; display: none; }
+    .mo-select-active .mo-day-chk  { display: block; }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-inter p-6">
+
+<!-- ════════════════════════════════════════════════
+     CALENDAR CARD
+════════════════════════════════════════════════ -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+  <!-- ── Top bar ─────────────────────────────────── -->
+  <div class="flex items-center justify-between gap-4 px-5 py-3 border-b border-gray-200 flex-wrap">
+
+    <!-- Left: Monthly/Weekly + date nav -->
+    <div class="flex items-center gap-4">
+
+      <!-- Group-by toggle -->
+      <div class="flex border border-[#DDE1E2] rounded overflow-hidden h-9">
+        <button class="mo-grp-btn px-3 text-xs font-semibold font-lato cursor-pointer transition-colors bg-[#006461] text-white" data-mogroupby="monthly">Monthly</button>
+        <button class="mo-grp-btn px-3 text-xs font-semibold font-lato cursor-pointer transition-colors text-[#4F5B60] bg-transparent hover:bg-gray-50" data-mogroupby="daily">Weekly</button>
+      </div>
+
+      <!-- Date navigator -->
+      <div class="flex items-center gap-1">
+        <button id="moShufPrev" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 transition-colors">
+          <span class="material-icons" style="font-size:18px">chevron_left</span>
+        </button>
+        <span id="moShufRange" class="text-sm text-gray-900 font-inter select-none px-1 min-w-[180px] text-center"></span>
+        <button id="moShufNext" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-600 transition-colors">
+          <span class="material-icons" style="font-size:18px">chevron_right</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Right: Heatmap + Filters + View toggle -->
+    <div class="flex items-center gap-2">
+
+      <!-- Heatmap button -->
+      <button id="hmBtn" class="flex items-center gap-1.5 px-3 h-9 border border-transparent rounded text-xs font-semibold text-[#4F5B60] font-lato hover:bg-gray-50 hover:border-[#DDE1E2] transition-all">
+        <span class="material-icons" style="font-size:16px">grid_view</span>
+        Heatmap
+      </button>
+
+      <!-- Filters button -->
+      <button class="flex items-center gap-1.5 px-3 h-9 border border-transparent rounded text-xs font-semibold text-[#4F5B60] font-lato hover:bg-gray-50 hover:border-[#DDE1E2] transition-all">
+        <span class="material-icons" style="font-size:16px">filter_list</span>
+        Filters
+      </button>
+
+      <!-- 1M / 2M / 3M / 6M / 12M view toggle -->
+      <div class="flex border border-[#DDE1E2] rounded overflow-hidden h-9 flex-shrink-0" id="viewToggle">
+        <button class="cal-view-btn active px-2.5 border-r border-[#DDE1E2] text-xs font-semibold font-lato bg-[#006461] text-white cursor-pointer" data-view="1">1M</button>
+        <button class="cal-view-btn px-2.5 border-r border-[#DDE1E2] text-xs font-semibold font-lato text-[#4F5B60] bg-transparent hover:bg-gray-50 cursor-pointer transition-colors" data-view="2">2M</button>
+        <button class="cal-view-btn px-2.5 border-r border-[#DDE1E2] text-xs font-semibold font-lato text-[#4F5B60] bg-transparent hover:bg-gray-50 cursor-pointer transition-colors" data-view="3">3M</button>
+        <button class="cal-view-btn px-2.5 border-r border-[#DDE1E2] text-xs font-semibold font-lato text-[#4F5B60] bg-transparent hover:bg-gray-50 cursor-pointer transition-colors" data-view="6">6M</button>
+        <button class="cal-view-btn px-2.5 text-xs font-semibold font-lato text-[#4F5B60] bg-transparent hover:bg-gray-50 cursor-pointer transition-colors" data-view="12">12M</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Filter chips bar (shown when filters active) ─── -->
+  <div id="filterChipsBar" class="hidden items-center gap-1.5 px-5 py-2 border-b border-gray-100 bg-[#f8fafc]">
+    <span class="text-[11px] text-gray-400 font-semibold font-lato mr-1 whitespace-nowrap">Filters:</span>
+    <span id="fchipsActiveWrap" class="flex items-center gap-1.5 flex-wrap"></span>
+  </div>
+
+  <!-- ── Legend ─────────────────────────────────────── -->
+  <div class="flex items-center gap-[18px] flex-wrap px-5 py-3 text-[11px] text-gray-500">
+    <div class="flex items-center gap-1.5">
+      <span class="material-icons" style="font-size:14px">visibility</span>
+      <span>Hover cell for quick view</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="material-icons text-red-600" style="font-size:14px">lock</span>
+      <span>Full close out</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="material-icons text-orange-500" style="font-size:14px">lock</span>
+      <span>Partial close out</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="material-icons text-[#006461]" style="font-size:18px">today</span>
+      <span>Event</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="w-[48px] h-[10px] rounded-[3px] leg-grad-blue flex-shrink-0"></span>
+      <span>Hotel occ.</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="w-[48px] h-[10px] rounded-[3px] leg-grad-red flex-shrink-0"></span>
+      <span>TO occ.</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="w-3.5 h-3.5 rounded-sm bg-[#1C1C1C] flex-shrink-0"></span>
+      <span>Hotel</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="w-3.5 h-3.5 rounded-sm bg-[#8C7843] flex-shrink-0"></span>
+      <span>Tour Operator</span>
+    </div>
+  </div>
+
+  <!-- ── Calendar months grid (JS-rendered) ─────────── -->
+  <div class="cal-months-grid view-3 px-5 pb-6" id="calMonths"></div>
+
+</div><!-- /card -->
+
+
+<!-- ── Tooltip: events / closures ─────────────────── -->
+<div id="calEventTip"
+  class="cal-event-tip hidden fixed z-[9000] bg-white text-[#4F5B60] rounded-lg px-3 py-2 text-xs
+         leading-relaxed min-w-[160px] max-w-[240px] shadow-lg border border-gray-200 pointer-events-none">
+</div>
+
+<!-- ── Tooltip: capacity ───────────────────────────── -->
+<div id="calCapTip"
+  class="hidden fixed z-[9001] bg-white rounded-lg px-3 py-2 shadow-lg border border-gray-200
+         pointer-events-none min-w-[180px] text-xs">
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const MONTH_NAMES = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December'
+];
+const DOW_LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ── Sample data ──────────────────────────────────────────────────────────────
+
+function mockOcc(year, month) {
+  const days = new Date(year, month, 0).getDate();
+  const result = {};
+  for (let d = 1; d <= days; d++) {
+    const s = Math.abs(Math.sin((year * 400 + month * 31 + d) * 0.37));
+    const t = Math.abs(Math.cos((year * 400 + month * 31 + d) * 0.61));
+    result[`${year}-${month}-${d}`] = {
+      hotel: 15 + Math.round(s * 80),
+      to:    5  + Math.round(t * 60),
+      adr:   120 + Math.round(s * 230),
+      rev:   12000 + Math.round(s * 80000),
+    };
+  }
+  return result;
+}
+
+// Events keyed by 'YYYY-M-D'
+const CAL_EVENTS = {
+  '2026-3-15': [{ name: 'Release Inventory', type: 'Release',  date: 'Mar 15, 2026' }],
+  '2026-3-22': [{ name: 'Spring Break Start', type: 'Event',   date: 'Mar 22–29, 2026' }],
+  '2026-4-5':  [{ name: 'Easter Sunday',      type: 'Holiday', date: 'Apr 5, 2026' }],
+  '2026-5-18': [{ name: 'Group Check-In',     type: 'Group',   date: 'May 18, 2026' }],
+};
+
+// Fully locked (closed-out) days
+const LOCKED_DAYS = new Set(['2026-3-5','2026-3-6','2026-4-10','2026-4-11','2026-5-1']);
+
+// Partially closed days
+const PARTIAL_DAYS = new Set(['2026-3-8','2026-3-20','2026-4-15','2026-5-12']);
+
+// Partial closure details (for tooltip)
+const PARTIAL_DETAILS = {
+  '2026-3-8':  [{ tos: ['Sunwing'],  roomTypes: ['Deluxe'],   boards: ['AI'] }],
+  '2026-3-20': [{ tos: ['TUI'],      roomTypes: ['Standard'], boards: ['BB','HB'] }],
+  '2026-4-15': [{ tos: ['Jet2'],     roomTypes: ['All'],      boards: ['AI'] }],
+  '2026-5-12': [{ tos: ['Club Med'], roomTypes: ['Suite'],    boards: ['All'] }],
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+let calView      = 3;
+let calStartYear = 2026;
+let calStartMonth = 2; // 1-based
+
+const today = new Date();
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+function occTier(pct, prefix) {
+  if (!pct || pct <= 0) return '';
+  return `${prefix}-${Math.min(10, Math.max(1, Math.ceil(pct / 10)))}`;
+}
+
+function fmtMoney(v) {
+  if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(1) + 'M';
+  if (v >= 1_000)     return '$' + (v / 1_000).toFixed(0) + 'K';
+  return '$' + v;
+}
+
+function isToday(y, m, d) {
+  return today.getFullYear() === y && today.getMonth() + 1 === m && today.getDate() === d;
+}
+
+// ── Range label ───────────────────────────────────────────────────────────────
+
+function updateRangeLabel() {
+  const s = new Date(calStartYear, calStartMonth - 1, 1);
+  const e = new Date(calStartYear, calStartMonth - 1 + calView - 1, 1);
+  const sm = MONTH_NAMES[s.getMonth()];
+  const em = MONTH_NAMES[e.getMonth()];
+  const sy = s.getFullYear(), ey = e.getFullYear();
+  document.getElementById('moShufRange').textContent =
+    sy === ey && s.getMonth() === e.getMonth()
+      ? `${sm} ${sy}`
+      : sy === ey
+        ? `${sm} – ${em} ${ey}`
+        : `${sm.slice(0,3)} ${sy} – ${em.slice(0,3)} ${ey}`;
+}
+
+// ── Build one month block ─────────────────────────────────────────────────────
+
+function buildMonth(year, month) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const firstDow    = new Date(year, month - 1, 1).getDay(); // 0=Sun
+  const startOffset = (firstDow + 6) % 7; // convert to Mon-first
+  const occ         = mockOcc(year, month);
+  const isCompact   = calView >= 6;
+
+  // Foot stats
+  const vals    = Object.values(occ);
+  const avgH    = Math.round(vals.reduce((a, v) => a + v.hotel, 0) / vals.length);
+  const avgT    = Math.round(vals.reduce((a, v) => a + v.to,    0) / vals.length);
+  const totRev  = vals.reduce((a, v) => a + v.rev, 0);
+  const lockCnt = [...LOCKED_DAYS].filter(k => k.startsWith(`${year}-${month}-`)).length;
+
+  // ── Month header ──
+  let html = `
+    <div>
+      <div class="flex items-center justify-center gap-1.5 py-1 pb-1.5 relative">
+        <span class="cal-month-name text-sm font-semibold text-gray-900 cursor-pointer hover:text-[#006461] transition-colors font-inter">
+          ${MONTH_NAMES[month - 1]} ${year}
+        </span>`;
+
+  if (lockCnt > 0) {
+    html += `
+        <span class="inline-flex items-center gap-0.5 rounded-full px-[5px] py-px text-[9px] font-bold text-indigo-600 font-inter"
+              style="background:rgba(99,102,241,.12)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="7" height="7">
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+          </svg>
+          ${lockCnt}
+        </span>`;
+  }
+
+  html += `
+      </div>`;
+
+  // ── Day-of-week headers ──
+  html += `<div class="grid grid-cols-7">`;
+  for (const label of DOW_LABELS) {
+    html += `<span class="text-xs font-medium text-gray-500 text-center py-2 font-inter">${label}</span>`;
+  }
+  html += `</div>`;
+
+  // ── Days grid ──
+  html += `<div class="grid grid-cols-7 border-t border-l border-gray-200">`;
+
+  // Empty offset cells
+  for (let i = 0; i < startOffset; i++) {
+    html += `<div class="cal-day empty h-[220px] flex flex-col relative overflow-hidden border-r border-b border-gray-200"></div>`;
+  }
+
+  // Day cells
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key     = `${year}-${month}-${day}`;
+    const d       = occ[key] || { hotel: 0, to: 0, adr: 0, rev: 0 };
+    const locked  = LOCKED_DAYS.has(key);
+    const partial = !locked && PARTIAL_DAYS.has(key);
+    const hasEv   = !!CAL_EVENTS[key];
+    const todayCls = isToday(year, month, day) ? ' today' : '';
+    const heatCls  = locked ? '' : occTier(d.hotel, 'hotel-occ');
+
+    // Compare vs LY (mock: LY = 95% of today's value)
+    const lyH  = Math.round(d.hotel * 0.95);
+    const diff = d.hotel - lyH;
+    const cmpSpan = `<span class="cell-cmp text-[10px] font-medium whitespace-nowrap opacity-85">
+      &thinsp;/<thinsp;<span class="${diff >= 0 ? 'cell-cmp-up text-green-600' : 'cell-cmp-dn text-red-600'}">${lyH}%</span>
+    </span>`;
+
+    // Hover handler for events/partial
+    const hoverAttr = hasEv
+      ? `onmouseenter="calShowEventTip(event,'${key}')" onmouseleave="calHideEventTip()"`
+      : partial
+        ? `onmouseenter="calShowPartialTip(event,'${key}')" onmouseleave="calHideEventTip()"`
+        : `onmouseenter="calShowCapTip(event,${d.hotel},${d.to})" onmouseleave="calHideCapTip()"`;
+
+    html += `
+      <div class="cal-day flex flex-col relative cursor-pointer overflow-hidden border-r border-b border-gray-200 transition-shadow duration-150 ${heatCls}${todayCls}${locked ? ' locked' : ''}${partial ? ' partial' : ''}${hasEv ? ' has-events' : ''}"
+           style="padding:6px 7px 9px 6px" ${hoverAttr}>
+
+        <!-- Checkbox (hidden until select mode) -->
+        <input type="checkbox" class="mo-day-chk" onclick="event.stopPropagation()">
+
+        <!-- Cell header: day number + eye button -->
+        <div class="cell-day-hdr flex items-center justify-between flex-shrink-0 h-[22px]">
+          <span class="day-num flex-1 text-center text-[13px] font-medium text-gray-700 font-inter leading-none pointer-events-none">${day}</span>
+          <span class="cell-hdr-spacer w-[18px] h-[18px] flex-shrink-0 flex items-center justify-center opacity-0 relative z-[2] transition-opacity duration-150">
+            <button class="border-none bg-transparent cursor-pointer p-px text-[#006461] inline-flex items-center justify-center transition-all rounded hover:bg-[rgba(0,100,97,0.18)]" aria-label="Quick view">
+              <span class="material-icons" style="font-size:14px">visibility</span>
+            </button>
+          </span>
+        </div>`;
+
+    // CLOSED pill
+    if (locked) {
+      html += `
+        <span class="cell-closed-label inline-flex items-center gap-1.5 self-start mt-1 px-2 py-[3px] rounded-full text-xs text-[#991f1f] bg-[#ffebee] pointer-events-none font-lato leading-none whitespace-nowrap">
+          Closed
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+          </svg>
+        </span>`;
+    }
+
+    // PARTIAL pill
+    if (partial) {
+      html += `
+        <span class="cell-partial-close-label inline-flex items-center gap-1.5 self-start mt-1 px-2 py-[3px] rounded-full text-xs text-[#ff9800] bg-[#fff1de] cursor-pointer font-lato leading-none whitespace-nowrap">
+          Partial
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="M12 17v.01M12 15a2 2 0 100-4 2 2 0 000 4zM18 8h-1V6A5 5 0 007 6v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2z"/>
+          </svg>
+        </span>`;
+    }
+
+    // Metric rows (hidden in compact mode via CSS)
+    html += `
+        <div class="cell-content flex flex-col gap-0.5 flex-shrink-0 mt-auto mb-2">
+          <!-- H-Occ -->
+          <div class="cell-m-row cell-m-hotel flex items-center justify-between min-w-0 overflow-hidden">
+            <span class="cell-m-label text-xs font-medium leading-[13.2px] font-inter text-[#1C1C1C] whitespace-nowrap overflow-hidden text-ellipsis min-w-0">H-Occ</span>
+            <span class="cell-m-val text-xs font-semibold leading-[13.2px] font-inter text-[#1C1C1C] whitespace-nowrap text-right flex-shrink-0">${d.hotel}%${cmpSpan}</span>
+          </div>
+          <!-- TO-Occ -->
+          <div class="cell-m-row cell-m-to flex items-center justify-between min-w-0 overflow-hidden">
+            <span class="cell-m-label text-xs font-medium leading-[13.2px] font-inter text-[#8C7843] whitespace-nowrap overflow-hidden text-ellipsis min-w-0">TO-Occ</span>
+            <span class="cell-m-val text-xs font-semibold leading-[13.2px] font-inter text-[#8C7843] whitespace-nowrap text-right flex-shrink-0">${d.to}%</span>
+          </div>
+          <!-- ADR -->
+          <div class="cell-m-row flex items-center justify-between min-w-0 overflow-hidden">
+            <span class="cell-m-label text-xs font-medium leading-[13.2px] font-inter text-[#4F5B60] whitespace-nowrap overflow-hidden text-ellipsis min-w-0">ADR</span>
+            <span class="cell-m-val text-xs font-semibold leading-[13.2px] font-inter text-[#4F5B60] whitespace-nowrap text-right flex-shrink-0">$${d.adr}</span>
+          </div>
+        </div>`;
+
+    // Event icon
+    if (hasEv) {
+      html += `
+        <span class="cell-event-ico absolute bottom-1 right-1 flex items-center justify-center cursor-pointer z-[2] transition-opacity duration-[120ms] hover:opacity-75">
+          <span class="material-icons text-[#006461]" style="font-size:16px">today</span>
+        </span>`;
+    }
+
+    html += `</div>`; // /cal-day
+  }
+
+  html += `</div>`; // /days grid
+
+  // ── Month footer (hidden in compact) ──
+  if (!isCompact) {
+    html += `
+      <div class="pt-1.5 pb-3">
+        <div class="cal-foot-bar h-[5px] rounded-[3px] mb-2"></div>
+        <div class="flex gap-1.5 items-start">
+          <div class="flex-1 flex flex-col gap-px">
+            <div class="text-[8px] text-gray-500 uppercase font-lato tracking-wide">AVG H-OCC</div>
+            <div class="text-[11px] font-bold text-gray-900 font-inter">${avgH}%</div>
+            <div class="text-[8px] font-semibold text-green-600 font-lato">+3.1%</div>
+          </div>
+          <div class="flex-1 flex flex-col gap-px">
+            <div class="text-[8px] text-gray-500 uppercase font-lato tracking-wide">AVG TO-OCC</div>
+            <div class="text-[11px] font-bold font-inter text-[#8C7843]">${avgT}%</div>
+            <div class="text-[8px] font-semibold text-red-500 font-lato">-1.4%</div>
+          </div>
+          <div class="flex-1 flex flex-col gap-px">
+            <div class="text-[8px] text-gray-500 uppercase font-lato tracking-wide">REVENUE</div>
+            <div class="text-[11px] font-bold text-gray-900 font-inter">${fmtMoney(totRev)}</div>
+            <div class="text-[8px] font-semibold text-green-600 font-lato">+5.2%</div>
+          </div>
+          <div class="flex-1 flex flex-col gap-px">
+            <div class="text-[8px] text-gray-500 uppercase font-lato tracking-wide">ADR</div>
+            <div class="text-[11px] font-bold text-gray-900 font-inter">$${Math.round(vals.reduce((a,v) => a+v.adr, 0) / vals.length)}</div>
+            <div class="text-[8px] font-semibold text-green-600 font-lato">+2.8%</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += `</div>`; // /outer
+
+  const wrap = document.createElement('div');
+  wrap.className = 'cal-month';
+  wrap.innerHTML = html;
+  return wrap;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function renderCalendar() {
+  const container  = document.getElementById('calMonths');
+  const isCompact  = calView >= 6;
+
+  container.className = [
+    'cal-months-grid',
+    `view-${calView}`,
+    isCompact ? 'cal-compact' : '',
+    calView === 12 ? '' : '', // row-gap handled by .view-12 CSS
+    'px-5 pb-6',
+  ].join(' ').trim();
+
+  container.innerHTML = '';
+
+  for (let i = 0; i < calView; i++) {
+    let m = calStartMonth + i;
+    let y = calStartYear;
+    while (m > 12) { m -= 12; y++; }
+    while (m < 1)  { m += 12; y--; }
+    container.appendChild(buildMonth(y, m));
+  }
+
+  updateRangeLabel();
+}
+
+// ── View toggle ───────────────────────────────────────────────────────────────
+
+document.getElementById('viewToggle').addEventListener('click', e => {
+  const btn = e.target.closest('.cal-view-btn');
+  if (!btn) return;
+
+  document.querySelectorAll('.cal-view-btn').forEach(b => {
+    b.classList.remove('active', 'bg-[#006461]', 'text-white');
+    b.classList.add('text-[#4F5B60]', 'bg-transparent');
+  });
+  btn.classList.add('active', 'bg-[#006461]', 'text-white');
+  btn.classList.remove('text-[#4F5B60]', 'bg-transparent');
+
+  calView = parseInt(btn.dataset.view, 10);
+  renderCalendar();
+});
+
+// ── Date navigation ───────────────────────────────────────────────────────────
+
+document.getElementById('moShufPrev').addEventListener('click', () => {
+  calStartMonth -= calView;
+  while (calStartMonth < 1)  { calStartMonth += 12; calStartYear--; }
+  renderCalendar();
+});
+
+document.getElementById('moShufNext').addEventListener('click', () => {
+  calStartMonth += calView;
+  while (calStartMonth > 12) { calStartMonth -= 12; calStartYear++; }
+  renderCalendar();
+});
+
+// ── Tooltips ──────────────────────────────────────────────────────────────────
+
+function positionTip(tip, e) {
+  tip.style.visibility = 'hidden';
+  tip.classList.remove('hidden');
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX - 14;
+  let y = e.clientY + 18;
+  if (x + r.width  > window.innerWidth  - 8) x = window.innerWidth  - r.width  - 8;
+  if (y + r.height > window.innerHeight - 8) y = e.clientY - r.height - 10;
+  tip.style.left = x + 'px';
+  tip.style.top  = y + 'px';
+  tip.style.visibility = '';
+}
+
+window.calShowEventTip = function(e, key) {
+  const evs = CAL_EVENTS[key];
+  if (!evs?.length) return;
+  const tip = document.getElementById('calEventTip');
+  let html = `<div class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[.4px] text-[#006461] mb-1.5">
+    <span class="material-icons" style="font-size:14px">today</span> Events
+  </div>`;
+  evs.forEach(ev => {
+    html += `<div class="font-bold text-[#1C1C1C] text-[13px]">• ${ev.name}</div>
+             <div class="text-[11px] text-gray-500 mt-0.5">| ${ev.type}<br>${ev.date}</div>`;
+  });
+  tip.innerHTML = html;
+  positionTip(tip, e);
+};
+
+window.calShowPartialTip = function(e, key) {
+  const tip = document.getElementById('calEventTip');
+  const details = PARTIAL_DETAILS[key] || [];
+  let html = `<div class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-[.4px] text-orange-500 mb-1.5">
+    <span class="material-icons" style="font-size:14px">lock</span> Partial Close-Out
+  </div>`;
+  details.forEach(d => {
+    html += `<div class="text-[11px] text-gray-700 leading-snug">
+      <span class="font-semibold text-[#4F5B60]">TOs:</span> ${d.tos.join(', ')}<br>
+      <span class="font-semibold text-[#4F5B60]">Rooms:</span> ${d.roomTypes.join(', ')}<br>
+      <span class="font-semibold text-[#4F5B60]">Boards:</span> ${d.boards.join(', ')}
+    </div>`;
+  });
+  tip.innerHTML = html;
+  positionTip(tip, e);
+};
+
+window.calHideEventTip = function() {
+  document.getElementById('calEventTip').classList.add('hidden');
+};
+
+window.calShowCapTip = function(e, hotel, to) {
+  const tip = document.getElementById('calCapTip');
+  const avail = Math.max(0, 150 - Math.round(150 * hotel / 100));
+  tip.innerHTML = `
+    <div class="text-[13px] font-bold text-[#1C1C1C] mb-1">Hotel: ${hotel}%</div>
+    <div class="text-[13px] text-[#8C7843]">&nbsp;&nbsp;TO: ${to}%</div>
+    <div class="text-[13px] font-bold text-green-600 mt-1">${avail} rooms available</div>`;
+  positionTip(tip, e);
+};
+
+window.calHideCapTip = function() {
+  document.getElementById('calCapTip').classList.add('hidden');
+};
+
+window.addEventListener('scroll', () => {
+  calHideEventTip();
+  calHideCapTip();
+}, true);
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+renderCalendar();
+</script>
+</body>
+</html>
