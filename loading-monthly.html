@@ -191,15 +191,23 @@
 
     /* ── Tab bar ── */
     .groupby-bar {
-      background: var(--surface-1); border-bottom: 1px solid var(--border); padding: 0 16px;
+      background: #F8F9FD; border-bottom: 1px solid #f0f0f0;
+      padding: 10px 16px 0; margin-bottom: 4px; min-height: 48px;
+      box-sizing: border-box;
     }
-    .groupby-row { display: flex; align-items: center; padding: 8px 0; gap: 4px; }
+    .groupby-row { display: flex; align-items: flex-end; gap: 0; }
     .groupby-btn {
-      padding: 4px 12px; border-radius: 4px; border: none;
-      font-size: 13px; font-weight: 500; cursor: pointer;
-      background: transparent; color: var(--text-secondary); font-family: 'Lato', sans-serif;
+      font-family: 'Lato', sans-serif;
+      font-size: 14px; font-weight: 400; line-height: 1;
+      padding: 4px 16px; height: 32px; border: none;
+      background: transparent; color: #006461;
+      cursor: pointer; white-space: nowrap;
+      border-radius: 2px 2px 0 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
     }
     .groupby-btn.active { background: #354549; color: #fff; font-weight: 700; }
+    .groupby-btn:not(.active):hover { background: rgba(0,100,97,0.06); }
     .date-shuffler { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .nav-btn {
       background: none; border: 1px solid var(--border); border-radius: 4px;
