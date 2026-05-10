@@ -2476,7 +2476,7 @@ function renderCalMonthlySummary() {
 
   el.innerHTML = '<div class="cal-summary-wrap" style="background:#fff">'
     +'<div class="wv-acc-sect' + (ovCollapsed ? '' : ' wv-acc-open') + '" style="border:1px solid #dde1e2;border-radius:0;overflow:hidden">'
-    +'<div class="wv-acc-hdr" data-cal-section="overview" onclick="calAccClick(this)" style="background:#fff;border-bottom:none;border-radius:0">'
+    +'<div class="wv-acc-hdr" data-cal-section="overview" onclick="calAccClick(this)" style="background:#fff;border-bottom:none;border-radius:0;padding-left:16px;padding-right:16px">'
     +'<span class="wv-acc-chev" style="color:#006461">'+ovChev+'</span>'
     +'<span class="wv-acc-title" style="font-weight:700">'+ovLabel+'</span>'
     +'</div>'
@@ -6258,7 +6258,7 @@ window._buildWv7dSummaryHtml = function(d) {
     : '<span class="material-icons" style="font-size:16px">expand_less</span>';
   return '<div class="cal-summary-wrap" style="background:#fff">'
     +'<div class="wv-acc-sect'+(ovCollapsed?'':' wv-acc-open')+'" style="border:1px solid #dde1e2;border-radius:0;overflow:hidden">'
-    +'<div class="wv-acc-hdr" onclick="wv7dToggle(\'wv7d_overview\')" style="background:#fff;border-bottom:none;border-radius:0">'
+    +'<div class="wv-acc-hdr" onclick="wv7dToggle(\'wv7d_overview\')" style="background:#fff;border-bottom:none;border-radius:0;padding-left:16px;padding-right:16px">'
     +'<span class="wv-acc-chev" style="color:#006461">'+ovChev+'</span>'
     +'<span class="wv-acc-title" style="font-weight:700">7 Day Metrics Summary</span>'
     +'</div>'
