@@ -8240,7 +8240,7 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   display: flex;
   align-items: center;
   height: 32px;
-  padding: 0 8px;
+  padding: 0;
 }
 .wb-sub-vals {
   display: flex;
@@ -8249,7 +8249,7 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   gap: 8px;
   width: 100%;
   height: 100%;
-  padding: 0 8px;
+  padding: 0 8px 0 0;
 }
 .wb-sub-v1 {
   font-family: 'Lato', sans-serif;
