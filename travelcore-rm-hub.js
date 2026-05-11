@@ -14639,6 +14639,36 @@ setTimeout(function() {
     document.getElementById('calDRPanel').style.display = 'none';
   };
 
+  window.calDRPreset = function(key) {
+    var today = new Date();
+    var todayYear = today.getFullYear(), todayMonth = today.getMonth() + 1;
+    /* Find index of current month in ALL_MONTHS */
+    var curIdx = 0;
+    for (var i = 0; i < ALL_MONTHS.length; i++) {
+      if (ALL_MONTHS[i].year === todayYear && ALL_MONTHS[i].month === todayMonth) { curIdx = i; break; }
+    }
+    var last = ALL_MONTHS.length - 1;
+    var s, e;
+    if (key === 'thisMonth')  { s = curIdx; e = curIdx; }
+    else if (key === 'nextMonth') { s = Math.min(curIdx + 1, last); e = Math.min(curIdx + 1, last); }
+    else if (key === 'quarter') {
+      /* Current quarter start (Q1=Jan, Q2=Apr, Q3=Jul, Q4=Oct) */
+      var qStartMonth = Math.floor((todayMonth - 1) / 3) * 3 + 1;
+      s = curIdx - (todayMonth - qStartMonth);
+      e = Math.min(s + 2, last);
+      s = Math.max(s, 0);
+    }
+    else if (key === 'year')  { s = 0; e = last; }
+    else if (key === '3m')    { s = curIdx; e = Math.min(curIdx + 2, last); }
+    else if (key === '6m')    { s = curIdx; e = Math.min(curIdx + 5, last); }
+    else if (key === '12m')   { s = 0; e = last; }
+    else return;
+    drSelStartIdx = s; drSelEndIdx = e; drPhase = 2;
+    drLeftYear = ALL_MONTHS[s] ? ALL_MONTHS[s].year : 2026;
+    renderBothGrids();
+    calDRApply();
+  };
+
   window.calDRApply = function() {
     if (drPhase !== 2 || drSelStartIdx === null || drSelEndIdx === null) return; // range not complete
     document.getElementById('calDRPanel').style.display = 'none';

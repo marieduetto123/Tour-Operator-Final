@@ -7684,49 +7684,56 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
 .caldr-dow { width: 36px; text-align: center; font-size: 11px; font-weight: 700; color: #9ca3af; padding-bottom: 4px; }
 
 /* ── Two-panel month range picker ── */
-.caldr-half       { width: 210px; padding: 16px 14px 10px; }
-.caldr-hdr        { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.caldr-yr         { font-size: 17px; font-weight: 800; color: #1C1C1C; }
-.caldr-nav-btn    { border: none; background: none; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; line-height: 1; color: #4F5B60; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; }
+.caldr-half       { width: 210px; padding: 20px 20px 10px; }
+.caldr-hdr        { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; height: 28px; }
+.caldr-yr         { font-size: 14px; font-weight: 700; color: #1C1C1C; }
+.caldr-nav-btn    { border: none; background: none; cursor: pointer; width: 24px; height: 24px; border-radius: 3px; font-size: 18px; line-height: 1; color: #585858; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; }
 .caldr-nav-btn:hover { background: #F5F5F5; }
-.caldr-mgrid      { display: grid; grid-template-columns: repeat(4, 1fr); }
+.caldr-mgrid      { display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 2px; }
 
 /* Each month cell */
-.caldr-cell       { position: relative; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.caldr-cell       { position: relative; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .caldr-cell.c-disabled { cursor: default; opacity: 0.35; pointer-events: none; }
-.caldr-cell-bg    { position: absolute; top: 4px; bottom: 4px; left: 0; right: 0; z-index: 0; border-radius: 0; }
-.caldr-cell-lbl   { position: relative; z-index: 1; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px; font-weight: 500; color: #4F5B60; }
+.caldr-cell-bg    { position: absolute; top: 3px; bottom: 3px; left: 0; right: 0; z-index: 0; border-radius: 0; }
+.caldr-cell-lbl   { position: relative; z-index: 1; width: 42px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 14px; font-size: 12px; font-weight: 400; color: #1C1C1C; }
 
 /* In-range (middle) strip */
-.caldr-cell.c-mid .caldr-cell-bg { background: #5bbfbd; }
+.caldr-cell.c-mid .caldr-cell-bg { background: rgba(0,100,97,0.13); }
 .caldr-cell.c-mid.c-col0 .caldr-cell-bg { border-radius: 50px 0 0 50px; }
 .caldr-cell.c-mid.c-col3 .caldr-cell-bg { border-radius: 0 50px 50px 0; }
-.caldr-cell.c-mid .caldr-cell-lbl { color: #fff; }
+.caldr-cell.c-mid .caldr-cell-lbl { color: #1C1C1C; }
 
-/* Start cell — right half strip + dark circle */
-.caldr-cell.c-start .caldr-cell-bg { background: linear-gradient(to right, transparent 50%, #5bbfbd 50%); }
-.caldr-cell.c-start.c-col3 .caldr-cell-bg { background: linear-gradient(to right, transparent 50%, #5bbfbd 50%); border-radius: 0 50px 50px 0; }
+/* Start cell — right half strip + pill */
+.caldr-cell.c-start .caldr-cell-bg { background: linear-gradient(to right, transparent 50%, rgba(0,100,97,0.13) 50%); }
+.caldr-cell.c-start.c-col3 .caldr-cell-bg { background: linear-gradient(to right, transparent 50%, rgba(0,100,97,0.13) 50%); border-radius: 0 50px 50px 0; }
 .caldr-cell.c-start .caldr-cell-lbl { background: #006461; color: #fff; font-weight: 700; }
 
-/* End cell — left half strip + dark circle */
-.caldr-cell.c-end .caldr-cell-bg { background: linear-gradient(to right, #5bbfbd 50%, transparent 50%); }
-.caldr-cell.c-end.c-col0 .caldr-cell-bg { background: linear-gradient(to right, #5bbfbd 50%, transparent 50%); border-radius: 50px 0 0 50px; }
+/* End cell — left half strip + pill */
+.caldr-cell.c-end .caldr-cell-bg { background: linear-gradient(to right, rgba(0,100,97,0.13) 50%, transparent 50%); }
+.caldr-cell.c-end.c-col0 .caldr-cell-bg { background: linear-gradient(to right, rgba(0,100,97,0.13) 50%, transparent 50%); border-radius: 50px 0 0 50px; }
 .caldr-cell.c-end .caldr-cell-lbl { background: #006461; color: #fff; font-weight: 700; }
 
-/* Single-month selection (start = end): just the circle, no strip */
+/* Single-month selection (start = end): just the pill, no strip */
 .caldr-cell.c-start.c-end .caldr-cell-bg { background: transparent !important; }
 .caldr-cell.c-start.c-end .caldr-cell-lbl { background: #006461; color: #fff; font-weight: 700; }
 
 /* Hover on unselected cells */
-.caldr-cell:not(.c-disabled):not(.c-start):not(.c-end):not(.c-mid):hover .caldr-cell-lbl { background: #e0f7f6; }
+.caldr-cell:not(.c-disabled):not(.c-start):not(.c-end):not(.c-mid):hover .caldr-cell-lbl { background: rgba(0,100,97,0.1); }
 
 /* Footer */
-.caldr-foot       { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 14px; border-top: 1px solid #F5F5F5; }
-.caldr-foot-lbl   { font-size: 12px; color: #4F5B60; font-weight: 500; }
-.caldr-btn-cancel { padding: 6px 12px; border: none; background: none; color: #4F5B60; font-size: 13px; cursor: pointer; border-radius: 6px; font-family: inherit; }
+.caldr-foot       { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 14px; border-top: 1px solid #dde1e2; }
+.caldr-foot-lbl   { font-size: 13px; color: #4F5B60; font-weight: 400; }
+.caldr-btn-cancel { padding: 5px 17px; border: 1px solid #dde1e2; background: none; color: #4F5B60; font-size: 13px; cursor: pointer; border-radius: 4px; font-family: inherit; height: 32px; }
 .caldr-btn-cancel:hover { background: #F5F5F5; }
-.caldr-btn-apply  { padding: 6px 14px; background: #006461; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.caldr-btn-apply  { padding: 5px 16px; background: #006461; color: #fff; border: none; border-radius: 4px; font-size: 13px; font-weight: 400; cursor: pointer; font-family: inherit; height: 32px; }
 .caldr-btn-apply:hover  { background: #004d4a; }
+
+/* Sidebar shortcuts */
+.caldr-sidebar    { width: 106px; border-left: 1px solid #dde1e2; padding: 16px 10px; display: flex; flex-direction: column; gap: 0; overflow: auto; }
+.caldr-sb-btn     { border: none; background: none; cursor: pointer; text-align: left; padding: 5px 8px; font-size: 13px; color: #006461; font-family: inherit; border-radius: 4px; width: 100%; }
+.caldr-sb-btn:hover { background: #f0fffe; }
+.caldr-sb-label   { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; padding: 3.5px 4px 1.8px; }
+.caldr-sb-divider { height: 1px; background: #dde1e2; margin: 6px 0; }
 
 /* Out of range — no longer used (always show all 12 months) */
 .cal-day.out-of-range { opacity: 1; pointer-events: auto; }

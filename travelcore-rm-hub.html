@@ -490,8 +490,8 @@
                 <span id="calDRLabel">Jan 2026 – Dec 2026</span>
                 <span class="material-icons" style="font-size:16px">calendar_today</span>
               </button>
-              <!-- Month range picker — two-panel -->
-              <div id="calDRPanel" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);user-select:none">
+              <!-- Month range picker — two-panel + sidebar -->
+              <div id="calDRPanel" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);user-select:none">
                 <div style="display:flex">
                   <!-- Left panel -->
                   <div class="caldr-half">
@@ -503,7 +503,7 @@
                     <div id="calDRLeftGrid" class="caldr-mgrid"></div>
                   </div>
                   <!-- Separator -->
-                  <div style="width:1px;background:#e5e7eb"></div>
+                  <div style="width:1px;background:#dde1e2;margin:16px 0 10px"></div>
                   <!-- Right panel -->
                   <div class="caldr-half">
                     <div class="caldr-hdr">
@@ -512,6 +512,20 @@
                       <button class="caldr-nav-btn" onclick="calDRNav(1)">&#8250;</button>
                     </div>
                     <div id="calDRRightGrid" class="caldr-mgrid"></div>
+                  </div>
+                  <!-- Sidebar shortcuts -->
+                  <div class="caldr-sidebar">
+                    <button class="caldr-sb-btn" onclick="calDRPreset('thisMonth')">This Month</button>
+                    <button class="caldr-sb-btn" onclick="calDRPreset('nextMonth')">Next Month</button>
+                    <div class="caldr-sb-divider"></div>
+                    <div class="caldr-sb-label">Current</div>
+                    <button class="caldr-sb-btn" onclick="calDRPreset('quarter')">Quarter</button>
+                    <button class="caldr-sb-btn" onclick="calDRPreset('year')">Year</button>
+                    <div class="caldr-sb-divider"></div>
+                    <div class="caldr-sb-label">Next</div>
+                    <button class="caldr-sb-btn" onclick="calDRPreset('3m')">3 Months</button>
+                    <button class="caldr-sb-btn" onclick="calDRPreset('6m')">6 Months</button>
+                    <button class="caldr-sb-btn" onclick="calDRPreset('12m')">12 Months</button>
                   </div>
                 </div>
                 <!-- Footer -->
