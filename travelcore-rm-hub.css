@@ -7643,6 +7643,7 @@ body.dark .co-rpt-day-hdr { background: #111a1a; border-bottom-color: #1f2f2f; }
 .cell-occ-pct { font-size: 10px; font-weight: 700; color: var(--text-primary); text-align: right; }
 
 /* ── Monthly footer summary sections ── */
+#calMonthlySummary { margin-top: 24px; }
 .cal-month-summary { border-top: 1px solid var(--border); margin-top: 4px; padding: 10px 12px; }
 .cms-section { margin-bottom: 10px; }
 .cms-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
