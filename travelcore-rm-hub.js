@@ -14505,58 +14505,54 @@ setTimeout(function() {
 
 /* ═══ CALENDAR MONTH PICKER — two-panel ═══ */
 (function() {
-  var MONTH_ABBR    = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var drLeftYear    = 2026; // left panel year; right panel = drLeftYear+1
+  var MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var drLeftYear = 2026; // left panel year; right panel = drLeftYear + 1
 
   /*
-   * Three-phase click cycle:
-   *   phase 0 — nothing selected (drSelStartIdx = null)
-   *   phase 1 — start chosen, waiting for end (drSelEndIdx = null)
-   *   phase 2 — full range selected
-   * Clicking any month in phase 2 clears back to phase 0.
+   * Selection is tracked as {year, month} pairs — independent of ALL_MONTHS,
+   * so any year can be navigated. On Apply we clamp to available ALL_MONTHS data.
+   * Max selectable range: 12 months.
+   *
+   * Phases:
+   *   0 — nothing selected
+   *   1 — start chosen, waiting for end
+   *   2 — full range confirmed
    */
-  var drSelStartIdx = null; // null = no selection
-  var drSelEndIdx   = null;
-  var drPhase       = 0;
+  var drSelStart = null; // { year, month }
+  var drSelEnd   = null; // { year, month }
+  var drPhase    = 0;
 
-  /* End fallback: if no explicit end, auto = start + 11 (capped) */
-  function getEndIdx(startIdx) {
-    return Math.min(startIdx + 11, ALL_MONTHS.length - 1);
+  /* ── Helpers ── */
+  function ymVal(ym)      { return ym.year * 12 + ym.month; }
+  function ymCmp(a, b)    { return ymVal(a) - ymVal(b); }
+  function ymAdd(ym, n)   { var t = ymVal(ym) - 1 + n; return { year: Math.floor(t / 12), month: (t % 12) + 1 }; }
+  function ymFmt(ym)      { return MONTH_ABBR[ym.month - 1] + ' ' + ym.year; }
+
+  /* Convert {year,month} to ALL_MONTHS index; returns -1 if not found */
+  function ymToIdx(ym) {
+    for (var i = 0; i < ALL_MONTHS.length; i++) {
+      if (ALL_MONTHS[i].year === ym.year && ALL_MONTHS[i].month === ym.month) return i;
+    }
+    return -1;
   }
 
-  /* Build the 4×3 month grid for a given year into containerId */
+  /* Build the 4×3 month grid for a given year */
   function renderGrid(containerId, year) {
     var el = document.getElementById(containerId);
     if (!el) return;
-    /* Determine effective range for highlights */
-    var startIdx = drSelStartIdx;
-    var endIdx   = (drPhase === 2 && drSelEndIdx !== null) ? drSelEndIdx
-                 : (drPhase === 1 && startIdx !== null)    ? startIdx   // start only, no strip
-                 : null;
-
     el.innerHTML = MONTH_ABBR.map(function(name, mi) {
-      var col = mi % 4;
-      /* Find index in ALL_MONTHS for (year, month) */
-      var idx = -1;
-      for (var i = 0; i < ALL_MONTHS.length; i++) {
-        if (ALL_MONTHS[i].year === year && ALL_MONTHS[i].month === (mi + 1)) { idx = i; break; }
-      }
-      var inData  = idx >= 0;
-      var isStart = inData && startIdx !== null && idx === startIdx;
-      /* In phase 1 no range strip — only the start circle */
-      var isEnd   = drPhase === 2 && inData && endIdx !== null && idx === endIdx;
-      var isMid   = drPhase === 2 && inData && startIdx !== null && endIdx !== null
-                    && idx > startIdx && idx < endIdx;
-
+      var cell = { year: year, month: mi + 1 };
+      var col  = mi % 4;
+      var isStart = drSelStart && ymCmp(cell, drSelStart) === 0;
+      var isEnd   = drPhase === 2 && drSelEnd && ymCmp(cell, drSelEnd) === 0;
+      var isMid   = drPhase === 2 && drSelStart && drSelEnd
+                    && ymCmp(cell, drSelStart) > 0 && ymCmp(cell, drSelEnd) < 0;
       var cls = 'caldr-cell c-col' + col;
-      if (!inData)           cls += ' c-disabled';
-      if (isStart && isEnd)  cls += ' c-start c-end';
-      else if (isStart)      cls += ' c-start';
-      else if (isEnd)        cls += ' c-end';
-      else if (isMid)        cls += ' c-mid';
-
-      var onclick = inData ? ' onclick="calDRMonthClick(' + idx + ')"' : '';
-      return '<div class="' + cls + '"' + onclick + '>'
+      if (isStart && isEnd) cls += ' c-start c-end';
+      else if (isStart)     cls += ' c-start';
+      else if (isEnd)       cls += ' c-end';
+      else if (isMid)       cls += ' c-mid';
+      return '<div class="' + cls + '" onclick="calDRMonthClick(' + year + ',' + (mi + 1) + ')">'
            + '<span class="caldr-cell-bg"></span>'
            + '<span class="caldr-cell-lbl">' + name + '</span>'
            + '</div>';
@@ -14573,41 +14569,35 @@ setTimeout(function() {
     renderGrid('calDRRightGrid', drLeftYear + 1);
     var foot = document.getElementById('calDRFooterLabel');
     if (foot) {
-      if (drPhase === 0 || drSelStartIdx === null) {
+      if (!drSelStart || drPhase === 0) {
         foot.textContent = 'Select a start month';
       } else if (drPhase === 1) {
-        var startM = ALL_MONTHS[drSelStartIdx];
-        foot.textContent = (startM ? startM.name : '') + ' \u2013 ?  (select end month)';
+        foot.textContent = ymFmt(drSelStart) + ' \u2013 ?  (select end month)';
       } else {
-        var startM = ALL_MONTHS[drSelStartIdx];
-        var endM   = drSelEndIdx !== null ? ALL_MONTHS[drSelEndIdx] : null;
-        foot.textContent = (startM ? startM.name : '') + ' \u2013 ' + (endM ? endM.name : '');
+        foot.textContent = ymFmt(drSelStart) + ' \u2013 ' + ymFmt(drSelEnd);
       }
     }
-    /* Dim Apply when range not complete */
     var applyBtn = document.querySelector('#calDRPanel .caldr-btn-apply');
     if (applyBtn) applyBtn.style.opacity = drPhase === 2 ? '1' : '0.4';
   }
 
-  /* ── Month click ── */
-  window.calDRMonthClick = function(idx) {
-    if (drPhase === 1) {
-      /* Second click: set end; swap if needed so start ≤ end */
-      drSelEndIdx = idx;
-      if (drSelEndIdx < drSelStartIdx) {
-        var tmp = drSelStartIdx; drSelStartIdx = drSelEndIdx; drSelEndIdx = tmp;
-      }
-      drPhase = 2;
+  /* ── Month click — (year, month) coords ── */
+  window.calDRMonthClick = function(year, month) {
+    var clicked = { year: year, month: month };
+    if (drPhase === 1 && drSelStart) {
+      var cmp = ymCmp(clicked, drSelStart);
+      var s = cmp <= 0 ? clicked : drSelStart;
+      var e = cmp <= 0 ? drSelStart : clicked;
+      /* Enforce max 12 months */
+      if (ymCmp(e, ymAdd(s, 11)) > 0) e = ymAdd(s, 11);
+      drSelStart = s; drSelEnd = e; drPhase = 2;
     } else {
-      /* Phase 0 or 2: any click starts a fresh selection */
-      drSelStartIdx = idx;
-      drSelEndIdx   = null;
-      drPhase       = 1;
+      drSelStart = clicked; drSelEnd = null; drPhase = 1;
     }
     renderBothGrids();
   };
 
-  /* ── Navigate years (both panels move together) ── */
+  /* ── Navigate years ── */
   window.calDRNav = function(delta) {
     drLeftYear += delta;
     renderBothGrids();
@@ -14619,21 +14609,23 @@ setTimeout(function() {
     var trigger = document.getElementById('calDRTrigger');
     if (!panel) return;
     if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
-    /* Sync to current calendar state — open with a confirmed range showing */
-    drSelStartIdx = calStartIdx;
-    drSelEndIdx   = Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1);
-    drPhase       = 2;
-    drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
+    /* Sync to current calendar state */
+    var sm = ALL_MONTHS[calStartIdx];
+    var em = ALL_MONTHS[Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1)];
+    drSelStart = sm ? { year: sm.year, month: sm.month } : null;
+    drSelEnd   = em ? { year: em.year, month: em.month } : null;
+    drPhase    = (drSelStart && drSelEnd) ? 2 : 0;
+    drLeftYear = sm ? sm.year : 2026;
     /* Position below trigger, keep in viewport */
-    var rect     = trigger.getBoundingClientRect();
-    var panelW   = 540; /* ~210+1+210+106+sidebar border+padding */
-    var panelH   = 280; /* approximate panel height */
-    var left     = rect.left;
+    var rect   = trigger.getBoundingClientRect();
+    var panelW = 540;
+    var panelH = 280;
+    var left   = rect.left;
     if (left + panelW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - panelW - 8);
     var top = rect.bottom + 6;
     if (top + panelH > window.innerHeight - 8) top = Math.max(8, rect.top - panelH - 6);
     panel.style.left    = left + 'px';
-    panel.style.top     = top + 'px';
+    panel.style.top     = top  + 'px';
     panel.style.display = 'block';
     renderBothGrids();
   };
@@ -14642,46 +14634,43 @@ setTimeout(function() {
     document.getElementById('calDRPanel').style.display = 'none';
   };
 
+  /* ── Sidebar presets ── */
   window.calDRPreset = function(key) {
     var today = new Date();
-    var todayYear = today.getFullYear(), todayMonth = today.getMonth() + 1;
-    /* Find index of current month in ALL_MONTHS */
-    var curIdx = 0;
-    for (var i = 0; i < ALL_MONTHS.length; i++) {
-      if (ALL_MONTHS[i].year === todayYear && ALL_MONTHS[i].month === todayMonth) { curIdx = i; break; }
-    }
-    var last = ALL_MONTHS.length - 1;
+    var ty = today.getFullYear(), tm = today.getMonth() + 1;
+    var cur = { year: ty, month: tm };
     var s, e;
-    if (key === 'thisMonth')  { s = curIdx; e = curIdx; }
-    else if (key === 'nextMonth') { s = Math.min(curIdx + 1, last); e = Math.min(curIdx + 1, last); }
-    else if (key === 'quarter') {
-      /* Current quarter start (Q1=Jan, Q2=Apr, Q3=Jul, Q4=Oct) */
-      var qStartMonth = Math.floor((todayMonth - 1) / 3) * 3 + 1;
-      s = curIdx - (todayMonth - qStartMonth);
-      e = Math.min(s + 2, last);
-      s = Math.max(s, 0);
-    }
-    else if (key === 'year')  { s = 0; e = last; }
-    else if (key === '3m')    { s = curIdx; e = Math.min(curIdx + 2, last); }
-    else if (key === '6m')    { s = curIdx; e = Math.min(curIdx + 5, last); }
-    else if (key === '12m')   { s = 0; e = last; }
+    if      (key === 'thisMonth')  { s = cur; e = cur; }
+    else if (key === 'nextMonth')  { s = ymAdd(cur, 1); e = ymAdd(cur, 1); }
+    else if (key === 'quarter')    { var qm = Math.floor((tm - 1) / 3) * 3 + 1; s = { year: ty, month: qm }; e = ymAdd(s, 2); }
+    else if (key === 'year')       { s = { year: ty, month: 1 }; e = { year: ty, month: 12 }; }
+    else if (key === '3m')         { s = cur; e = ymAdd(cur, 2); }
+    else if (key === '6m')         { s = cur; e = ymAdd(cur, 5); }
+    else if (key === '12m')        { s = cur; e = ymAdd(cur, 11); }
     else return;
-    drSelStartIdx = s; drSelEndIdx = e; drPhase = 2;
-    drLeftYear = ALL_MONTHS[s] ? ALL_MONTHS[s].year : 2026;
+    drSelStart = s; drSelEnd = e; drPhase = 2;
+    drLeftYear = s.year;
     renderBothGrids();
     calDRApply();
   };
 
+  /* ── Apply — clamp selection to available ALL_MONTHS data ── */
   window.calDRApply = function() {
-    if (drPhase !== 2 || drSelStartIdx === null || drSelEndIdx === null) return; // range not complete
+    if (drPhase !== 2 || !drSelStart || !drSelEnd) return;
     document.getElementById('calDRPanel').style.display = 'none';
-    var startM = ALL_MONTHS[drSelStartIdx];
-    var endM   = ALL_MONTHS[drSelEndIdx];
+    /* Find start index: first ALL_MONTHS entry >= drSelStart */
+    var startIdx = null, endIdx = null;
+    for (var i = 0; i < ALL_MONTHS.length; i++) {
+      var m = { year: ALL_MONTHS[i].year, month: ALL_MONTHS[i].month };
+      if (startIdx === null && ymCmp(m, drSelStart) >= 0) startIdx = i;
+      if (ymCmp(m, drSelEnd) <= 0) endIdx = i;
+    }
+    if (startIdx === null || endIdx === null || startIdx > endIdx) return;
+    var startM = ALL_MONTHS[startIdx], endM = ALL_MONTHS[endIdx];
     var lbl = document.getElementById('calDRLabel');
-    if (lbl) lbl.textContent = (startM ? startM.name : '') + ' \u2013 ' + (endM ? endM.name : '');
-    calStartIdx = drSelStartIdx;
-    /* Derive view length from selected range */
-    var viewLen = drSelEndIdx - drSelStartIdx + 1;
+    if (lbl) lbl.textContent = ymFmt(drSelStart) + ' \u2013 ' + ymFmt(drSelEnd);
+    calStartIdx = startIdx;
+    var viewLen = endIdx - startIdx + 1;
     calView = viewLen; calDisplayView = viewLen;
     if (typeof calSetDisplayView === 'function') calSetDisplayView(viewLen);
     else renderCalendar();
@@ -14697,30 +14686,31 @@ setTimeout(function() {
     panel.style.display = 'none';
   }, true);
 
-  /* ── Sync picker state to current nav position (called after arrow nav) ── */
+  /* ── Sync picker label to current nav position ── */
   window.calDRSyncToNav = function() {
-    drSelStartIdx = calStartIdx;
-    drSelEndIdx   = Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1);
-    drPhase       = 2;
-    drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
-    var startM = ALL_MONTHS[drSelStartIdx];
-    var endM   = ALL_MONTHS[drSelEndIdx];
+    var sm = ALL_MONTHS[calStartIdx];
+    var em = ALL_MONTHS[Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1)];
+    drSelStart = sm ? { year: sm.year, month: sm.month } : null;
+    drSelEnd   = em ? { year: em.year, month: em.month } : null;
+    drPhase    = (drSelStart && drSelEnd) ? 2 : 0;
+    drLeftYear = sm ? sm.year : 2026;
     var lbl = document.getElementById('calDRLabel');
-    if (lbl) lbl.textContent = (startM ? startM.name : '') + ' – ' + (endM ? endM.name : '');
+    if (lbl && drSelStart && drSelEnd) lbl.textContent = ymFmt(drSelStart) + ' \u2013 ' + ymFmt(drSelEnd);
   };
 
   /* ── Compatibility no-ops ── */
-  window.applyOutOfRange     = function() {};
+  window.applyOutOfRange      = function() {};
   window.applyCalDisplayRange = function() {};
 
   /* ── Init: 2 months from Jan 2026 on first load ── */
   setTimeout(function() {
-    calStartIdx   = 0;
-    drSelStartIdx = 0;
-    drSelEndIdx   = Math.min(1, ALL_MONTHS.length - 1);
-    drPhase       = 2;
+    calStartIdx = 0;
+    drSelStart  = { year: ALL_MONTHS[0].year, month: ALL_MONTHS[0].month };
+    drSelEnd    = { year: ALL_MONTHS[Math.min(1, ALL_MONTHS.length - 1)].year,
+                    month: ALL_MONTHS[Math.min(1, ALL_MONTHS.length - 1)].month };
+    drPhase     = 2;
     var lbl = document.getElementById('calDRLabel');
-    if (lbl) lbl.textContent = ALL_MONTHS[0].name + ' \u2013 ' + ALL_MONTHS[Math.min(1, ALL_MONTHS.length-1)].name;
+    if (lbl) lbl.textContent = ymFmt(drSelStart) + ' \u2013 ' + ymFmt(drSelEnd);
     if (typeof calSetDisplayView === 'function') calSetDisplayView(2);
     else { calView = 2; calDisplayView = 2; renderCalendar(); }
     renderCalMonthlySummary();
