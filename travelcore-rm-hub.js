@@ -14626,11 +14626,14 @@ setTimeout(function() {
     drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
     /* Position below trigger, keep in viewport */
     var rect     = trigger.getBoundingClientRect();
-    var panelW   = 443; /* ~210+210+1+padding */
+    var panelW   = 540; /* ~210+1+210+106+sidebar border+padding */
+    var panelH   = 280; /* approximate panel height */
     var left     = rect.left;
     if (left + panelW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - panelW - 8);
+    var top = rect.bottom + 6;
+    if (top + panelH > window.innerHeight - 8) top = Math.max(8, rect.top - panelH - 6);
     panel.style.left    = left + 'px';
-    panel.style.top     = (rect.bottom + 6) + 'px';
+    panel.style.top     = top + 'px';
     panel.style.display = 'block';
     renderBothGrids();
   };
