@@ -911,6 +911,13 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   color: #ff9800;
   cursor: pointer;
 }
+/* Compact closed indicator — shown in heatmap+compact mode (no text, just icon) */
+.cell-closed-compact {
+  display: flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #ffebee; color: #991f1f;
+  margin: 2px auto 0; flex-shrink: 0;
+}
 
 /* Metric rows — Figma layout */
 .cell-content {
