@@ -3,53 +3,51 @@ import TodayIcon from '@mui/icons-material/Today';
 
 export default function CalendarLegend() {
   return (
-    <div className="flex items-center gap-4 px-4 py-2 border-b border-[var(--border)] bg-[var(--surface-1)] flex-wrap">
-      <span className="text-[11px] text-[var(--text-muted)] font-medium">Legend:</span>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16,
+      padding: '6px 16px',
+      borderBottom: '1px solid var(--border-sub)',
+      background: 'var(--surface-1)',
+      flexWrap: 'wrap',
+    }}>
+      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        Legend
+      </span>
 
-      <LegendItem>
-        <LockIcon sx={{ fontSize: 11, color: '#D32F2F' }} />
-        <span>Fully closed</span>
-      </LegendItem>
+      <LegendItem icon={<LockIcon sx={{ fontSize: 11, color: '#D32F2F' }} />} label="Full close" />
+      <LegendItem icon={<LockIcon sx={{ fontSize: 11, color: '#FF9800' }} />} label="Partial close" />
+      <LegendItem icon={<TodayIcon sx={{ fontSize: 11, color: 'var(--accent)' }} />} label="Event" />
 
-      <LegendItem>
-        <LockIcon sx={{ fontSize: 11, color: '#FF9800' }} />
-        <span>Partial close</span>
-      </LegendItem>
+      {/* Heatmap swatches */}
+      <LegendItem
+        icon={<span style={{ width: 12, height: 12, borderRadius: 2, background: '#2E65E8', display: 'inline-block' }} />}
+        label="Hotel occ"
+      />
+      <LegendItem
+        icon={<span style={{ width: 12, height: 12, borderRadius: 2, background: '#D33030', display: 'inline-block' }} />}
+        label="TO occ"
+      />
 
-      <LegendItem>
-        <TodayIcon sx={{ fontSize: 11, color: 'var(--accent)' }} />
-        <span>Has event</span>
-      </LegendItem>
-
-      <LegendItem>
-        <span className="w-3 h-3 rounded-sm" style={{ background: '#2E65E8' }} />
-        <span>High hotel occupancy</span>
-      </LegendItem>
-
-      <LegendItem>
-        <span className="w-3 h-3 rounded-sm" style={{ background: '#D33030' }} />
-        <span>High TO occupancy</span>
-      </LegendItem>
-
-      <LegendItem>
-        <span className="w-2 h-2 rounded-full bg-[#006461]" />
-        <span className="font-medium" style={{ color: '#006461' }}>H</span>
-        <span>= Hotel</span>
-      </LegendItem>
-
-      <LegendItem>
-        <span className="w-2 h-2 rounded-full bg-[#8C7843]" />
-        <span className="font-medium" style={{ color: '#8C7843' }}>TO</span>
-        <span>= Tour Operator</span>
-      </LegendItem>
+      {/* Colour key */}
+      <LegendItem
+        icon={<span style={{ width: 8, height: 8, borderRadius: '50%', background: '#006461', display: 'inline-block' }} />}
+        label={<><strong style={{ color: '#006461' }}>H</strong> = Hotel</>}
+      />
+      <LegendItem
+        icon={<span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8C7843', display: 'inline-block' }} />}
+        label={<><strong style={{ color: '#8C7843' }}>TO</strong> = Tour Operator</>}
+      />
     </div>
   );
 }
 
-function LegendItem({ children }: { children: React.ReactNode }) {
+function LegendItem({ icon, label }: { icon: React.ReactNode; label: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
-      {children}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-secondary)' }}>
+      {icon}
+      <span>{label}</span>
     </div>
   );
 }

@@ -63,8 +63,7 @@ export default function Calendar({ darkMode, onDarkModeToggle }: CalendarProps) 
     }
   }
 
-  // Grid cols based on view
-  const gridCols: Record<number, string> = {
+  const gridColMap: Record<number, string> = {
     1: 'grid-cols-1',
     2: 'grid-cols-2',
     3: 'grid-cols-3',
@@ -73,7 +72,12 @@ export default function Calendar({ darkMode, onDarkModeToggle }: CalendarProps) 
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg)]">
+    /* Page background */
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Section card — matches .section-card: shadow, rounded, no border */}
+      <div style={{ margin: '20px 24px', borderRadius: 4, boxShadow: 'var(--shadow)', overflow: 'hidden', background: 'var(--surface-1)' }}>
+
       <CalendarHeader
         calView={calView}
         onCalViewChange={handleViewChange}
@@ -97,7 +101,8 @@ export default function Calendar({ darkMode, onDarkModeToggle }: CalendarProps) 
 
       <CalendarLegend />
 
-      <div className={`grid ${gridCols[calView] ?? 'grid-cols-2'} gap-4 p-4`}>
+      {/* Calendar grid — 16px gap, 20px padding matches page content rhythm */}
+      <div className={`grid ${gridColMap[calView] ?? 'grid-cols-2'}`} style={{ gap: 16, padding: 20 }}>
         {visibleMonths.map(m => (
           <CalendarMonth
             key={`${m.year}-${m.month}`}
@@ -113,6 +118,8 @@ export default function Calendar({ darkMode, onDarkModeToggle }: CalendarProps) 
           />
         ))}
       </div>
+
+      </div>{/* /section-card */}
     </div>
   );
 }

@@ -21,31 +21,22 @@ interface DayCellProps {
 }
 
 function formatVal(val: number, format: string): string {
-  if (format === 'pct') return `${Math.round(val)}%`;
-  if (format === 'currency') {
-    if (val >= 1000) return `$${(val / 1000).toFixed(0)}k`;
-    return `$${Math.round(val)}`;
-  }
-  if (format === 'rooms') return String(Math.round(val));
+  if (format === 'pct')      return `${Math.round(val)}%`;
+  if (format === 'currency') return val >= 1000 ? `$${(val / 1000).toFixed(0)}k` : `$${Math.round(val)}`;
+  if (format === 'rooms')    return String(Math.round(val));
   return val.toFixed(1);
 }
 
-function getHeatmapClass(metrics: DayMetrics, heatmapType: string): string {
-  if (heatmapType === 'hotel-occ') {
-    const tier = Math.min(10, Math.max(1, Math.ceil(metrics.hotelOcc / 10)));
-    return `hotel-occ-${tier}`;
-  }
-  if (heatmapType === 'seg-occ') {
-    const tier = Math.min(10, Math.max(1, Math.ceil(metrics.toOcc / 10)));
-    return `seg-occ-${tier}`;
-  }
+function heatmapClass(metrics: DayMetrics, type: string): string {
+  if (type === 'hotel-occ') return `hotel-occ-${Math.min(10, Math.max(1, Math.ceil(metrics.hotelOcc / 10)))}`;
+  if (type === 'seg-occ')   return `seg-occ-${Math.min(10, Math.max(1, Math.ceil(metrics.toOcc / 10)))}`;
   return '';
 }
 
-const metricLabelColor: Record<string, string> = {
-  hotel:   'text-[#006461]',
-  to:      'text-[#8C7843]',
-  compare: 'text-[var(--text-muted)]',
+const LABEL_CLASS: Record<string, string> = {
+  hotel:   'metric-label-hotel',
+  to:      'metric-label-to',
+  compare: 'metric-label-compare',
 };
 
 export default function DayCell({
@@ -53,66 +44,69 @@ export default function DayCell({
   isInRange, isRangeStart, isRangeEnd,
   activeCellMetrics, metricDefs, heatmapType, compact, onSelect,
 }: DayCellProps) {
-  const heatClass = getHeatmapClass(metrics, heatmapType);
-
-  const ringClass = isRangeStart || isRangeEnd
-    ? 'ring-2 ring-[var(--accent)] ring-inset'
-    : isInRange
-    ? 'bg-[rgba(0,100,97,.08)]'
-    : '';
-
-  const baseCls = [
-    'cal-day',
-    heatClass,
-    isLocked ? 'locked' : '',
-    isToday ? 'today' : '',
-    ringClass,
-  ].filter(Boolean).join(' ');
+  const hmCls    = heatmapClass(metrics, heatmapType);
+  const inRangeBg = isInRange && !isRangeStart && !isRangeEnd ? 'rgba(0,100,97,.07)' : undefined;
+  const ringStyle = (isRangeStart || isRangeEnd)
+    ? { boxShadow: 'inset 0 0 0 2px #006461' }
+    : isToday
+    ? { boxShadow: 'inset 0 0 0 2px #3B82F6' }
+    : undefined;
 
   return (
-    <div className={baseCls} onClick={onSelect}>
-      {/* Day header */}
-      <div className="flex items-start justify-between mb-1">
-        <span
-          className={[
-            'day-num text-[11px] font-semibold leading-none',
-            isToday
-              ? 'bg-[var(--accent)] text-white rounded-full w-[22px] h-[22px] flex items-center justify-center'
-              : 'text-[var(--text-secondary)]',
-          ].join(' ')}
-        >
+    <div
+      className={['cal-day', hmCls, isLocked ? 'locked' : '', compact ? 'compact' : ''].filter(Boolean).join(' ')}
+      style={{ ...(inRangeBg ? { background: inRangeBg } : {}), ...ringStyle }}
+      onClick={onSelect}
+    >
+      {/* Day number row */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 3 }}>
+        <span style={{
+          fontSize: 13, fontWeight: 500, lineHeight: 1,
+          color: isToday ? '#3B82F6' : 'var(--text-secondary)',
+          fontFamily: 'Lato, sans-serif',
+        }}>
           {day}
         </span>
         {events.length > 0 && (
-          <TodayIcon sx={{ fontSize: 13, color: 'var(--accent)', opacity: 0.8 }} />
+          <TodayIcon sx={{ fontSize: 13, color: 'var(--accent)', opacity: 0.85, mt: '-1px' }} />
         )}
       </div>
 
-      {/* Lock / partial badges */}
+      {/* Closed / Partial badges — pill style matching source */}
       {isLocked && (
-        <div className="flex items-center gap-1 mb-1">
-          <LockIcon sx={{ fontSize: 10, color: '#D32F2F' }} />
-          <span className="text-[10px] text-[#D32F2F] font-semibold">Closed</span>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 3,
+          background: '#ffebee', color: '#991f1f',
+          borderRadius: 9999, padding: '3px 7px',
+          fontSize: 12, lineHeight: 1, marginBottom: 3,
+        }}>
+          <LockIcon sx={{ fontSize: 10 }} />
+          Closed
         </div>
       )}
       {!isLocked && isPartial && (
-        <div className="flex items-center gap-1 mb-1">
-          <LockIcon sx={{ fontSize: 10, color: '#FF9800' }} />
-          <span className="text-[10px] text-[#FF9800] font-semibold">Partial</span>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 3,
+          background: '#fff1de', color: '#ff9800',
+          borderRadius: 9999, padding: '3px 7px',
+          fontSize: 12, lineHeight: 1, marginBottom: 3,
+        }}>
+          <LockIcon sx={{ fontSize: 10 }} />
+          Partial
         </div>
       )}
 
-      {/* Metric rows */}
-      {!compact && activeCellMetrics.map((key) => {
+      {/* Metric rows — hidden in compact mode */}
+      {!compact && activeCellMetrics.map(key => {
         const def = metricDefs.find(d => d.key === key);
         if (!def) return null;
         const val = metrics[key as keyof DayMetrics] as number;
         return (
-          <div key={key} className="flex items-center justify-between mt-[3px]">
-            <span className={`text-[10px] font-medium ${metricLabelColor[def.type] ?? ''}`}>
+          <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3 }}>
+            <span className={LABEL_CLASS[def.type]} style={{ fontSize: 12, fontWeight: 500, fontFamily: 'Lato, sans-serif' }}>
               {def.label}
             </span>
-            <span className="text-[11px] font-semibold text-[var(--text-primary)]">
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'Lato, sans-serif' }}>
               {formatVal(val, def.format)}
             </span>
           </div>

@@ -13,22 +13,18 @@ interface CalendarMonthProps {
   compact: boolean;
   toFilter: string;
   rangeStart: { month: number; day: number } | null;
-  rangeEnd: { month: number; day: number } | null;
+  rangeEnd:   { month: number; day: number } | null;
   onDayClick: (month: number, day: number) => void;
 }
 
 function inRange(
   month: number, day: number,
   start: { month: number; day: number } | null,
-  end: { month: number; day: number } | null,
+  end:   { month: number; day: number } | null,
 ) {
   if (!start || !end) return false;
-  const d = month * 100 + day;
-  const s = start.month * 100 + start.day;
-  const e = end.month * 100 + end.day;
-  const lo = Math.min(s, e);
-  const hi = Math.max(s, e);
-  return d >= lo && d <= hi;
+  const d = month * 100 + day, s = start.month * 100 + start.day, e = end.month * 100 + end.day;
+  return d >= Math.min(s, e) && d <= Math.max(s, e);
 }
 
 export default function CalendarMonth({
@@ -36,43 +32,42 @@ export default function CalendarMonth({
   rangeStart, rangeEnd, onDayClick,
 }: CalendarMonthProps) {
   const { month, year, days, firstDay, lockedCount, name, stats } = monthData;
-  const today = new Date();
+  const today         = new Date();
   const isCurrentMonth = today.getFullYear() === year && today.getMonth() + 1 === month;
-  const todayDay = isCurrentMonth ? today.getDate() : -1;
+  const todayDay      = isCurrentMonth ? today.getDate() : -1;
 
   const cells: React.ReactNode[] = [];
 
-  // Leading empty cells
+  /* Leading empty cells */
   for (let i = 0; i < firstDay; i++) {
-    cells.push(<div key={`empty-${i}`} className="border-r border-b border-[#E5E7EB] dark:border-[var(--border)] bg-[var(--surface-3)] opacity-40" style={{ height: compact ? 80 : 220 }} />);
+    cells.push(
+      <div key={`e${i}`} style={{
+        height: compact ? 80 : 220,
+        borderRight: '1px solid #E5E7EB',
+        borderBottom: '1px solid #E5E7EB',
+        background: 'var(--surface-3)',
+        opacity: 0.4,
+      }} />
+    );
   }
 
-  // Day cells
+  /* Day cells */
   for (let d = 1; d <= days; d++) {
-    const key = `${month}-${d}`;
+    const key     = `${month}-${d}`;
     const metrics = getDayMetrics(month, d, toFilter);
-    const locked = LOCKED_DAYS.has(key);
-    const partial = !!PARTIAL_CLOSURES[key];
-    const events = CAL_EVENTS[key] ?? [];
-    const isToday = d === todayDay;
-
-    const rangeStartKey = rangeStart && rangeStart.month === month && rangeStart.day === d;
-    const rangeEndKey = rangeEnd && rangeEnd.month === month && rangeEnd.day === d;
-    const inRangeDay = inRange(month, d, rangeStart, rangeEnd);
-
     cells.push(
       <DayCell
         key={key}
         day={d}
         metrics={metrics}
-        isLocked={locked}
-        isPartial={partial}
+        isLocked={LOCKED_DAYS.has(key)}
+        isPartial={!!PARTIAL_CLOSURES[key]}
         partialClosures={PARTIAL_CLOSURES[key] ?? []}
-        events={events}
-        isToday={isToday}
-        isInRange={inRangeDay}
-        isRangeStart={!!rangeStartKey}
-        isRangeEnd={!!rangeEndKey}
+        events={CAL_EVENTS[key] ?? []}
+        isToday={d === todayDay}
+        isInRange={inRange(month, d, rangeStart, rangeEnd)}
+        isRangeStart={!!(rangeStart && rangeStart.month === month && rangeStart.day === d)}
+        isRangeEnd={!!(rangeEnd   && rangeEnd.month   === month && rangeEnd.day   === d)}
         activeCellMetrics={activeCellMetrics}
         metricDefs={metricDefs}
         heatmapType={heatmapType}
@@ -82,38 +77,79 @@ export default function CalendarMonth({
     );
   }
 
+  const deltaColor = (d: string) => d.startsWith('-') ? '#dc2626' : '#16a34a';
+
   return (
-    <div className="flex flex-col border border-[#E5E7EB] dark:border-[var(--border)] rounded-sm overflow-hidden">
-      {/* Month header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-[var(--table-header-bg)] dark:bg-[var(--surface-2)] border-b border-[#E5E7EB] dark:border-[var(--border)]">
-        <div className="flex items-center gap-2">
-          <span className="text-[13px] font-semibold text-[var(--text-primary)]">{name}</span>
+    /* Section card — no border, uses shadow only */
+    <div style={{
+      background: 'var(--surface-1)',
+      borderRadius: 4,
+      boxShadow: 'var(--shadow)',
+      overflow: 'hidden',
+    }}>
+      {/* Month header — matches .section-header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 14px',
+        background: 'var(--table-header-bg)',
+        borderBottom: '1px solid var(--border)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{name}</span>
           {lockedCount > 0 && (
-            <span className="flex items-center gap-1 text-[10px] text-[#D32F2F]">
-              <LockIcon sx={{ fontSize: 10 }} />
-              {lockedCount}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: '#D32F2F' }}>
+              <LockIcon sx={{ fontSize: 10 }} />{lockedCount}
             </span>
           )}
         </div>
-        <div className="flex gap-3 text-[11px] text-[var(--text-muted)]">
-          <span>Occ: <strong className="text-[var(--text-primary)]">{stats.occ}</strong> <span className="text-[#16a34a]">{stats.occDelta}</span></span>
-          <span>ADR: <strong className="text-[var(--text-primary)]">{stats.adr}</strong></span>
-          <span>Rev: <strong className="text-[var(--text-primary)]">{stats.rev}</strong></span>
+        {/* Stats row — matches monthly summary metrics */}
+        <div style={{ display: 'flex', gap: 14, fontSize: 11 }}>
+          <StatCell label="Occ" value={stats.occ} delta={stats.occDelta} deltaColor={deltaColor(stats.occDelta)} />
+          <StatCell label="ADR" value={stats.adr} />
+          <StatCell label="Rev" value={stats.rev} delta={stats.revDelta} deltaColor={deltaColor(stats.revDelta)} />
         </div>
       </div>
 
-      {/* DOW header */}
-      <div className="grid grid-cols-7 bg-[var(--surface-3)] dark:bg-[var(--surface-2)]">
+      {/* Day-of-week header */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: 'var(--surface-3)' }}>
         {DOW.map(d => (
-          <div key={d} className="text-center text-[10px] font-semibold text-[var(--text-muted)] py-1 border-r border-[#E5E7EB] dark:border-[var(--border)] last:border-r-0">
-            {d}
-          </div>
+          <div key={d} style={{
+            textAlign: 'center',
+            fontSize: 10,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            color: 'var(--text-muted)',
+            padding: '5px 0',
+            borderRight: '1px solid var(--border-sub)',
+          }}>{d}</div>
         ))}
       </div>
 
       {/* Day grid */}
-      <div className="grid grid-cols-7">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        borderTop: '1px solid #E5E7EB',
+        borderLeft: '1px solid #E5E7EB',
+      }}>
         {cells}
+      </div>
+    </div>
+  );
+}
+
+function StatCell({ label, value, delta, deltaColor }: {
+  label: string; value: string; delta?: string; deltaColor?: string;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+      <span style={{ color: 'var(--text-muted)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: 12 }}>{value}</span>
+        {delta && <span style={{ fontSize: 10, fontWeight: 700, color: deltaColor }}>{delta}</span>}
       </div>
     </div>
   );

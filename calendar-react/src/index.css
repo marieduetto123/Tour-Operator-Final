@@ -1,60 +1,68 @@
 @import "tailwindcss";
 
-/* Duetto 2026 Design System — brand tokens */
+/* ── Fixed brand tokens ── */
 :root {
-  --teal-50:   #D7F7ED;
-  --teal-100:  #5ceade;
   --teal-700:  #006461;
   --teal-900:  #053c3c;
+  --teal-50:   #D7F7ED;
+  --teal-100:  #5CEADE;
   --lime:      #C4FF45;
   --indigo:    #3F3E78;
   --error:     #D32F2F;
   --error-bg:  #FFEBEE;
   --warn:      #FF9800;
-
-  /* Light theme */
-  --bg:             #FAFAFA;
-  --surface-1:      #FFFFFF;
-  --surface-2:      #FFFFFF;
-  --surface-3:      #F5F5F5;
-  --surface-overlay:#EAEEEF;
-  --border:         #DDE1E2;
-  --border-sub:     #EAEEEF;
-  --border-strong:  #8A9096;
-  --text-primary:   #1C1C1C;
-  --text-secondary: #4F5B60;
-  --text-muted:     #8A9096;
-  --text-disabled:  #AEB4BA;
-  --accent:         #006461;
-  --accent-bg:      rgba(0,100,97,.07);
-  --row-hover:      rgba(0,100,97,.05);
-  --table-header-bg:#F8F9FD;
-  --shadow:         0 1px 3px rgba(0,0,0,.2), 0 2px 1px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.14);
-  --shadow-sm:      0 1px 2px rgba(0,0,0,.1), 0 1px 1px rgba(0,0,0,.08);
+  --warn-text: #774700;
 }
 
+/* ── Light theme ── */
+:root {
+  --bg:              #FAFAFA;
+  --surface-1:       #FFFFFF;
+  --surface-2:       #FFFFFF;
+  --surface-3:       #F5F5F5;
+  --surface-overlay: #EAEEEF;
+  --border:          #DDE1E2;
+  --border-sub:      #EAEEEF;
+  --border-strong:   #8A9096;
+  --text-primary:    #1C1C1C;
+  --text-secondary:  #4F5B60;
+  --text-muted:      #8A9096;
+  --text-disabled:   #AEB4BA;
+  --shadow:          0 1px 3px rgba(0,0,0,.2), 0 2px 1px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.14);
+  --shadow-sm:       0 1px 2px rgba(0,0,0,.1), 0 1px 1px rgba(0,0,0,.08);
+  --table-header-bg: #F8F9FD;
+  --table-highlight: #DBF0F2;
+  --accent:          #006461;
+  --accent-hover:    #053c3c;
+  --accent-bg:       rgba(0,100,97,.07);
+  --row-hover:       rgba(0,100,97,.05);
+}
+
+/* ── Dark theme ── */
 .dark {
-  --bg:             #0E2124;
-  --surface-1:      #122a2d;
-  --surface-2:      #173336;
-  --surface-3:      #1c3c40;
-  --border:         #254548;
-  --border-sub:     #1e3c3f;
-  --text-primary:   #FFFFFF;
-  --text-secondary: #c8e6e5;
-  --text-muted:     #7aabad;
-  --text-disabled:  #AEB4BA;
-  --accent:         #C4FF45;
-  --accent-bg:      rgba(196,255,69,.07);
-  --row-hover:      rgba(0,100,97,.08);
-  --shadow:         0 1px 4px rgba(0,0,0,.35), 0 0 0 1px rgba(0,100,97,.15);
+  --bg:              #0E2124;
+  --surface-1:       #122a2d;
+  --surface-2:       #173336;
+  --surface-3:       #1c3c40;
+  --surface-overlay: #1e3c3f;
+  --border:          #254548;
+  --border-sub:      #1e3c3f;
+  --text-primary:    #FFFFFF;
+  --text-secondary:  #c8e6e5;
+  --text-muted:      #7aabad;
+  --text-disabled:   #AEB4BA;
+  --shadow:          0 1px 4px rgba(0,0,0,.35), 0 0 0 1px rgba(0,100,97,.15);
+  --table-header-bg: #1a3336;
+  --accent:          #C4FF45;
+  --accent-hover:    #a9df40;
+  --accent-bg:       rgba(196,255,69,.07);
+  --row-hover:       rgba(0,100,97,.08);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
   font-family: 'Lato', sans-serif;
   font-size: 13px;
   background: var(--bg);
@@ -64,35 +72,31 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+#root { min-height: 100vh; display: flex; flex-direction: column; }
 
-/* ── Heatmap tiers — hotel occupancy (blue) ── */
+/* ── Heatmap tiers — hotel occ (blue) ── */
 .hotel-occ-1  { --hotel-bg: #E7EFFF; }
-.hotel-occ-2  { --hotel-bg: #C7D9FF; }
-.hotel-occ-3  { --hotel-bg: #A8C2FF; }
-.hotel-occ-4  { --hotel-bg: #88AAFF; }
-.hotel-occ-5  { --hotel-bg: #6A92FF; }
-.hotel-occ-6  { --hotel-bg: #527AEE; }
-.hotel-occ-7  { --hotel-bg: #3C64DB; }
-.hotel-occ-8  { --hotel-bg: #284FC6; }
-.hotel-occ-9  { --hotel-bg: #163CAF; }
-.hotel-occ-10 { --hotel-bg: #2E65E8; }
+.hotel-occ-2  { --hotel-bg: #D3DFFC; }
+.hotel-occ-3  { --hotel-bg: #BED0FA; }
+.hotel-occ-4  { --hotel-bg: #A8BFF7; }
+.hotel-occ-5  { --hotel-bg: #94B1F5; color: #fff; }
+.hotel-occ-6  { --hotel-bg: #80A1F2; color: #fff; }
+.hotel-occ-7  { --hotel-bg: #6B92F0; color: #fff; }
+.hotel-occ-8  { --hotel-bg: #5883ED; color: #fff; }
+.hotel-occ-9  { --hotel-bg: #4374EB; color: #fff; }
+.hotel-occ-10 { --hotel-bg: #2E65E8; color: #fff; }
 
-/* ── Heatmap tiers — TO/segment occupancy (red/warm) ── */
+/* ── Heatmap tiers — TO / segment occ (red) ── */
 .seg-occ-1  { --seg-bg: #FDF6F6; }
-.seg-occ-2  { --seg-bg: #FAE8E8; }
-.seg-occ-3  { --seg-bg: #F7D0D0; }
-.seg-occ-4  { --seg-bg: #F3B4B4; }
-.seg-occ-5  { --seg-bg: #ED9090; }
-.seg-occ-6  { --seg-bg: #E46E6E; }
-.seg-occ-7  { --seg-bg: #D84E4E; }
-.seg-occ-8  { --seg-bg: #CC3535; }
-.seg-occ-9  { --seg-bg: #BF2020; }
-.seg-occ-10 { --seg-bg: #D33030; }
+.seg-occ-2  { --seg-bg: #F9E2E2; }
+.seg-occ-3  { --seg-bg: #F4CDCD; }
+.seg-occ-4  { --seg-bg: #F0B7B7; }
+.seg-occ-5  { --seg-bg: #EBA2A2; }
+.seg-occ-6  { --seg-bg: #E68989; }
+.seg-occ-7  { --seg-bg: #E27575; color: #fff; }
+.seg-occ-8  { --seg-bg: #DD5F5F; color: #fff; }
+.seg-occ-9  { --seg-bg: #D84848; color: #fff; }
+.seg-occ-10 { --seg-bg: #D33030; color: #fff; }
 
 /* ── Day cell ── */
 .cal-day {
@@ -101,36 +105,30 @@ html, body {
   flex-direction: column;
   position: relative;
   cursor: pointer;
-  transition: box-shadow .15s;
   background: var(--hotel-bg, var(--seg-bg, var(--surface-1)));
   overflow: hidden;
   border-right: 1px solid #E5E7EB;
   border-bottom: 1px solid #E5E7EB;
   padding: 8px 9px 8px 8px;
+  transition: box-shadow .12s;
 }
+.dark .cal-day { border-color: var(--border); }
 
-.cal-day:hover {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
+.cal-day:hover     { box-shadow: inset 0 0 0 2px #006461; }
+.dark .cal-day:hover { box-shadow: inset 0 0 0 2px #C4FF45; }
+.cal-day.locked:hover { box-shadow: inset 0 0 0 2px #dc2626; }
+.cal-day.today     { box-shadow: inset 0 0 0 2px #3B82F6; }
 
-.cal-day.locked {
-  opacity: 0.85;
-}
+/* Compact mode (3M / 6M / 12M) */
+.cal-day.compact { height: 80px; }
 
-.cal-day.today .day-num {
-  background: var(--accent);
-  color: #fff;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dark .cal-day {
-  border-color: var(--border);
-}
+/* Metric label colours */
+.metric-label-hotel   { color: #006461; }
+.metric-label-to      { color: #8C7843; }
+.metric-label-compare { color: #8A9096; }
+.dark .metric-label-hotel   { color: #5CEADE; }
+.dark .metric-label-to      { color: #c4a862; }
+.dark .metric-label-compare { color: #7aabad; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
