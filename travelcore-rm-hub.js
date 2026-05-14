@@ -1684,33 +1684,12 @@ function renderCalendar() {
           var shortLabel = isTO ? lbl.substring(3) : (isH ? lbl.substring(2) : lbl);
           shortLabel = shortLabel.replace(/^LY-|^STLY-|^Fcst-/, '');
 
-          // Comparison value
-          var compHtml = '';
-          if (_cmpMult > 0 && r.raw !== undefined) {
-            var compRaw = Math.round(r.raw * _cmpMult * 10) / 10;
-            var diff = r.raw - compRaw;
-            var upOrDown = diff > 0 ? 'cell-cmp-up' : diff < 0 ? 'cell-cmp-dn' : '';
-            var arrowIcon = diff > 0 ? '<span class="material-icons" style="font-size:12px">arrow_upward</span>' : diff < 0 ? '<span class="material-icons" style="font-size:12px">arrow_downward</span>' : '';
-            var compStr = r.value;
-            if (typeof r.raw === 'number') {
-              var v = r.value || '';
-              if (v.indexOf('$') >= 0 && v.indexOf('k') >= 0) compStr = '$' + Math.round(compRaw / 1000) + 'k';
-              else if (v.indexOf('$') >= 0) compStr = '$' + Math.round(compRaw);
-              else if (v.indexOf('%') >= 0) compStr = Math.round(compRaw) + '%';
-              else if (v.indexOf('n') >= 0) compStr = compRaw.toFixed ? compRaw.toFixed(1) + 'n' : Math.round(compRaw) + 'n';
-              else if (v.indexOf('d') >= 0) compStr = Math.round(compRaw) + 'd';
-              else if (v.indexOf('RN') >= 0) compStr = Math.round(compRaw) + ' RN';
-              else compStr = String(Math.round(compRaw));
-            }
-            compHtml = '<span class="cell-cmp ' + upOrDown + '">' + arrowIcon + compStr + '</span>';
-          }
-
           if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + r._html + '</div>';
           return '<div class="cell-m-row ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
-            + '<span class="cell-m-val">' + r.value + compHtml + '</span>'
+            + '<span class="cell-m-val">' + r.value + '</span>'
             + '</div>';
         }).join('');
       })();
