@@ -3727,7 +3727,7 @@ function wvCmpValSuffix(stlyStr, lyStr, fcstStr) {
   if (wvCompare.has('stly') && stlyStr && stlyStr !== 'null') parts.push(stlyStr);
   if (wvCompare.has('ly')   && lyStr   && lyStr   !== 'null') parts.push(lyStr);
   if (wvCompare.has('fcst') && fcstStr && fcstStr !== 'null') parts.push(fcstStr);
-  return parts.map(function(s){ return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp">' + s + '</span>'; }).join('');
+  return parts.map(function(s){ return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt">' + s + '</span>'; }).join('');
 }
 
 // Multi-compare inline suffix — shows "/ STLY:val / LY:val" etc. for all active
@@ -3736,13 +3736,10 @@ function _wvMultiCmpSfx(curr, stlyVal, lyVal, fcstVal, fmtFn) {
   var _ORDER = [['stly','STLY',stlyVal],['ly','LY',lyVal],['fcst','Fc',fcstVal]];
   return _ORDER.filter(function(t){ return wvCompare.has(t[0]) && t[2] != null; }).map(function(t) {
     var s = fmtFn(t[2]);
-    var cls = '', arrow = '';
+    var clr = '#8a9096';
     var c = parseFloat(curr), p = parseFloat(t[2]);
-    if (!isNaN(c) && !isNaN(p)) {
-      if (c > p) { cls = ' cell-cmp-up'; arrow = '<span class="material-icons" style="font-size:12px">arrow_upward</span>'; }
-      else if (c < p) { cls = ' cell-cmp-dn'; arrow = '<span class="material-icons" style="font-size:12px">arrow_downward</span>'; }
-    }
-    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+arrow+t[1]+':'+s+'</span>';
+    if (!isNaN(c) && !isNaN(p)) { if (c > p) clr = '#388c3f'; else if (c < p) clr = '#d32f2f'; }
+    return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt" style="color:'+clr+'">'+t[1]+':'+s+'</span>';
   }).join('');
 }
 
@@ -3755,7 +3752,7 @@ function _wvMultiTrendBadge(curr, stlyVal, lyVal, fcstVal) {
     var cls = diff>0?'cell-cmp-up':diff<0?'cell-cmp-dn':'';
     var arrow = diff>0?'arrow_upward':diff<0?'arrow_downward':'';
     var arrowHtml = arrow ? '<span class="material-icons" style="font-size:12px">'+arrow+'</span>' : '';
-    return '<span class="cell-cmp '+cls+'" style="margin-left:3px">'+arrowHtml+pct+'%</span><span class="cell-cmp-label"> vs '+t[1]+'</span>';
+    return '<span class="cell-cmp '+cls+'" style="margin-left:3px">'+arrowHtml+pct+'% vs '+t[1]+'</span>';
   }).join('');
 }
 
@@ -4606,13 +4603,13 @@ function buildDailyBView(days, month, activeDay) {
 
   function cmpSfx(cmpStr, curr, comp) {
     if (!cmpStr || wvCompare.size === 0) return '';
-    var cls = '', arrow = '';
+    var clr = '#8a9096';
     if (curr != null && comp != null && !isNaN(parseFloat(curr)) && !isNaN(parseFloat(comp))) {
       var c = parseFloat(curr), p = parseFloat(comp);
-      if (c > p) { cls = ' cell-cmp-up'; arrow = '<span class="material-icons" style="font-size:12px">arrow_upward</span>'; }
-      else if (c < p) { cls = ' cell-cmp-dn'; arrow = '<span class="material-icons" style="font-size:12px">arrow_downward</span>'; }
+      if (c > p) clr = '#388c3f';
+      else if (c < p) clr = '#d32f2f';
     }
-    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp' + cls + '">' + arrow + cmpStr + '</span>';
+    return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt" style="color:' + clr + '">' + cmpStr + '</span>';
   }
 
   // trendBadge wraps badges in a single container so wb-sect-val always has
@@ -5211,13 +5208,13 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   var C1='#004948', C2='#52d9ce', C3='#D97706', C4='#d7f7ed', CSTLY='#C4FF45', CREM='#445e0d';
   function cmpSfx(s, curr, comp) {
     if (!s || wvCompare.size === 0) return '';
-    var cls = '', arrow = '';
+    var clr = '#8a9096';
     if (curr != null && comp != null && !isNaN(parseFloat(curr)) && !isNaN(parseFloat(comp))) {
       var c = parseFloat(curr), p = parseFloat(comp);
-      if (c > p) { cls = ' cell-cmp-up'; arrow = '<span class="material-icons" style="font-size:12px">arrow_upward</span>'; }
-      else if (c < p) { cls = ' cell-cmp-dn'; arrow = '<span class="material-icons" style="font-size:12px">arrow_downward</span>'; }
+      if (c > p) clr = '#388c3f';
+      else if (c < p) clr = '#d32f2f';
     }
-    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+arrow+s+'</span>';
+    return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt" style="color:'+clr+'">'+s+'</span>';
   }
   function wbGrad2(clr) {
     if (clr==='#004948') return 'linear-gradient(to right,#004948,#007a75)';
