@@ -1724,12 +1724,11 @@ function renderCalendar() {
       const capTipAttr = isLocked ? '' : ` onmouseenter="calShowCapTip(event,${hotel},${hotelRooms},${to},${toRoomsSold},${210-hotelRooms-toRoomsSold},${m.month},${d})" onmouseleave="calHideCapTip()"`;
       const moIso = `${m.year}-${String(m.month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const moChk = _moSelectedDays.has(moIso) ? ' checked' : '';
-      const _showEye = !isCompact;
       cells += `<div class="${classes}" data-month="${m.month}" data-day="${d}"${capTipAttr}>
         <div class="cell-day-hdr">
           <input type="checkbox" class="wv-day-chk mo-day-chk"${moChk} onclick="event.stopPropagation();moDayCheck('${moIso}',this)" title="Select for close-out">
           <span class="day-num">${d}</span>
-          <span class="cell-hdr-spacer">${_showEye ? eyeSvg : ''}</span>
+          <span class="cell-hdr-spacer">${eyeSvg}</span>
         </div>
         ${isLocked && !isCompact ? '<span class="cell-closed-label">Closed' + _lockFilled + '</span>' : ''}
         ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partial' + _lockOutlined + '</span>' : ''}
