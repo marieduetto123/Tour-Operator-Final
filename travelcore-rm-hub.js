@@ -8375,10 +8375,11 @@ function buildWeekGrid(month, weekStart, activeDay) {
           const dmToRn  = Math.round(HOTEL_CAPACITY * to / 100);
           const toFrac   = hotel > 0 ? to / hotel : 0; // fraction of hotel rooms that are TO
           const dmHotelRn = Math.round(HOTEL_CAPACITY * hotel / 100);
+          const WV_CAP_DMH = 250;
           const dmToRev = Math.floor(dmToRn * dmToAdr);
+          const dmToTrev = Math.floor(dmToRev / WV_CAP_DMH);
           const dmToPickup = Math.max(0, Math.floor((v%25+5) * to / Math.max(1, hotel)));
           const dmHotelPickup = Math.floor(v%25+5);
-          const dmToTrev = Math.max(50, (adr+80) - 30 - Math.abs((dm*5+dd*3)%20));
           function dmRefRow(sv, lv, fv, hv) {
             const parts = [];
             if (showS && sv != null) parts.push('<span class="wv-ref-tag wv-ref-sdly">STLY '+sv+'</span>');
