@@ -3075,7 +3075,7 @@ body.dark .wv-cmp-val-txt.wv-cmp-neutral { color: #7aabad; }
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 4px; font-family: 'Lato', sans-serif;
   border-bottom: 1px solid #dde1e2;
-  padding-top: 4px; padding-bottom: 8px;
+  padding-top: 4px; padding-bottom: 8px; width: 100%; box-sizing: border-box;
 }
 .wv-occ-br-row:last-child { border-bottom: none; padding-bottom: 4px; }
 /* Left side: dot + label */
