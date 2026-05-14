@@ -8292,8 +8292,9 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 1px 13px 1px 27px;
-  height: 32px;
+  padding: 8px 13px;
+  height: auto;
+  min-height: 48px;
 }
 .wb-sub-dot {
   width: 9px;
@@ -8315,8 +8316,9 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
 .wb-sub-cell {
   display: flex;
   align-items: center;
-  height: 32px;
-  padding: 0 8px;
+  height: auto;
+  min-height: 48px;
+  padding: 8px;
 }
 .wb-sub-vals {
   display: flex;
