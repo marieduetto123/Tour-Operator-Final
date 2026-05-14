@@ -8467,6 +8467,9 @@ function buildWeekGrid(month, weekStart, activeDay) {
             if (isHotelOnly) {
               bdRows = '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+barClr+'"></span><span class="wv-occ-br-lbl">Hotel</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">'+val+'</span></div></div>';
             } else {
+              // Tour operator value first
+              bdRows += '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#006461"></span><span class="wv-occ-br-lbl" style="color:#006461">Tour Operator</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms" style="color:#006461">'+val+'</span></div></div>';
+              // Hotel value if it exists
               if (hvDisplay != null) {
                 bdRows += '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+barClr+';opacity:.45"></span><span class="wv-occ-br-lbl">Hotel</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">'+hvDisplay+'</span></div></div>';
               }
@@ -8479,8 +8482,6 @@ function buildWeekGrid(month, weekStart, activeDay) {
                 bdRows += '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#006461"></span><span class="wv-occ-br-lbl" style="color:#006461">Static FIT</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms" style="color:#006461">'+fmtSeg(0.45)+'</span></div></div>'
                   +'<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#0891b2"></span><span class="wv-occ-br-lbl" style="color:#0891b2">TO Dynamic</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms" style="color:#0891b2">'+fmtSeg(0.35)+'</span></div></div>'
                   +'<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#6366f1"></span><span class="wv-occ-br-lbl" style="color:#6366f1">Tour Series</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms" style="color:#6366f1">'+fmtSeg(0.20)+'</span></div></div>';
-              } else {
-                bdRows += '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#006461"></span><span class="wv-occ-br-lbl" style="color:#006461">TO</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms" style="color:#006461">'+val+'</span></div></div>';
               }
             }
             const headerClr = isHotelOnly ? '#181d1f' : '#006461';
