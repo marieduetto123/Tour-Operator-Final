@@ -917,7 +917,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   display: flex; flex-direction: column; gap: 2px;
   flex-shrink: 0;
   margin-top: auto;
-  margin-bottom: 8px; /* Figma: metrics 8px above cell bottom padding */
+  margin-bottom: 26px;
 }
 .cell-m-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -1011,8 +1011,6 @@ body.dark .cell-cmp-label { color: #9ca3af; }
   transition: opacity .12s;
 }
 .cell-event-ico:hover { opacity: .75; }
-/* Extra bottom margin on metric rows when a day has calendar events */
-.cal-day.has-events .cell-content { margin-bottom: 26px; }
 
 /* Legacy compat — hide old elements */
 .cell-occ-row { display: none; }
