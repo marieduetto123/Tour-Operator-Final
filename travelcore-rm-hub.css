@@ -938,9 +938,9 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cell-m-row-stacked {
   flex-direction: column; align-items: flex-start; gap: 1px;
 }
-/* Hotel = black, TO = gold-brown */
+/* Hotel = black, TO = teal */
 .cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #1C1C1C; }
-.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #8C7843; }
+.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #38AAA3; }
 
 /* Comparison value styling - badge style */
 .cell-cmp {
@@ -1664,7 +1664,7 @@ body.dark .cal-days { border-top-color: #1a3336; border-left-color: #1a3336; }
 body.dark .day-num { color: #c8e6e5; }
 body.dark .day-muted { color: #5a8a89; }
 body.dark .cell-m-hotel .cell-m-label, body.dark .cell-m-hotel .cell-m-val { color: #e0e4e4; }
-body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #d4c28a; }
+body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #5ceade; }
 body.dark .cal-dow span { color: #7aabad; }
 body.dark .cal-month-name:hover { color: var(--accent); }
 body.dark .cell-closed-label { background: rgba(153,31,31,.3); color: #fca5a5; }
