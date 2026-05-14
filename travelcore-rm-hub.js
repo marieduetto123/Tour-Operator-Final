@@ -15087,6 +15087,16 @@ window.calHideCapTip = function() {
   }
 
   // ── Metric toggle (updates pending state only — Apply to commit) ─
+  // ── Toggle section expand/collapse ──────────────────────────────
+  window.cmToggleSection = function(sectionId, headerEl) {
+    var content = document.getElementById('cmSection-' + sectionId);
+    var icon = headerEl.querySelector('.cm-expand-icon');
+    if (!content || !icon) return;
+    var isHidden = content.style.display === 'none';
+    content.style.display = isHidden ? 'block' : 'none';
+    icon.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+  };
+
   // Keys starting with 't' = Combined column; 'h' = Individual (Hotel) column.
   // Selecting from one group clears all selections from the other.
   // ── Metric toggle — Hotel (h) and T (t) columns can both be selected freely.

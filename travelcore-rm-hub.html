@@ -725,20 +725,106 @@
     </div>
   </div>
 
-  <!-- ── Metrics selection ──────────────────────────────────────── -->
-  <div style="border-top:1px solid var(--border-sub);width:100%">
-    <table class="cmv4-table">
-      <thead class="cmv4-thead">
-        <tr>
-          <th style="width:90px"></th>
-          <th style="width:50%">HOTEL</th>
-          <th style="width:50%">OPERATOR</th>
-        </tr>
-      </thead>
-      <tbody>
-<tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">Occupancy</td></tr><tr><td class="cmv4-row-lbl">Actual</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="hocc" onclick="cmToggleMetric('hocc',this)"></span><span class="cmv4-dot" style="background:#5883ed"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tocc" onclick="cmToggleMetric('tocc',this)"></span><span class="cmv4-dot" style="background:#006461"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">ADR</td></tr><tr><td class="cmv4-row-lbl">Actual</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="hadr" onclick="cmToggleMetric('hadr',this)"></span><span class="cmv4-dot" style="background:#7c3aed"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tadr" onclick="cmToggleMetric('tadr',this)"></span><span class="cmv4-dot" style="background:#4f46e5"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">Revenue</td></tr><tr><td class="cmv4-row-lbl">Actual</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="hrev" onclick="cmToggleMetric('hrev',this)"></span><span class="cmv4-dot" style="background:#ea580c"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="trev" onclick="cmToggleMetric('trev',this)"></span><span class="cmv4-dot" style="background:#b45309"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">RN Sold</td></tr><tr><td class="cmv4-row-lbl">Actual</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="hrn" onclick="cmToggleMetric('hrn',this)"></span><span class="cmv4-dot" style="background:#2e65e8"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="trn" onclick="cmToggleMetric('trn',this)"></span><span class="cmv4-dot" style="background:#0284c7"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">RevPAR</td></tr><tr><td class="cmv4-row-lbl">Actual</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="hrevpar" onclick="cmToggleMetric('hrevpar',this)"></span><span class="cmv4-dot" style="background:#9333ea"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="trevpar" onclick="cmToggleMetric('trevpar',this)"></span><span class="cmv4-dot" style="background:#7c3aed"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">Other Metrics</td></tr><tr><td class="cmv4-row-lbl">Pickup</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cmv4-dot" style="background:#16a34a"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cmv4-dot" style="background:#0d9488"></span></label></td></tr><tr><td class="cmv4-row-lbl">Avg LOS</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cmv4-dot" style="background:#0891b2"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cmv4-dot" style="background:#22d3ee"></span></label></td></tr><tr><td class="cmv4-row-lbl">Average Lead Time</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cmv4-dot" style="background:#6366f1"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cmv4-dot" style="background:#a5b4fc"></span></label></td></tr><tr><td class="cmv4-row-lbl">Avg Adults</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cmv4-dot" style="background:#2e65e8"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cmv4-dot" style="background:#60a5fa"></span></label></td></tr><tr><td class="cmv4-row-lbl">Avg Children</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cmv4-dot" style="background:#d33030"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cmv4-dot" style="background:#f87171"></span></label></td></tr><tr><td class="cmv4-row-lbl">Total Guests</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cmv4-dot" style="background:#0369a1"></span></label></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cmv4-dot" style="background:#0ea5e9"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">Availability</td></tr><tr><td class="cmv4-row-lbl">Avail Rooms</td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cmv4-dot" style="background:#16a34a"></span></label></td><td class="cmv4-cb-cell"></td></tr><tr><td class="cmv4-row-lbl">Avail Guar.</td><td class="cmv4-cb-cell"></td><td class="cmv4-cb-cell"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cmv4-dot" style="background:#ea580c"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">Business Mix</td></tr><tr><td class="cmv4-row-lbl" style="padding-left:12px">TO Mix %</td><td colspan="2" class="cmv4-cb-cell" style="text-align:left"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cmv4-dot" style="background:#006461"></span></label></td></tr><tr><td class="cmv4-row-lbl" style="padding-left:12px">Direct Mix %</td><td colspan="2" class="cmv4-cb-cell" style="text-align:left"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cmv4-dot" style="background:#0284c7"></span></label></td></tr><tr><td class="cmv4-row-lbl" style="padding-left:12px">OTA Mix %</td><td colspan="2" class="cmv4-cb-cell" style="text-align:left"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cmv4-dot" style="background:#7c3aed"></span></label></td></tr><tr class="cmv4-group-hdr"><td colspan="3" style="font-size:9px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:5px 12px 2px;background:#f8f9fa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">Selling Rates</td></tr><tr><td class="cmv4-row-lbl" style="padding-left:12px">TO Contract Rate</td><td colspan="2" class="cmv4-cb-cell" style="text-align:left"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cmv4-dot" style="background:#0f766e"></span></label></td></tr><tr><td class="cmv4-row-lbl" style="padding-left:12px">Promotion %</td><td colspan="2" class="cmv4-cb-cell" style="text-align:left"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cmv4-dot" style="background:#d97706"></span></label></td></tr><tr><td class="cmv4-row-lbl" style="padding-left:12px">Base Segment Rate</td><td colspan="2" class="cmv4-cb-cell" style="text-align:left"><label class="cmv4-cb-item"><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cmv4-dot" style="background:#9333ea"></span></label></td></tr>
-      </tbody>
-    </table>
+  <!-- ── Metrics selection (expandable sections) ──────────────── -->
+  <div style="border-top:1px solid var(--border-sub);width:100%;max-height:400px;overflow-y:auto">
+    <!-- Daily Metrics Section -->
+    <div class="cm-section">
+      <div class="cm-section-header" onclick="cmToggleSection('daily', this)">
+        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
+        <span class="cm-section-title">Daily Metrics</span>
+      </div>
+      <div class="cm-section-content" id="cmSection-daily" style="display:block">
+        <div class="cm-metric-group">
+          <div class="cm-group-label">Occupancy</div>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hocc" onclick="cmToggleMetric('hocc',this)"></span><span class="cmv4-dot" style="background:#5883ed;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tocc" onclick="cmToggleMetric('tocc',this)"></span><span class="cmv4-dot" style="background:#006461;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
+        </div>
+        <div class="cm-metric-group">
+          <div class="cm-group-label">ADR</div>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hadr" onclick="cmToggleMetric('hadr',this)"></span><span class="cmv4-dot" style="background:#7c3aed;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tadr" onclick="cmToggleMetric('tadr',this)"></span><span class="cmv4-dot" style="background:#4f46e5;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
+        </div>
+        <div class="cm-metric-group">
+          <div class="cm-group-label">Revenue</div>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hrev" onclick="cmToggleMetric('hrev',this)"></span><span class="cmv4-dot" style="background:#ea580c;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="trev" onclick="cmToggleMetric('trev',this)"></span><span class="cmv4-dot" style="background:#b45309;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
+        </div>
+        <div class="cm-metric-group">
+          <div class="cm-group-label">RN Sold</div>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hrn" onclick="cmToggleMetric('hrn',this)"></span><span class="cmv4-dot" style="background:#2e65e8;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="trn" onclick="cmToggleMetric('trn',this)"></span><span class="cmv4-dot" style="background:#0284c7;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
+        </div>
+        <div class="cm-metric-group">
+          <div class="cm-group-label">RevPAR</div>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hrevpar" onclick="cmToggleMetric('hrevpar',this)"></span><span class="cmv4-dot" style="background:#9333ea;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
+          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="trevpar" onclick="cmToggleMetric('trevpar',this)"></span><span class="cmv4-dot" style="background:#7c3aed;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other Metrics Section -->
+    <div class="cm-section">
+      <div class="cm-section-header" onclick="cmToggleSection('other', this)">
+        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
+        <span class="cm-section-title">Other Metrics</span>
+      </div>
+      <div class="cm-section-content" id="cmSection-other" style="display:none">
+        <div class="cm-subsection-label">Hotel</div>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cmv4-dot" style="background:#16a34a;margin-right:6px"></span><span>Pickup</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cmv4-dot" style="background:#0891b2;margin-right:6px"></span><span>Avg LOS</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cmv4-dot" style="background:#6366f1;margin-right:6px"></span><span>Average Lead Time</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cmv4-dot" style="background:#2e65e8;margin-right:6px"></span><span>Avg Adults</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cmv4-dot" style="background:#d33030;margin-right:6px"></span><span>Avg Children</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cmv4-dot" style="background:#0369a1;margin-right:6px"></span><span>Total Guests</span></label>
+        <div class="cm-subsection-label" style="margin-top:8px">Tour Operator</div>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cmv4-dot" style="background:#0d9488;margin-right:6px"></span><span>Pickup</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cmv4-dot" style="background:#22d3ee;margin-right:6px"></span><span>Avg LOS</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cmv4-dot" style="background:#a5b4fc;margin-right:6px"></span><span>Average Lead Time</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cmv4-dot" style="background:#60a5fa;margin-right:6px"></span><span>Avg Adults</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cmv4-dot" style="background:#f87171;margin-right:6px"></span><span>Avg Children</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cmv4-dot" style="background:#0ea5e9;margin-right:6px"></span><span>Total Guests</span></label>
+      </div>
+    </div>
+
+    <!-- Availability Section -->
+    <div class="cm-section">
+      <div class="cm-section-header" onclick="cmToggleSection('availability', this)">
+        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
+        <span class="cm-section-title">Availability</span>
+      </div>
+      <div class="cm-section-content" id="cmSection-availability" style="display:none">
+        <div class="cm-subsection-label">Hotel</div>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cmv4-dot" style="background:#16a34a;margin-right:6px"></span><span>Avail Rooms</span></label>
+        <div class="cm-subsection-label" style="margin-top:8px">Tour Operator</div>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cmv4-dot" style="background:#ea580c;margin-right:6px"></span><span>Avail Guaranteed</span></label>
+      </div>
+    </div>
+
+    <!-- Business Mix Section -->
+    <div class="cm-section">
+      <div class="cm-section-header" onclick="cmToggleSection('business', this)">
+        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
+        <span class="cm-section-title">Business Mix</span>
+      </div>
+      <div class="cm-section-content" id="cmSection-business" style="display:none">
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cmv4-dot" style="background:#006461;margin-right:6px"></span><span>TO Mix %</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cmv4-dot" style="background:#0284c7;margin-right:6px"></span><span>Direct Mix %</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cmv4-dot" style="background:#7c3aed;margin-right:6px"></span><span>OTA Mix %</span></label>
+      </div>
+    </div>
+
+    <!-- Selling Rates Section -->
+    <div class="cm-section">
+      <div class="cm-section-header" onclick="cmToggleSection('rates', this)">
+        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
+        <span class="cm-section-title">Selling Rates</span>
+      </div>
+      <div class="cm-section-content" id="cmSection-rates" style="display:none">
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cmv4-dot" style="background:#0f766e;margin-right:6px"></span><span>TO Contract Rate</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cmv4-dot" style="background:#d97706;margin-right:6px"></span><span>Promotion %</span></label>
+        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cmv4-dot" style="background:#9333ea;margin-right:6px"></span><span>Base Segment Rate</span></label>
+      </div>
+    </div>
   </div>
 
 <!-- ── Modal snackbar: shown when 5th metric click attempted ── -->
