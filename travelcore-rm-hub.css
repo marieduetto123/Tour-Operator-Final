@@ -3035,11 +3035,11 @@ body.dark .wv-acc-title { color: #fff; }
 /* ── Metric bar + header (all metrics) ──────────────────────── */
 .wv-occ-bar-wrap { margin-bottom: 5px; }
 .wv-occ-bar-labels {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin-bottom: 6px;
 }
-.wv-occ-bar-labels .wv-q-label { font-size: 14px !important; color: #6b7280; font-weight: 400; }
+.wv-occ-bar-labels .wv-q-label { font-size: 14px !important; color: #6b7280; font-weight: 400; flex: 0 0 auto; }
 /* Right-side header block */
-.wv-hdr-right { display: flex; align-items: center; }
+.wv-hdr-right { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
 .wv-occ-total { font-size: 14px; font-weight: 400; color: #1C1C1C; }
 /* Inline compare value (" / 97%") */
 .wv-cmp-sep  { color: #8a9096; }
