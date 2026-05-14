@@ -3192,28 +3192,28 @@ function clearCalSelection() {
     _pb += _pSectS('ADR', '$'+adr, _pBar(adrBar, _C1));
     _pb += _pSub('TO', '$'+_toAdr, _C1);
     _pb += _pSub('Hotel', '$'+adr, _C2);
-    _pb += _pSub('STLY / LY Etc', '$'+adrSDLY, _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, '$'+(adr+_cm.adrD), _cmpDot);
     _pb += _pSectE();
     _pb += _pSectS('Revenue', '$'+Math.floor(rev/1000)+'k', _pBar(revBar, _C1));
     _pb += _pSub('TO', _toRevS, _C1);
     _pb += _pSub('Hotel', '$'+Math.floor(rev/1000)+'k', _C2);
-    _pb += _pSub('STLY / LY Etc', '$'+Math.floor(sdlyR/1000)+'k', _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, '$'+Math.floor(rev*_cm.rev/1000)+'k', _cmpDot);
     _pb += _pSectE();
     _pb += _pGrpEnd();
 
-    // ── More Metrics ── (matches weekly: each metric shows TO value + Hotel/STLY sub-rows)
+    // ── More Metrics ── (matches weekly: each metric shows TO value + Hotel sub-rows + compare)
     _pb += _pGrpStart('More Metrics', _C1, 'mm');
-    // RN Sold (TO + Hotel + STLY)
+    // RN Sold (TO + Hotel + compare)
     _pb += _pSectS('RN Sold', toRms, _pBar(Math.min(92, 55+(v%37)), _C1));
     _pb += _pSub('TO', String(toRms), _C1);
     _pb += _pSub('Hotel', String(rnSold), _C2);
-    _pb += _pSub('STLY / LY Etc', String(Math.floor(rnSold*0.88)), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.floor(rnSold*_cm.rn)), _cmpDot);
     _pb += _pSectE();
-    // RevPAR (TO + Hotel + STLY)
+    // RevPAR (TO + Hotel + compare)
     _pb += _pSectS('RevPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
     _pb += _pSub('TO', '$'+_toRevpar, _C1);
     _pb += _pSub('Hotel', '$'+_hRevpar, _C2);
-    _pb += _pSub('STLY / LY Etc', '$'+Math.floor(adr*0.92), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, '$'+Math.floor(adr*_cm.revpar), _cmpDot);
     _pb += _pSectE();
     // Pickup (each active window)
     pickupDayValues.forEach(function(dv, i) {
@@ -3224,38 +3224,38 @@ function clearCalSelection() {
       _pb += _pSectS('Pickup '+dv, '+'+toP, _pBar(Math.min(92, 30+v%50), _C1));
       _pb += _pSub('TO', '+'+toP, _C1);
       _pb += _pSub('Hotel', '+'+hP, _C2);
-      _pb += _pSub('STLY / LY Etc', '+'+Math.max(0,Math.round(hP*0.88)), _CSTLY);
+      if (_hasCmp) _pb += _pSub(_cmpLbl, '+'+Math.max(0,Math.round(hP*_cm.pu)), _cmpDot);
       _pb += _pSectE();
     });
-    // Average Adults (TO + Hotel + STLY)
+    // Average Adults (TO + Hotel + compare)
     _pb += _pSectS('Average Adults', _dmAvgA.toFixed(1), _pBar(Math.min(92, 55+v%30), _C1));
     _pb += _pSub('TO', _dmAvgA.toFixed(1), _C1);
     _pb += _pSub('Hotel', _hAvgA, _C2);
-    _pb += _pSub('STLY / LY Etc', (_dmAvgA*0.92).toFixed(1), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, (_dmAvgA*_cm.avgA).toFixed(1), _cmpDot);
     _pb += _pSectE();
-    // Average Children (TO + Hotel + STLY)
+    // Average Children (TO + Hotel + compare)
     _pb += _pSectS('Average Children', _dmAvgC.toFixed(1), _pBar(Math.min(92, 20+v%40), _C1));
     _pb += _pSub('TO', _dmAvgC.toFixed(1), _C1);
     _pb += _pSub('Hotel', _hAvgC, _C2);
-    _pb += _pSub('STLY / LY Etc', (_dmAvgC*0.90).toFixed(1), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, (_dmAvgC*_cm.avgC).toFixed(1), _cmpDot);
     _pb += _pSectE();
-    // Total Adults (TO + Hotel + STLY)
+    // Total Adults (TO + Hotel + compare)
     _pb += _pSectS('Total Adults', _totAdultsTO, _pBar(Math.min(92, 60+v%28), _C1));
     _pb += _pSub('TO', String(_totAdultsTO), _C1);
     _pb += _pSub('Hotel', String(_hTotA), _C2);
-    _pb += _pSub('STLY / LY Etc', String(Math.round(_totAdultsTO*0.90)), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totAdultsTO*_cm.tot)), _cmpDot);
     _pb += _pSectE();
-    // Total Children (TO + Hotel + STLY)
+    // Total Children (TO + Hotel + compare)
     _pb += _pSectS('Total Children', _totChildrenTO, _pBar(Math.min(92, 15+v%35), _C1));
     _pb += _pSub('TO', String(_totChildrenTO), _C1);
     _pb += _pSub('Hotel', String(_hTotC), _C2);
-    _pb += _pSub('STLY / LY Etc', String(Math.round(_totChildrenTO*0.90)), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totChildrenTO*_cm.tot)), _cmpDot);
     _pb += _pSectE();
-    // Total Guests (TO + Hotel + STLY)
+    // Total Guests (TO + Hotel + compare)
     _pb += _pSectS('Total Guests', _totGuestsTO, _pBar(Math.min(92, 55+v%35), _C1));
     _pb += _pSub('TO', String(_totGuestsTO), _C1);
     _pb += _pSub('Hotel', String(_hTotG), _C2);
-    _pb += _pSub('STLY / LY Etc', String(Math.round(_totGuestsTO*0.90)), _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totGuestsTO*_cm.tot)), _cmpDot);
     _pb += _pSectE();
     // Average LOS (TO + Hotel)
     _pb += _pSectS('Average LOS', _avgLos, _pBar(Math.min(92, 40+v%40), _C1));
