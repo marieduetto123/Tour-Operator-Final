@@ -2062,37 +2062,58 @@ function renderCalMonthlySummary() {
   // ── Daily Metrics group
   moRows.push({type:'top', id:'mo_daily', label:'Daily Metrics'});
   moRows.push({type:'sect', id:'mos_occ', label:'Occupancy', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_occ_to', label:'TO', dot:'#004948', parent:'mos_occ', gp:'mo_daily'});
   moRows.push({type:'sub', id:'mos_occ_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_occ', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_occ_stly', label:'STLY', dot:'#818cf8', parent:'mos_occ', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_occ_to', label:'Tour Operator', dot:'#004948', parent:'mos_occ', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_adr', label:'ADR', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_adr_to', label:'TO ADR', dot:'#004948', parent:'mos_adr', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_adr_htl', label:'Hotel ADR', dot:'#52d9ce', parent:'mos_adr', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_adr', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_adr_to', label:'Tour Operator', dot:'#004948', parent:'mos_adr', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_rev', label:'Revenue /day', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rev_to', label:'TO Revenue', dot:'#004948', parent:'mos_rev', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel Revenue', dot:'#52d9ce', parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rev_to', label:'Tour Operator', dot:'#004948', parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sect', id:'mos_rn', label:'RN Sold /day', parent:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rn_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_rn', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rn_to', label:'Tour Operator', dot:'#004948', parent:'mos_rn', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_revpar_stly', label:'STLY', dot:'#818cf8', parent:'mos_revpar', gp:'mo_daily'});
-  moRows.push({type:'sect', id:'mos_pickup', label:'Pickup /day', parent:'mo_daily'});
-  moRows.push({type:'sect', id:'mos_onoff', label:'Online / Offline', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_onoff_on', label:'Online', dot:'#3b82f6', parent:'mos_onoff', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_onoff_off', label:'Offline', dot:'#f97316', parent:'mos_onoff', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_revpar', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_revpar_to', label:'Tour Operator', dot:'#004948', parent:'mos_revpar', gp:'mo_daily'});
 
   // ── Segments group
 
-  // ── More Metrics group
-  moRows.push({type:'top', id:'mo_more', label:'More Metrics'});
-  moRows.push({type:'sect', id:'mos_rn', label:'RN Sold /day', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_rn_stly', label:'STLY', dot:'#818cf8', parent:'mos_rn', gp:'mo_more'});
-  moRows.push({type:'sect', id:'mos_avga', label:'Avg Adults', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_avgc', label:'Avg Children', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_tota', label:'Total Adults', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_totc', label:'Total Children', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_totg', label:'Total Guests', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_los', label:'Avg LOS', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_lead', label:'Lead Time', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_avail', label:'Avail Rooms', parent:'mo_more'});
-  moRows.push({type:'sect', id:'mos_availg', label:'Avail Guar.', parent:'mo_more'});
+  // ── Other Metrics group
+  moRows.push({type:'top', id:'mo_more', label:'Other Metrics'});
+  moRows.push({type:'sect', id:'mos_hotel_metrics', label:'Hotel', parent:'mo_more'});
+  moRows.push({type:'sub', id:'mos_pickup_h', label:'Pickup', dot:'#52d9ce', parent:'mos_hotel_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_los_h', label:'Avg LOS', dot:'#52d9ce', parent:'mos_hotel_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_lead_h', label:'Lead Time', dot:'#52d9ce', parent:'mos_hotel_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avga_h', label:'Avg Adults', dot:'#52d9ce', parent:'mos_hotel_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avgc_h', label:'Avg Children', dot:'#52d9ce', parent:'mos_hotel_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_totg_h', label:'Total Guests', dot:'#52d9ce', parent:'mos_hotel_metrics', gp:'mo_more'});
+  moRows.push({type:'sect', id:'mos_to_metrics', label:'Tour Operator', parent:'mo_more'});
+  moRows.push({type:'sub', id:'mos_pickup_t', label:'Pickup', dot:'#004948', parent:'mos_to_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_los_t', label:'Avg LOS', dot:'#004948', parent:'mos_to_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_lead_t', label:'Lead Time', dot:'#004948', parent:'mos_to_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avga_t', label:'Avg Adults', dot:'#004948', parent:'mos_to_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avgc_t', label:'Avg Children', dot:'#004948', parent:'mos_to_metrics', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_totg_t', label:'Total Guests', dot:'#004948', parent:'mos_to_metrics', gp:'mo_more'});
+
+  // ── Availability group
+  moRows.push({type:'top', id:'mo_avail', label:'Availability'});
+  moRows.push({type:'sect', id:'mos_avail_hotel', label:'Hotel', parent:'mo_avail'});
+  moRows.push({type:'sub', id:'mos_avail_rooms', label:'Avail Rooms', dot:'#52d9ce', parent:'mos_avail_hotel', gp:'mo_avail'});
+  moRows.push({type:'sect', id:'mos_avail_to', label:'Tour Operator', parent:'mo_avail'});
+  moRows.push({type:'sub', id:'mos_availg_rooms', label:'Avail Guaranteed', dot:'#004948', parent:'mos_avail_to', gp:'mo_avail'});
+
+  // ── Business Mix group
+  moRows.push({type:'top', id:'mo_biz', label:'Business Mix'});
+  moRows.push({type:'sect', id:'mos_biz_to', label:'Tour Operator Mix %', parent:'mo_biz'});
+  moRows.push({type:'sect', id:'mos_biz_dir', label:'Direct Mix %', parent:'mo_biz'});
+  moRows.push({type:'sect', id:'mos_biz_ota', label:'OTA Mix %', parent:'mo_biz'});
+
+  // ── Selling Rates group
+  moRows.push({type:'top', id:'mo_tc', label:'Selling Rates'});
+  moRows.push({type:'sect', id:'mos_tc_contract', label:'Tour Operator Contract Rate', parent:'mo_tc'});
+  moRows.push({type:'sect', id:'mos_tc_promo', label:'Promotion %', parent:'mo_tc'});
+  moRows.push({type:'sect', id:'mos_tc_base', label:'Base Segment Rate', parent:'mo_tc'});
 
   // ── Meal Plans group
   moRows.push({type:'top', id:'mo_meals', label:'Meal Plans'});
