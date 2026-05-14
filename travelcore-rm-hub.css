@@ -1651,6 +1651,25 @@ body.dark .cal-day.locked { background: rgba(255,255,255,0.04); }
 .cal-day.locked .cell-occ-val { color: #8a9096 !important; opacity: 1; }
 .cal-day.locked:hover { box-shadow: 0 0 0 2px #dc2626; }
 
+/* ── Dark-mode: sidebar matches topbar ── */
+body.dark .sidebar { background: #0E2124; border-right-color: #1a3336; }
+body.dark .nav-item { color: #9cb8b7; }
+body.dark .nav-item:hover { color: #d0e8e7; background: rgba(255,255,255,.05); }
+body.dark .nav-item.active { background: rgba(196,255,69,.1); color: var(--accent); }
+body.dark .nav-item svg { color: #7a9e9d; }
+
+/* ── Dark-mode: calendar cells ── */
+body.dark .cal-day { background: var(--hotel-bg, var(--seg-bg, #122a2d)); border-right-color: #1a3336; border-bottom-color: #1a3336; }
+body.dark .cal-days { border-top-color: #1a3336; border-left-color: #1a3336; }
+body.dark .day-num { color: #c8e6e5; }
+body.dark .day-muted { color: #5a8a89; }
+body.dark .cell-m-hotel .cell-m-label, body.dark .cell-m-hotel .cell-m-val { color: #e0e4e4; }
+body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #d4c28a; }
+body.dark .cal-dow span { color: #7aabad; }
+body.dark .cal-month-name:hover { color: var(--accent); }
+body.dark .cell-closed-label { background: rgba(153,31,31,.3); color: #fca5a5; }
+body.dark .cell-partial-close-label { background: rgba(255,152,0,.15); color: #fbbf24; }
+
 /* ══════════════════════════════════════════════════════════════
    HEATMAP BLUE — Hotel demand (Figma 2026 Design System)
    Heatmap-Blue-10 → Blue-100  (10 equal steps, 10% bands)
