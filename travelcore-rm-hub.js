@@ -5736,13 +5736,13 @@ function buildDailyHView(days, activeMonth, activeDay) {
       {o:d.fitPct+d.dynPct,w:d.serPct,c:'#6366f1'},
       {o:d.to,   w:Math.max(0,d.otherPct), c:'#5883ed'},
     ];
+    var chips = [];
+    if(wvCompare.size > 0) chips.push({k:'stly',lbl:'STLY',v:d.sdlyH+'%'});
+    if(wvCompare.size > 0) chips.push({k:'ly',  lbl:'LY',  v:d.lyH+'%'});
+    if(wvCompare.size > 0) chips.push({k:'fcst',lbl:'Fcst',v:d.fcstH+'%'});
     return valH(d.to+'%', d.hotel+'%', '#006461')
       + segBar(segs)
-      + refChips([
-          {k:'stly',lbl:'STLY',v:d.sdlyH+'%'},
-          {k:'ly',  lbl:'LY',  v:d.lyH+'%'},
-          {k:'fcst',lbl:'Fcst',v:d.fcstH+'%'},
-        ]);
+      + (chips.length > 0 ? refChips(chips) : '');
   });
   row('Online / Offline', function(d){
     return stackBar([{p:d.onlinePct,c:'#3b82f6'},{p:100-d.onlinePct,c:'#f97316'}])
@@ -5755,26 +5755,37 @@ function buildDailyHView(days, activeMonth, activeDay) {
   par('ADR','#7c3aed');
   row('T / Hotel', function(d){
     var df=d.toAdr-d.adr;
+    var chips = [];
+    if(wvCompare.size > 0) chips.push({k:'stly',lbl:'STLY',v:'$'+d.sdlyA});
+    if(wvCompare.size > 0) chips.push({k:'ly',lbl:'LY',v:'$'+d.lyA});
+    if(wvCompare.size > 0) chips.push({k:'fcst',lbl:'Fcst',v:'$'+d.fcstA});
     return valH('$'+d.toAdr,'$'+d.adr,'#7c3aed')
       + dualBar(d.adrBar, Math.min(95,d.adrBar+12), '#7c3aed')
       + '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">'
       + '<span style="font-size:8px;font-weight:700;color:'+(df<=0?'#16a34a':'#dc2626')+'">'+(df>=0?'+':'−')+'$'+Math.abs(df)+' diff</span>'
       + '</div>'
-      + refChips([{k:'stly',lbl:'STLY',v:'$'+d.sdlyA},{k:'ly',lbl:'LY',v:'$'+d.lyA},{k:'fcst',lbl:'Fcst',v:'$'+d.fcstA}]);
+      + (chips.length > 0 ? refChips(chips) : '');
   });
 
   par('Revenue','#ea580c');
   row('T / Hotel', function(d){
+    var chips = [];
+    if(wvCompare.size > 0) chips.push({k:'stly',lbl:'STLY',v:d.fR(d.sdlyR)});
+    if(wvCompare.size > 0) chips.push({k:'ly',lbl:'LY',v:d.fR(d.lyR)});
+    if(wvCompare.size > 0) chips.push({k:'fcst',lbl:'Fcst',v:d.fR(d.fcstR)});
     return valH(d.fR(d.toRev), d.fR(d.hnRev), '#ea580c')
       + dualBar(d.revBar, Math.min(95,d.revBar+10), '#ea580c')
-      + refChips([{k:'stly',lbl:'STLY',v:d.fR(d.sdlyR)},{k:'ly',lbl:'LY',v:d.fR(d.lyR)},{k:'fcst',lbl:'Fcst',v:d.fR(d.fcstR)}]);
+      + (chips.length > 0 ? refChips(chips) : '');
   });
 
   par('RevPAR','#9333ea');
   row('T / Hotel', function(d){
+    var chips = [];
+    if(wvCompare.size > 0) chips.push({k:'stly',lbl:'STLY',v:'$'+d.sdlyRevpar});
+    if(wvCompare.size > 0) chips.push({k:'ly',lbl:'LY',v:'$'+d.lyRevpar});
     return valH('$'+d.revpar, '$'+(d.revpar+22), '#9333ea')
       + dualBar(Math.round(d.revpar/4), Math.round((d.revpar+22)/4), '#9333ea')
-      + refChips([{k:'stly',lbl:'STLY',v:'$'+d.sdlyRevpar},{k:'ly',lbl:'LY',v:'$'+d.lyRevpar}]);
+      + (chips.length > 0 ? refChips(chips) : '');
   });
 
   par('Pickup','#16a34a');
@@ -5797,9 +5808,13 @@ function buildDailyHView(days, activeMonth, activeDay) {
   sec('More Metrics','#2e65e8');
   par('RN Sold','#2e65e8');
   row('T / Hotel', function(d){
+    var chips = [];
+    if(wvCompare.size > 0) chips.push({k:'stly',lbl:'STLY',v:d.sdlyRn});
+    if(wvCompare.size > 0) chips.push({k:'ly',lbl:'LY',v:d.lyRn});
+    if(wvCompare.size > 0) chips.push({k:'fcst',lbl:'Fcst',v:d.fcstRn});
     return valH(d.toRn, d.hnRn, '#2e65e8')
       + dualBar(Math.round(d.toRn/WV_CAP*100), Math.round(d.hnRn/WV_CAP*100), '#2e65e8')
-      + refChips([{k:'stly',lbl:'STLY',v:d.sdlyRn},{k:'ly',lbl:'LY',v:d.lyRn},{k:'fcst',lbl:'Fcst',v:d.fcstRn}]);
+      + (chips.length > 0 ? refChips(chips) : '');
   });
 
   par('Avg Adults','#2e65e8');
