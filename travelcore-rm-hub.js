@@ -4415,7 +4415,18 @@ function buildDailyBView(days, month, activeDay) {
 
   // ── Row schema (built per group, then assembled in custom order) ──────────
   var _cmpOrder = ['stly','ly','fcst'], _cmpNames = {stly:'STLY',ly:'LY',fcst:'Fcst'};
+  var _cmpDots = {stly:'#C4FF45', ly:'#facc15', fcst:'#fb923c'};
   var compLabel = _cmpOrder.filter(function(k){ return wvCompare.has(k); }).map(function(k){ return _cmpNames[k]; }).join('/') || 'STLY';
+  function pushCmpRows(arr, prefix, parent, extra) {
+    _cmpOrder.forEach(function(k) {
+      if (wvCompare.has(k)) {
+        var row = {type:'sub', id:prefix+'_'+k, label:_cmpNames[k], dot:_cmpDots[k], parent:parent};
+        if (extra) { for (var ek in extra) row[ek] = extra[ek]; }
+        arr.push(row);
+      }
+    });
+    if (wvCompare.size === 0) arr.push({type:'sub', id:prefix+'_stly', label:'STLY', dot:'#C4FF45', parent:parent});
+  }
   var grp = { g_closeouts:[], g_daily:[], g_more:[], g_meals:[], g_biz:[], g_avail:[], g_torates:[] };
   window._wbGrpData = grp; // expose for Table Settings modal
 
@@ -4433,7 +4444,7 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_daily.push({type:'sect', id:'occ',       label:'Occupancy',               parent:'g_daily'});
     grp.g_daily.push({type:'sub',  id:'occ_tdh',   label:'Travel Distribution Hubs',dot:'#004948', parent:'occ'});
     grp.g_daily.push({type:'sub',  id:'occ_other', label:'Other Segments',          dot:'#52d9ce', parent:'occ'});
-    grp.g_daily.push({type:'sub',  id:'occ_stly',  label:compLabel,                 dot:'#C4FF45', parent:'occ'});
+    pushCmpRows(grp.g_daily, 'occ', 'occ');
     grp.g_daily.push({type:'sub',  id:'occ_rem',   label:'Total Hotel Occupancy',   dot:'#445e0d', parent:'occ', isRem:true});
   }
   if (wvMetricState.onlineOffline) {
@@ -4445,13 +4456,13 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_daily.push({type:'sect', id:'adr',       label:'ADR',          parent:'g_daily'});
     grp.g_daily.push({type:'sub',  id:'adr_t',     label:'TO',            dot:'#004948', parent:'adr'});
     grp.g_daily.push({type:'sub',  id:'adr_hotel', label:'Hotel',         dot:'#52d9ce', parent:'adr'});
-    grp.g_daily.push({type:'sub',  id:'adr_stly',  label:compLabel,       dot:'#C4FF45', parent:'adr'});
+    pushCmpRows(grp.g_daily, 'adr', 'adr');
   }
   if (wvMetricState.revenue) {
     grp.g_daily.push({type:'sect', id:'rev',       label:'Revenue',       parent:'g_daily'});
     grp.g_daily.push({type:'sub',  id:'rev_t',     label:'TO',            dot:'#004948', parent:'rev'});
     grp.g_daily.push({type:'sub',  id:'rev_hotel', label:'Hotel',         dot:'#52d9ce', parent:'rev'});
-    grp.g_daily.push({type:'sub',  id:'rev_stly',  label:compLabel,       dot:'#C4FF45', parent:'rev'});
+    pushCmpRows(grp.g_daily, 'rev', 'rev');
   }
 
   // Group: More Metrics
@@ -4466,13 +4477,13 @@ function buildDailyBView(days, month, activeDay) {
       grp.g_more.push({type:'sect', id:'rn',       label:'RN Sold',    parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'rn_t',     label:'TO',          dot:'#004948', parent:'rn'});
       grp.g_more.push({type:'sub',  id:'rn_hotel', label:'Hotel',       dot:'#52d9ce', parent:'rn'});
-      grp.g_more.push({type:'sub',  id:'rn_stly',  label:compLabel,     dot:'#C4FF45', parent:'rn'});
+      pushCmpRows(grp.g_more, 'rn', 'rn');
     }
     if (wvMetricState.dm_trevpar) {
       grp.g_more.push({type:'sect', id:'revpar_s',    label:'RevPAR',    parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'revpar_t',    label:'TO',        dot:'#004948', parent:'revpar_s'});
       grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:'#52d9ce', parent:'revpar_s'});
-      grp.g_more.push({type:'sub',  id:'revpar_stly', label:compLabel,   dot:'#C4FF45', parent:'revpar_s'});
+      pushCmpRows(grp.g_more, 'revpar', 'revpar_s');
     }
     if (wvMetricState.dm_pickup) {
       pickupDayValues.forEach(function(dv, i) {
@@ -4480,7 +4491,7 @@ function buildDailyBView(days, month, activeDay) {
           grp.g_more.push({type:'sect', id:'pickup_'+i, label:'Pickup '+dv, parent:'g_more', puIdx: i, puDv: dv});
           grp.g_more.push({type:'sub',  id:'pickup_'+i+'_t', label:'TO',           dot:'#004948', parent:'pickup_'+i, puIdx: i, puDv: dv});
           grp.g_more.push({type:'sub',  id:'pickup_'+i+'_h', label:'Hotel',        dot:'#52d9ce', parent:'pickup_'+i, puIdx: i, puDv: dv});
-          grp.g_more.push({type:'sub',  id:'pickup_'+i+'_stly', label:compLabel,   dot:'#C4FF45', parent:'pickup_'+i, puIdx: i, puDv: dv});
+          pushCmpRows(grp.g_more, 'pickup_'+i, 'pickup_'+i, {puIdx: i, puDv: dv});
         }
       });
     }
@@ -4488,41 +4499,43 @@ function buildDailyBView(days, month, activeDay) {
       grp.g_more.push({type:'sect', id:'avga_s', label:'Average Adults', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'avga_t',    label:'TO',          dot:'#004948', parent:'avga_s'});
       grp.g_more.push({type:'sub',  id:'avga_h',    label:'Hotel',       dot:'#52d9ce', parent:'avga_s'});
-      grp.g_more.push({type:'sub',  id:'avga_stly', label:compLabel,     dot:'#C4FF45', parent:'avga_s'});
+      pushCmpRows(grp.g_more, 'avga', 'avga_s');
     }
     if (wvMetricState.dm_avgChildren) {
       grp.g_more.push({type:'sect', id:'avgc_s', label:'Average Children', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'avgc_t',    label:'TO',            dot:'#004948', parent:'avgc_s'});
       grp.g_more.push({type:'sub',  id:'avgc_h',    label:'Hotel',         dot:'#52d9ce', parent:'avgc_s'});
-      grp.g_more.push({type:'sub',  id:'avgc_stly', label:compLabel,       dot:'#C4FF45', parent:'avgc_s'});
+      pushCmpRows(grp.g_more, 'avgc', 'avgc_s');
     }
     if (wvMetricState.dm_totalAdults) {
       grp.g_more.push({type:'sect', id:'tota_s', label:'Total Adults', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'tota_t',    label:'TO',        dot:'#004948', parent:'tota_s'});
       grp.g_more.push({type:'sub',  id:'tota_h',    label:'Hotel',     dot:'#52d9ce', parent:'tota_s'});
-      grp.g_more.push({type:'sub',  id:'tota_stly', label:compLabel,   dot:'#C4FF45', parent:'tota_s'});
+      pushCmpRows(grp.g_more, 'tota', 'tota_s');
     }
     if (wvMetricState.dm_totalChildren) {
       grp.g_more.push({type:'sect', id:'totc_s', label:'Total Children', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'totc_t',    label:'TO',          dot:'#004948', parent:'totc_s'});
       grp.g_more.push({type:'sub',  id:'totc_h',    label:'Hotel',       dot:'#52d9ce', parent:'totc_s'});
-      grp.g_more.push({type:'sub',  id:'totc_stly', label:compLabel,     dot:'#C4FF45', parent:'totc_s'});
+      pushCmpRows(grp.g_more, 'totc', 'totc_s');
     }
     if (wvMetricState.dm_totalGuests) {
       grp.g_more.push({type:'sect', id:'totg_s', label:'Total Guests', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'totg_t',    label:'TO',        dot:'#004948', parent:'totg_s'});
       grp.g_more.push({type:'sub',  id:'totg_h',    label:'Hotel',     dot:'#52d9ce', parent:'totg_s'});
-      grp.g_more.push({type:'sub',  id:'totg_stly', label:compLabel,   dot:'#C4FF45', parent:'totg_s'});
+      pushCmpRows(grp.g_more, 'totg', 'totg_s');
     }
     if (wvMetricState.dm_avgLos) {
       grp.g_more.push({type:'sect', id:'los_s', label:'Average LOS', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'los_t', label:'TO',          dot:'#004948', parent:'los_s'});
       grp.g_more.push({type:'sub',  id:'los_h', label:'Hotel',       dot:'#52d9ce', parent:'los_s'});
+      pushCmpRows(grp.g_more, 'los', 'los_s');
     }
     if (wvMetricState.dm_avgLeadTime) {
       grp.g_more.push({type:'sect', id:'lead_s', label:'Lead Time', parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'lead_t', label:'TO',        dot:'#004948', parent:'lead_s'});
       grp.g_more.push({type:'sub',  id:'lead_h', label:'Hotel',     dot:'#52d9ce', parent:'lead_s'});
+      pushCmpRows(grp.g_more, 'lead', 'lead_s');
     }
     if (wvMetricState.dm_availRooms) grp.g_more.push({type:'sect', id:'avail_s',  label:'Avail Rooms', parent:'g_more'});
     if (wvMetricState.dm_availGuar)  grp.g_more.push({type:'sect', id:'availg_s', label:'Avail Guar.', parent:'g_more'});
@@ -4959,6 +4972,12 @@ function buildDailyBView(days, month, activeDay) {
           if (row.id.endsWith('_stly')) {
             var _pStly = Math.max(0, Math.round(d.hPickup * _psc2 * (0.84 + Math.abs((d.dm*3+d.dd*7)%10)*0.004)));
             v1 = '+'+_pStly;
+          } else if (row.id.endsWith('_ly')) {
+            var _pLy = Math.max(0, Math.round(d.hPickup * _psc2 * (0.90 + Math.abs((d.dm*3+d.dd*7)%10)*0.003)));
+            v1 = '+'+_pLy;
+          } else if (row.id.endsWith('_fcst')) {
+            var _pFcst = Math.max(0, Math.round(d.hPickup * _psc2 * (1.03 + Math.abs((d.dm*3+d.dd*7)%10)*0.005)));
+            v1 = '+'+_pFcst;
           } else if (row.id.endsWith('_t')) {
             v1 = '+'+Math.max(0, Math.round(d.pickup * _psc2));
           } else {
@@ -5055,7 +5074,9 @@ function buildDailyBView(days, month, activeDay) {
             }
             break;
           }
-          case 'occ_stly':   { var cRn=wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn; var cH=wvCompare.has('stly')?d.sdlyH:wvCompare.has('ly')?d.lyH:wvCompare.has('fcst')?d.fcstH:d.sdlyH; v1=cRn+' RN'; v2=cH+'%'; } break;
+          case 'occ_stly':   v1=d.sdlyRn+' RN'; v2=d.sdlyH+'%'; break;
+          case 'occ_ly':     v1=d.lyRn+' RN';   v2=d.lyH+'%';   break;
+          case 'occ_fcst':   v1=d.fcstRn+' RN'; v2=d.fcstH+'%'; break;
           case 'occ_rem':    v1 = d.freeRms+' RN';  v2 = Math.max(0,100-d.hotel)+'%';     break;
           // online/offline
           case 'onoff_on':   v1 = d.onlinePct+'%';                                          break;
@@ -5063,41 +5084,65 @@ function buildDailyBView(days, month, activeDay) {
           // adr
           case 'adr_t':      v1 = '$'+d.toAdr;                                              break;
           case 'adr_hotel':  v1 = '$'+d.adr;                                                break;
-          case 'adr_stly':   v1 = '$'+(wvCompare.has('stly')?d.sdlyA:wvCompare.has('ly')?d.lyA:wvCompare.has('fcst')?d.fcstA:d.sdlyA); break;
+          case 'adr_stly':   v1 = '$'+d.sdlyA; break;
+          case 'adr_ly':     v1 = '$'+d.lyA;   break;
+          case 'adr_fcst':   v1 = '$'+d.fcstA; break;
           // revenue
           case 'rev_t':      v1 = d.fR(d.toRev);                                            break;
           case 'rev_hotel':  v1 = d.fR(d.hnRev);                                            break;
-          case 'rev_stly':   v1 = d.fR(wvCompare.has('stly')?d.sdlyR:wvCompare.has('ly')?d.lyR:wvCompare.has('fcst')?d.fcstR:d.sdlyR); break;
+          case 'rev_stly':   v1 = d.fR(d.sdlyR); break;
+          case 'rev_ly':     v1 = d.fR(d.lyR);   break;
+          case 'rev_fcst':   v1 = d.fR(d.fcstR); break;
           // rn sold
           case 'rn_t':       v1 = d.toRn+' RN';                                            break;
           case 'rn_hotel':   v1 = d.hnRn+' RN';                                            break;
-          case 'rn_stly':    v1 = (wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:d.sdlyRn)+' RN'; break;
+          case 'rn_stly':    v1 = d.sdlyRn+' RN'; break;
+          case 'rn_ly':      v1 = d.lyRn+' RN';   break;
+          case 'rn_fcst':    v1 = d.fcstRn+' RN'; break;
           // revpar
           case 'revpar_t':   v1 = '$'+d.toRevpar;                                           break;
           case 'revpar_h':   v1 = '$'+d.hRevpar;                                            break;
-          case 'revpar_stly':v1 = '$'+(wvCompare.has('stly')?d.sdlyRevpar:wvCompare.has('ly')?d.lyRevpar:d.sdlyRevpar); break;
+          case 'revpar_stly':v1 = '$'+d.sdlyRevpar; break;
+          case 'revpar_ly':  v1 = '$'+d.lyRevpar;   break;
+          case 'revpar_fcst':v1 = '$'+Math.round(d.hRevpar*1.06); break;
           // avg adults / children
           case 'avga_t':     v1 = d.avgA;                                                   break;
           case 'avga_h':     v1 = d.hAvgA;                                                  break;
           case 'avga_stly':  { var _s=Math.abs((d.dm*7+d.dd*11)%10); v1=(parseFloat(d.avgA)*(0.88+_s*0.004)).toFixed(1); } break;
+          case 'avga_ly':    { var _s=Math.abs((d.dm*7+d.dd*11)%10); v1=(parseFloat(d.avgA)*(0.92+_s*0.003)).toFixed(1); } break;
+          case 'avga_fcst':  { var _s=Math.abs((d.dm*7+d.dd*11)%10); v1=(parseFloat(d.avgA)*(1.03+_s*0.005)).toFixed(1); } break;
           case 'avgc_t':     v1 = d.avgC;                                                   break;
           case 'avgc_h':     v1 = d.hAvgC;                                                  break;
           case 'avgc_stly':  { var _s=Math.abs((d.dm*5+d.dd*9)%10); v1=(parseFloat(d.avgC)*(0.88+_s*0.004)).toFixed(1); } break;
+          case 'avgc_ly':    { var _s=Math.abs((d.dm*5+d.dd*9)%10); v1=(parseFloat(d.avgC)*(0.92+_s*0.003)).toFixed(1); } break;
+          case 'avgc_fcst':  { var _s=Math.abs((d.dm*5+d.dd*9)%10); v1=(parseFloat(d.avgC)*(1.03+_s*0.005)).toFixed(1); } break;
           // total adults / children / guests
           case 'tota_t':     v1 = d.totAT;                                                  break;
           case 'tota_h':     v1 = d.totAH;                                                  break;
           case 'tota_stly':  { var _s=Math.abs((d.dm*6+d.dd*8)%12); v1=Math.round(d.totAT*(0.88+_s*0.004)); } break;
+          case 'tota_ly':    { var _s=Math.abs((d.dm*6+d.dd*8)%12); v1=Math.round(d.totAT*(0.92+_s*0.003)); } break;
+          case 'tota_fcst':  { var _s=Math.abs((d.dm*6+d.dd*8)%12); v1=Math.round(d.totAT*(1.03+_s*0.005)); } break;
           case 'totc_t':     v1 = d.totCT;                                                  break;
           case 'totc_h':     v1 = d.totCH;                                                  break;
           case 'totc_stly':  { var _s=Math.abs((d.dm*8+d.dd*6)%12); v1=Math.round(d.totCT*(0.88+_s*0.004)); } break;
+          case 'totc_ly':    { var _s=Math.abs((d.dm*8+d.dd*6)%12); v1=Math.round(d.totCT*(0.92+_s*0.003)); } break;
+          case 'totc_fcst':  { var _s=Math.abs((d.dm*8+d.dd*6)%12); v1=Math.round(d.totCT*(1.03+_s*0.005)); } break;
           case 'totg_t':     v1 = d.totG;                                                   break;
           case 'totg_h':     v1 = d.hTotG;                                                  break;
           case 'totg_stly':  { var _s=Math.abs((d.dm*4+d.dd*10)%12); v1=Math.round(d.totG*(0.88+_s*0.004)); } break;
+          case 'totg_ly':    { var _s=Math.abs((d.dm*4+d.dd*10)%12); v1=Math.round(d.totG*(0.92+_s*0.003)); } break;
+          case 'totg_fcst':  { var _s=Math.abs((d.dm*4+d.dd*10)%12); v1=Math.round(d.totG*(1.03+_s*0.005)); } break;
           // avg los / lead time
           case 'los_t':      v1 = d.avgLos;                                                 break;
           case 'los_h':      v1 = d.hLos;                                                   break;
+          case 'los_stly':   { var _s=Math.abs((d.dm*3+d.dd*7)%8); v1=(parseFloat(d.avgLos)*(0.88+_s*0.005)).toFixed(1); } break;
+          case 'los_ly':     { var _s=Math.abs((d.dm*3+d.dd*7)%8); v1=(parseFloat(d.avgLos)*(0.92+_s*0.004)).toFixed(1); } break;
+          case 'los_fcst':   { var _s=Math.abs((d.dm*3+d.dd*7)%8); v1=(parseFloat(d.avgLos)*(1.02+_s*0.006)).toFixed(1); } break;
           case 'lead_t':     v1 = d.avgLead;                                                break;
           case 'lead_h':     v1 = d.hLead;                                                  break;
+          case 'lead_stly':  { var _s=Math.abs((d.dm*9+d.dd*3)%10); v1=Math.round(parseInt(d.avgLead)*(0.88+_s*0.004))+'d'; } break;
+          case 'lead_ly':    { var _s=Math.abs((d.dm*9+d.dd*3)%10); v1=Math.round(parseInt(d.avgLead)*(0.92+_s*0.003))+'d'; } break;
+          case 'lead_fcst':  { var _s=Math.abs((d.dm*9+d.dd*3)%10); v1=Math.round(parseInt(d.avgLead)*(1.03+_s*0.005))+'d'; } break;
           // business mix
           case 'biz_to':     v1 = d.toMix+'%';                                              break;
           case 'biz_dir':    v1 = d.dirMix+'%';                                             break;
@@ -5107,7 +5152,8 @@ function buildDailyBView(days, month, activeDay) {
         } // end rtSub else
         // Compare chip for sub-rows (Fcst / LY / STLY — mirrors Forecast behaviour)
         var fcstChip = '';
-        if (wvCompare.size > 0 && v1 && row.id.indexOf('_stly') < 0) {
+        var _isCmpRow = row.id.endsWith('_stly') || row.id.endsWith('_ly') || row.id.endsWith('_fcst');
+        if (wvCompare.size > 0 && v1 && !_isCmpRow) {
           var _fSeed = Math.abs((d.dm * 7 + d.dd * 13 + (row.rtIdx||0) * 5 + row.id.charCodeAt(row.id.length-1)) % 20);
           var _fNum = parseFloat(String(v1).replace(/[^0-9.\-]/g, ''));
           if (!isNaN(_fNum)) {
