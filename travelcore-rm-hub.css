@@ -974,6 +974,15 @@ body.dark .cell-cmp-dn {
   background-color: #d32f2f;
   color: #ffebee;
 }
+.cell-cmp-label {
+  font-size: 11px;
+  font-family: 'Lato', sans-serif;
+  color: #6b7280;
+  opacity: .65;
+  margin-left: 2px;
+  white-space: nowrap;
+}
+body.dark .cell-cmp-label { color: #9ca3af; }
 /* Light green/red on dark heatmap cells */
 .cal-day.hotel-occ-5 .cell-cmp-up, .cal-day.hotel-occ-6 .cell-cmp-up,
 .cal-day.hotel-occ-7 .cell-cmp-up, .cal-day.hotel-occ-8 .cell-cmp-up,

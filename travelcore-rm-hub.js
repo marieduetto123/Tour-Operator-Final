@@ -1690,10 +1690,9 @@ function renderCalendar() {
             var compRaw = Math.round(r.raw * _cmpMult * 10) / 10;
             var diff = r.raw - compRaw;
             var upOrDown = diff > 0 ? 'cell-cmp-up' : diff < 0 ? 'cell-cmp-dn' : '';
-            // Format comparison value same way as actual
-            var compStr = r.value; // fallback
+            var arrowIcon = diff > 0 ? '<span class="material-icons" style="font-size:12px">arrow_upward</span>' : diff < 0 ? '<span class="material-icons" style="font-size:12px">arrow_downward</span>' : '';
+            var compStr = r.value;
             if (typeof r.raw === 'number') {
-              // Detect format from actual value string
               var v = r.value || '';
               if (v.indexOf('$') >= 0 && v.indexOf('k') >= 0) compStr = '$' + Math.round(compRaw / 1000) + 'k';
               else if (v.indexOf('$') >= 0) compStr = '$' + Math.round(compRaw);
@@ -1703,7 +1702,7 @@ function renderCalendar() {
               else if (v.indexOf('RN') >= 0) compStr = Math.round(compRaw) + ' RN';
               else compStr = String(Math.round(compRaw));
             }
-            compHtml = '<span class="cell-cmp"> / <span class="' + upOrDown + '">' + compStr + '</span></span>';
+            compHtml = '<span class="cell-cmp ' + upOrDown + '">' + arrowIcon + compStr + '</span>';
           }
 
           if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
@@ -3737,10 +3736,13 @@ function _wvMultiCmpSfx(curr, stlyVal, lyVal, fcstVal, fmtFn) {
   var _ORDER = [['stly','STLY',stlyVal],['ly','LY',lyVal],['fcst','Fc',fcstVal]];
   return _ORDER.filter(function(t){ return wvCompare.has(t[0]) && t[2] != null; }).map(function(t) {
     var s = fmtFn(t[2]);
-    var cls = '';
+    var cls = '', arrow = '';
     var c = parseFloat(curr), p = parseFloat(t[2]);
-    if (!isNaN(c) && !isNaN(p)) { if (c > p) cls = ' cell-cmp-up'; else if (c < p) cls = ' cell-cmp-dn'; }
-    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+t[1]+':'+s+'</span>';
+    if (!isNaN(c) && !isNaN(p)) {
+      if (c > p) { cls = ' cell-cmp-up'; arrow = '<span class="material-icons" style="font-size:12px">arrow_upward</span>'; }
+      else if (c < p) { cls = ' cell-cmp-dn'; arrow = '<span class="material-icons" style="font-size:12px">arrow_downward</span>'; }
+    }
+    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+arrow+t[1]+':'+s+'</span>';
   }).join('');
 }
 
@@ -3748,12 +3750,12 @@ function _wvMultiCmpSfx(curr, stlyVal, lyVal, fcstVal, fmtFn) {
 function _wvMultiTrendBadge(curr, stlyVal, lyVal, fcstVal) {
   if (wvCompare.size === 0) return '';
   var _ORDER = [['stly','STLY',stlyVal],['ly','LY',lyVal],['fcst','Fc',fcstVal]];
-  var base = 'font-size:11px;font-weight:600;border-radius:4px;padding:2px 5px;flex-shrink:0;white-space:nowrap;margin-left:3px;display:inline-flex;align-items:center;gap:2px;line-height:1.2;';
   return _ORDER.filter(function(t){ return wvCompare.has(t[0]) && t[2]!=null && !isNaN(curr) && !isNaN(t[2]) && t[2]!==0; }).map(function(t) {
     var diff = curr - t[2], pct = Math.round(Math.abs(diff)/Math.abs(t[2])*100);
-    var clr = diff>0?'#15803d':diff<0?'#b91c1c':'#6b7280', bg = diff>0?'#dcfce7':diff<0?'#fee2e2':'#f3f4f6';
-    var arrow = diff>0?'▲':diff<0?'▼':'';
-    return '<span style="'+base+'color:'+clr+';background:'+bg+'">'+arrow+pct+'%<span style="opacity:.65;font-weight:500"> vs '+t[1]+'</span></span>';
+    var cls = diff>0?'cell-cmp-up':diff<0?'cell-cmp-dn':'';
+    var arrow = diff>0?'arrow_upward':diff<0?'arrow_downward':'';
+    var arrowHtml = arrow ? '<span class="material-icons" style="font-size:12px">'+arrow+'</span>' : '';
+    return '<span class="cell-cmp '+cls+'" style="margin-left:3px">'+arrowHtml+pct+'%</span><span class="cell-cmp-label"> vs '+t[1]+'</span>';
   }).join('');
 }
 
@@ -4604,13 +4606,13 @@ function buildDailyBView(days, month, activeDay) {
 
   function cmpSfx(cmpStr, curr, comp) {
     if (!cmpStr || wvCompare.size === 0) return '';
-    var cls = '';
+    var cls = '', arrow = '';
     if (curr != null && comp != null && !isNaN(parseFloat(curr)) && !isNaN(parseFloat(comp))) {
       var c = parseFloat(curr), p = parseFloat(comp);
-      if (c > p) cls = ' cell-cmp-up';
-      else if (c < p) cls = ' cell-cmp-dn';
+      if (c > p) { cls = ' cell-cmp-up'; arrow = '<span class="material-icons" style="font-size:12px">arrow_upward</span>'; }
+      else if (c < p) { cls = ' cell-cmp-dn'; arrow = '<span class="material-icons" style="font-size:12px">arrow_downward</span>'; }
     }
-    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp' + cls + '">' + cmpStr + '</span>';
+    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp' + cls + '">' + arrow + cmpStr + '</span>';
   }
 
   // trendBadge wraps badges in a single container so wb-sect-val always has
@@ -5209,13 +5211,13 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   var C1='#004948', C2='#52d9ce', C3='#D97706', C4='#d7f7ed', CSTLY='#C4FF45', CREM='#445e0d';
   function cmpSfx(s, curr, comp) {
     if (!s || wvCompare.size === 0) return '';
-    var cls = '';
+    var cls = '', arrow = '';
     if (curr != null && comp != null && !isNaN(parseFloat(curr)) && !isNaN(parseFloat(comp))) {
       var c = parseFloat(curr), p = parseFloat(comp);
-      if (c > p) cls = ' cell-cmp-up';
-      else if (c < p) cls = ' cell-cmp-dn';
+      if (c > p) { cls = ' cell-cmp-up'; arrow = '<span class="material-icons" style="font-size:12px">arrow_upward</span>'; }
+      else if (c < p) { cls = ' cell-cmp-dn'; arrow = '<span class="material-icons" style="font-size:12px">arrow_downward</span>'; }
     }
-    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+s+'</span>';
+    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+arrow+s+'</span>';
   }
   function wbGrad2(clr) {
     if (clr==='#004948') return 'linear-gradient(to right,#004948,#007a75)';
