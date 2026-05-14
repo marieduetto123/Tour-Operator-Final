@@ -4970,20 +4970,24 @@ function buildDailyBView(days, month, activeDay) {
             v1 = '+'+Math.max(0, Math.round(d.hPickup * _psc2));
           }
         } else if (row.mpKey !== undefined) {
-          // ── Meal Plan metric sub-rows ──
+          // ── Meal Plan metric sub-rows (hotel on line 1, TO on line 2) ──
           var _mPct2 = d[row.mpKey+'Pct'];
           var _mHRm2 = Math.round(d.hnRn*_mPct2/100);
           var _mTRm2 = Math.round(d.toRn*_mPct2/100);
           var _mHGpr2 = parseFloat(d.hAvgA)+parseFloat(d.hAvgC);
           var _mTGpr2 = parseFloat(d.avgA)+parseFloat(d.avgC);
           var _mSfx = row.id.split('_').pop();
+          var _mpH = '', _mpT = '';
           switch (_mSfx) {
-            case 'rm':  v1 = _mHRm2+' RN'; v2 = 'T: '+_mTRm2; break;
-            case 'g':   v1 = String(Math.round(_mHRm2*_mHGpr2)); v2 = 'T: '+Math.round(_mTRm2*_mTGpr2); break;
-            case 'rv':  { var _mHR=Math.round(_mHRm2*d.adr),_mTR=Math.round(_mTRm2*d.toAdr); v1=_mHR>=1000?'$'+Math.round(_mHR/1000)+'k':'$'+_mHR; v2='T: '+(_mTR>=1000?'$'+Math.round(_mTR/1000)+'k':'$'+_mTR); } break;
-            case 'adr': v1 = '$'+d.adr; v2 = 'T: $'+d.toAdr; break;
-            case 'sh':  { var _mSh=_mHRm2>0?Math.round(_mTRm2/_mHRm2*100):0; v1=_mSh+'%'; v2=(100-_mSh)+'% hotel'; } break;
+            case 'rm':  _mpH = _mHRm2+' RN'; _mpT = _mTRm2+' RN'; break;
+            case 'g':   _mpH = String(Math.round(_mHRm2*_mHGpr2)); _mpT = String(Math.round(_mTRm2*_mTGpr2)); break;
+            case 'rv':  { var _mHR=Math.round(_mHRm2*d.adr),_mTR=Math.round(_mTRm2*d.toAdr); _mpH=_mHR>=1000?'$'+Math.round(_mHR/1000)+'k':'$'+_mHR; _mpT=_mTR>=1000?'$'+Math.round(_mTR/1000)+'k':'$'+_mTR; } break;
+            case 'adr': _mpH = '$'+d.adr; _mpT = '$'+d.toAdr; break;
+            case 'sh':  { var _mSh=_mHRm2>0?Math.round(_mTRm2/_mHRm2*100):0; _mpH=(100-_mSh)+'% hotel'; _mpT=_mSh+'% TO'; } break;
           }
+          v1 = '<span style="display:block;color:#374151">'+_mpH+'</span>'
+             + '<span style="display:block;color:#006461">'+_mpT+'</span>';
+          v2 = '';
         } else if (row.rtSub !== undefined) {
           var inv2  = RT_CAPS[row.rtIdx];
           var sold2 = Math.min(inv2, Math.floor(inv2 * d.hotel / 110));
