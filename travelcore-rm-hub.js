@@ -8551,27 +8551,40 @@ function buildWeekGrid(month, weekStart, activeDay) {
               +'<span class="wv-occ-br-rms" title="Hotel rooms">'+totalPlanRooms+'</span>'
               +'<span class="wv-occ-br-rms" style="color:#006461" title="TO rooms">'+toRoomsAmt+'</span>'
               +'</div>';
-            // Detail rows (dm-row style)
-            function dmRow(lbl, hVal, tVal) {
+            // Detail rows (separate hotel and TO rows)
+            function dmRow(lbl, val, color) {
               return '<div class="wv-dm-row" style="padding:0 8px 0 20px">'
                 +'<div class="wv-dm-top">'
                 +'<span class="wv-dm-label">'+lbl+'</span>'
-                +'<span style="display:flex;gap:10px">'
-                +'<span class="wv-dm-val" style="color:#374151">'+hVal+'</span>'
-                +'<span class="wv-dm-val" style="color:#006461">'+tVal+'</span>'
-                +'</span>'
+                +'<span class="wv-dm-val" style="color:'+color+'">'+val+'</span>'
                 +'</div>'
                 +'</div>';
             }
-            const detailRows =
-              dmRow('Rooms', totalPlanRooms+' RN', toRoomsAmt+' RN')
-              +dmRow('Adults', hAdults, tAdults)
-              +dmRow('Children', hChildren, tChildren)
-              +dmRow('Guests', hGuests, tGuests)
-              +dmRow('Revenue', hRevStr, tRevStr)
-              +dmRow('ADR Gross', '$'+baseAdr, '$'+toAdrGross)
-              +dmRow('ADR Net', '$'+baseAdrNet, '$'+toAdrNet)
-              +dmRow('TO Share', toShare+'%', (100-toShare)+'% hotel');
+            let detailRows = '';
+            // Rooms
+            detailRows += dmRow('Tour Operator', toRoomsAmt+' RN', '#006461');
+            detailRows += dmRow('Hotel', totalPlanRooms+' RN', '#374151');
+            // Adults
+            detailRows += dmRow('Tour Operator', tAdults, '#006461');
+            detailRows += dmRow('Hotel', hAdults, '#374151');
+            // Children
+            detailRows += dmRow('Tour Operator', tChildren, '#006461');
+            detailRows += dmRow('Hotel', hChildren, '#374151');
+            // Guests
+            detailRows += dmRow('Tour Operator', tGuests, '#006461');
+            detailRows += dmRow('Hotel', hGuests, '#374151');
+            // Revenue
+            detailRows += dmRow('Tour Operator', tRevStr, '#006461');
+            detailRows += dmRow('Hotel', hRevStr, '#374151');
+            // ADR Gross
+            detailRows += dmRow('Tour Operator', '$'+toAdrGross, '#006461');
+            detailRows += dmRow('Hotel', '$'+baseAdr, '#374151');
+            // ADR Net
+            detailRows += dmRow('Tour Operator', '$'+toAdrNet, '#006461');
+            detailRows += dmRow('Hotel', '$'+baseAdrNet, '#374151');
+            // TO Share
+            detailRows += dmRow('Tour Operator', toShare+'%', '#006461');
+            detailRows += dmRow('Hotel', (100-toShare)+'%', '#374151');
             return summaryRow + detailRows;
           }).join('');
           return barHtml + colHdr + rowsHtml;
