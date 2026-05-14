@@ -942,17 +942,45 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #1C1C1C; }
 .cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #8C7843; }
 
-/* Comparison value colors */
-.cell-cmp { font-size: 10px; font-weight: 500; opacity: .85; }
-.cell-cmp-up { color: #16a34a; }
-.cell-cmp-dn { color: #dc2626; }
+/* Comparison value styling - badge style */
+.cell-cmp {
+  font-size: 11px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 4px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+/* Light mode - up (positive) */
+.cell-cmp-up {
+  background-color: #e8f5e9;
+  color: #28592c;
+}
+/* Light mode - down (negative) */
+.cell-cmp-dn {
+  background-color: #ffebee;
+  color: #991f1f;
+}
+/* Dark mode - up (positive) */
+body.dark .cell-cmp-up {
+  background-color: #388c3f;
+  color: #cef2d1;
+}
+/* Dark mode - down (negative) */
+body.dark .cell-cmp-dn {
+  background-color: #d32f2f;
+  color: #ffebee;
+}
 /* Light green/red on dark heatmap cells */
 .cal-day.hotel-occ-5 .cell-cmp-up, .cal-day.hotel-occ-6 .cell-cmp-up,
 .cal-day.hotel-occ-7 .cell-cmp-up, .cal-day.hotel-occ-8 .cell-cmp-up,
-.cal-day.hotel-occ-9 .cell-cmp-up, .cal-day.hotel-occ-10 .cell-cmp-up { color: #86efac; }
+.cal-day.hotel-occ-9 .cell-cmp-up, .cal-day.hotel-occ-10 .cell-cmp-up { background-color: rgba(134,239,172,0.25); color: #86efac; }
 .cal-day.hotel-occ-5 .cell-cmp-dn, .cal-day.hotel-occ-6 .cell-cmp-dn,
 .cal-day.hotel-occ-7 .cell-cmp-dn, .cal-day.hotel-occ-8 .cell-cmp-dn,
-.cal-day.hotel-occ-9 .cell-cmp-dn, .cal-day.hotel-occ-10 .cell-cmp-dn { color: #fca5a5; }
+.cal-day.hotel-occ-9 .cell-cmp-dn, .cal-day.hotel-occ-10 .cell-cmp-dn { background-color: rgba(252,165,165,0.25); color: #fca5a5; }
 
 /* Hide comparison values based on view + viewport */
 .cell-cmp { white-space: nowrap; }

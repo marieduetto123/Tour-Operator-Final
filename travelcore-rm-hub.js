@@ -3728,7 +3728,7 @@ function wvCmpValSuffix(stlyStr, lyStr, fcstStr) {
   if (wvCompare.has('stly') && stlyStr && stlyStr !== 'null') parts.push(stlyStr);
   if (wvCompare.has('ly')   && lyStr   && lyStr   !== 'null') parts.push(lyStr);
   if (wvCompare.has('fcst') && fcstStr && fcstStr !== 'null') parts.push(fcstStr);
-  return parts.map(function(s){ return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt">' + s + '</span>'; }).join('');
+  return parts.map(function(s){ return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp">' + s + '</span>'; }).join('');
 }
 
 // Multi-compare inline suffix — shows "/ STLY:val / LY:val" etc. for all active
@@ -3737,10 +3737,10 @@ function _wvMultiCmpSfx(curr, stlyVal, lyVal, fcstVal, fmtFn) {
   var _ORDER = [['stly','STLY',stlyVal],['ly','LY',lyVal],['fcst','Fc',fcstVal]];
   return _ORDER.filter(function(t){ return wvCompare.has(t[0]) && t[2] != null; }).map(function(t) {
     var s = fmtFn(t[2]);
-    var clr = '#9ca3af';
+    var cls = '';
     var c = parseFloat(curr), p = parseFloat(t[2]);
-    if (!isNaN(c) && !isNaN(p)) { if (c > p) clr = '#16a34a'; else if (c < p) clr = '#dc2626'; }
-    return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt" style="color:'+clr+'">'+t[1]+':'+s+'</span>';
+    if (!isNaN(c) && !isNaN(p)) { if (c > p) cls = ' cell-cmp-up'; else if (c < p) cls = ' cell-cmp-dn'; }
+    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+t[1]+':'+s+'</span>';
   }).join('');
 }
 
@@ -4604,13 +4604,13 @@ function buildDailyBView(days, month, activeDay) {
 
   function cmpSfx(cmpStr, curr, comp) {
     if (!cmpStr || wvCompare.size === 0) return '';
-    var clr = '#9ca3af';
+    var cls = '';
     if (curr != null && comp != null && !isNaN(parseFloat(curr)) && !isNaN(parseFloat(comp))) {
       var c = parseFloat(curr), p = parseFloat(comp);
-      if (c > p) clr = '#16a34a';
-      else if (c < p) clr = '#dc2626';
+      if (c > p) cls = ' cell-cmp-up';
+      else if (c < p) cls = ' cell-cmp-dn';
     }
-    return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt" style="color:' + clr + '">' + cmpStr + '</span>';
+    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp' + cls + '">' + cmpStr + '</span>';
   }
 
   // trendBadge wraps badges in a single container so wb-sect-val always has
@@ -5209,13 +5209,13 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   var C1='#004948', C2='#52d9ce', C3='#D97706', C4='#d7f7ed', CSTLY='#C4FF45', CREM='#445e0d';
   function cmpSfx(s, curr, comp) {
     if (!s || wvCompare.size === 0) return '';
-    var clr = '#9ca3af';
+    var cls = '';
     if (curr != null && comp != null && !isNaN(parseFloat(curr)) && !isNaN(parseFloat(comp))) {
       var c = parseFloat(curr), p = parseFloat(comp);
-      if (c > p) clr = '#16a34a';
-      else if (c < p) clr = '#dc2626';
+      if (c > p) cls = ' cell-cmp-up';
+      else if (c < p) cls = ' cell-cmp-dn';
     }
-    return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt" style="color:'+clr+'">'+s+'</span>';
+    return '<span class="wv-cmp-sep"> / </span><span class="cell-cmp'+cls+'">'+s+'</span>';
   }
   function wbGrad2(clr) {
     if (clr==='#004948') return 'linear-gradient(to right,#004948,#007a75)';
