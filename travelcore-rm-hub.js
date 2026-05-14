@@ -3281,18 +3281,16 @@ function clearCalSelection() {
     mealPlans.forEach(function(mp){
       var totalPlanRooms = Math.round(rnSold * mp.pct / 100);
       var toRoomsAmt     = Math.round(totalPlanRooms * _mpToPct);
-      var hGuests = Math.round(totalPlanRooms * (_mpAvgA + _mpAvgC));
-      var hRev = Math.round(totalPlanRooms * _mpBaseAdr);
+      var hRooms = totalPlanRooms;
+      var toGst = Math.round(toRoomsAmt * (_mpAvgA + _mpAvgC));
+      var hGst  = Math.round(hRooms * (_mpAvgA + _mpAvgC));
       var tRev = Math.round(toRoomsAmt * _mpToAdrGross);
-      var hRevStr = hRev >= 1000 ? '$'+Math.round(hRev/1000)+'k' : '$'+hRev;
+      var hRev = Math.round(hRooms * _mpBaseAdr);
       var tRevStr = tRev >= 1000 ? '$'+Math.round(tRev/1000)+'k' : '$'+tRev;
-      var toShare = totalPlanRooms > 0 ? Math.round(toRoomsAmt / totalPlanRooms * 100) : 0;
+      var hRevStr = hRev >= 1000 ? '$'+Math.round(hRev/1000)+'k' : '$'+hRev;
       _pb += _pSectS(_mpLongNames[mp.short]||mp.short, mp.pct+'% · '+totalPlanRooms+' RN', _pBar(mp.pct, mp.color));
-      _pb += _pSub('Rooms', totalPlanRooms+' RN', mp.color);
-      _pb += _pSub('Guests', hGuests+' guests', mp.color);
-      _pb += _pSub('Revenue', hRevStr, mp.color);
-      _pb += _pSub('ADR Gross', '$'+_mpBaseAdr, mp.color);
-      _pb += _pSub('TO Share', toShare+'%', mp.color);
+      _pb += _pSub('TO', toRoomsAmt+' RN · '+toGst+' G · '+tRevStr+' · $'+_mpToAdrGross, '#004948');
+      _pb += _pSub('Hotel', hRooms+' RN · '+hGst+' G · '+hRevStr+' · $'+_mpBaseAdr, '#52d9ce');
       _pb += _pSectE();
     });
     _pb += _pGrpEnd();
@@ -4540,12 +4538,9 @@ function buildDailyBView(days, month, activeDay) {
       {key:'ro', label:'Room Only'}
     ];
     _mpPlans.forEach(function(p) {
-      grp.g_meals.push({type:'sect', id:'mp_'+p.key,        label:p.label,     parent:'g_meals', mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_rm',  label:'Rooms',     dot:'#004948', parent:'mp_'+p.key, mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_g',   label:'Guests',    dot:'#52d9ce', parent:'mp_'+p.key, mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_rv',  label:'Revenue',   dot:'#D97706', parent:'mp_'+p.key, mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_adr', label:'ADR Gross', dot:'#6366f1', parent:'mp_'+p.key, mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_sh',  label:'TO Share',  dot:'#9ca3af', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sect', id:'mp_'+p.key,       label:p.label, parent:'g_meals', mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_t',  label:'TO',    dot:'#004948', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_h',  label:'Hotel', dot:'#52d9ce', parent:'mp_'+p.key, mpKey:p.key});
     });
     grp.g_meals.push({type:'sect', id:'mp_sum',  label:'Summary',         parent:'g_meals'});
   }
@@ -4970,23 +4965,22 @@ function buildDailyBView(days, month, activeDay) {
             v1 = '+'+Math.max(0, Math.round(d.hPickup * _psc2));
           }
         } else if (row.mpKey !== undefined) {
-          // ── Meal Plan metric sub-rows (hotel on line 1, TO on line 2) ──
+          // ── Meal Plan TO / Hotel sub-rows ──
           var _mPct2 = d[row.mpKey+'Pct'];
-          var _mHRm2 = Math.round(d.hnRn*_mPct2/100);
-          var _mTRm2 = Math.round(d.toRn*_mPct2/100);
-          var _mHGpr2 = parseFloat(d.hAvgA)+parseFloat(d.hAvgC);
-          var _mTGpr2 = parseFloat(d.avgA)+parseFloat(d.avgC);
           var _mSfx = row.id.split('_').pop();
-          var _mpH = '', _mpT = '';
-          switch (_mSfx) {
-            case 'rm':  _mpH = _mHRm2+' RN'; _mpT = _mTRm2+' RN'; break;
-            case 'g':   _mpH = String(Math.round(_mHRm2*_mHGpr2)); _mpT = String(Math.round(_mTRm2*_mTGpr2)); break;
-            case 'rv':  { var _mHR=Math.round(_mHRm2*d.adr),_mTR=Math.round(_mTRm2*d.toAdr); _mpH=_mHR>=1000?'$'+Math.round(_mHR/1000)+'k':'$'+_mHR; _mpT=_mTR>=1000?'$'+Math.round(_mTR/1000)+'k':'$'+_mTR; } break;
-            case 'adr': _mpH = '$'+d.adr; _mpT = '$'+d.toAdr; break;
-            case 'sh':  { var _mSh=_mHRm2>0?Math.round(_mTRm2/_mHRm2*100):0; _mpH=(100-_mSh)+'% hotel'; _mpT=_mSh+'% TO'; } break;
+          if (_mSfx === 't') {
+            var _tRm = Math.round(d.toRn*_mPct2/100);
+            var _tGpr = parseFloat(d.avgA)+parseFloat(d.avgC);
+            var _tG = Math.round(_tRm*_tGpr);
+            var _tRv = Math.round(_tRm*d.toAdr);
+            v1 = _tRm+' RN · '+_tG+' G · '+((_tRv>=1000)?'$'+Math.round(_tRv/1000)+'k':'$'+_tRv)+' · $'+d.toAdr;
+          } else {
+            var _hRm = Math.round(d.hnRn*_mPct2/100);
+            var _hGpr = parseFloat(d.hAvgA)+parseFloat(d.hAvgC);
+            var _hG = Math.round(_hRm*_hGpr);
+            var _hRv = Math.round(_hRm*d.adr);
+            v1 = _hRm+' RN · '+_hG+' G · '+((_hRv>=1000)?'$'+Math.round(_hRv/1000)+'k':'$'+_hRv)+' · $'+d.adr;
           }
-          v1 = '<span style="display:block;color:#374151">'+_mpH+'</span>'
-             + '<span style="display:block;color:#006461">'+_mpT+'</span>';
           v2 = '';
         } else if (row.rtSub !== undefined) {
           var inv2  = RT_CAPS[row.rtIdx];
@@ -5441,8 +5435,14 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
     [['All Inclusive','aiPct'],['Bed & Breakfast','bbPct'],['Half Board','hbPct'],['Room Only','roPct']].forEach(function(mp){
       var k=mp[1];
       sect(mp[0], C1, C1, (function(k){ return function(d){ var rn=Math.round(d.hnRn*d[k]/100); return sCell(d[k]+'% · '+rn+' RN', bar(d[k],C1)); }; })(k));
-      sub('Tour Operator', C1, false, (function(k){ return function(d){ var pct=Math.max(0,Math.round(d[k]*d.toPct*0.9)); var rn=Math.round(d.toRn*d[k]/100); return sCell(pct+'% · '+rn+' RN', bar(pct,C1)); }; })(k));
-      sub('Hotel', C2, false, (function(k){ return function(d){ var rn=Math.round(d.hnRn*d[k]/100); return sCell(d[k]+'% · '+rn+' RN', bar(d[k],C2)); }; })(k));
+      sub('TO', C1, false, (function(k){ return function(d){
+        var tRm=Math.round(d.toRn*d[k]/100), tGpr=parseFloat(d.avgA)+parseFloat(d.avgC), tG=Math.round(tRm*tGpr), tRv=Math.round(tRm*d.toAdr);
+        return sCell(tRm+' RN · '+tG+' G · '+((tRv>=1000)?'$'+Math.round(tRv/1000)+'k':'$'+tRv)+' · $'+d.toAdr, bar(Math.min(90,Math.round(tRm/Math.max(1,d.toRn)*100)),C1));
+      }; })(k));
+      sub('Hotel', C2, false, (function(k){ return function(d){
+        var hRm=Math.round(d.hnRn*d[k]/100), hGpr=parseFloat(d.hAvgA)+parseFloat(d.hAvgC), hG=Math.round(hRm*hGpr), hRv=Math.round(hRm*d.adr);
+        return sCell(hRm+' RN · '+hG+' G · '+((hRv>=1000)?'$'+Math.round(hRv/1000)+'k':'$'+hRv)+' · $'+d.adr, bar(Math.min(90,Math.round(hRm/Math.max(1,d.hnRn)*100)),C2));
+      }; })(k));
     });
     sect('Summary', C1, C1, function(d){
       var _aiR=Math.round(d.hnRn*d.aiPct/100), _bbR=Math.round(d.hnRn*d.bbPct/100), _hbR=Math.round(d.hnRn*d.hbPct/100), _roR=Math.round(d.hnRn*d.roPct/100);
@@ -8581,7 +8581,6 @@ function buildWeekGrid(month, weekStart, activeDay) {
               +'<span class="wv-occ-br-rms" title="Hotel rooms">'+totalPlanRooms+'</span>'
               +'<span class="wv-occ-br-rms" style="color:#006461" title="TO rooms">'+toRoomsAmt+'</span>'
               +'</div>';
-            // Detail rows (separate hotel and TO rows)
             function dmRow(lbl, val, color) {
               return '<div class="wv-dm-row" style="padding:0 8px 0 20px">'
                 +'<div class="wv-dm-top">'
@@ -8591,30 +8590,8 @@ function buildWeekGrid(month, weekStart, activeDay) {
                 +'</div>';
             }
             let detailRows = '';
-            // Rooms
-            detailRows += dmRow('Tour Operator', toRoomsAmt+' RN', '#006461');
-            detailRows += dmRow('Hotel', totalPlanRooms+' RN', '#374151');
-            // Adults
-            detailRows += dmRow('Tour Operator', tAdults, '#006461');
-            detailRows += dmRow('Hotel', hAdults, '#374151');
-            // Children
-            detailRows += dmRow('Tour Operator', tChildren, '#006461');
-            detailRows += dmRow('Hotel', hChildren, '#374151');
-            // Guests
-            detailRows += dmRow('Tour Operator', tGuests, '#006461');
-            detailRows += dmRow('Hotel', hGuests, '#374151');
-            // Revenue
-            detailRows += dmRow('Tour Operator', tRevStr, '#006461');
-            detailRows += dmRow('Hotel', hRevStr, '#374151');
-            // ADR Gross
-            detailRows += dmRow('Tour Operator', '$'+toAdrGross, '#006461');
-            detailRows += dmRow('Hotel', '$'+baseAdr, '#374151');
-            // ADR Net
-            detailRows += dmRow('Tour Operator', '$'+toAdrNet, '#006461');
-            detailRows += dmRow('Hotel', '$'+baseAdrNet, '#374151');
-            // TO Share
-            detailRows += dmRow('Tour Operator', toShare+'%', '#006461');
-            detailRows += dmRow('Hotel', (100-toShare)+'%', '#374151');
+            detailRows += dmRow('TO', toRoomsAmt+' RN · '+tGuests+' G · '+tRevStr+' · $'+toAdrGross, '#006461');
+            detailRows += dmRow('Hotel', totalPlanRooms+' RN · '+hGuests+' G · '+hRevStr+' · $'+baseAdr, '#374151');
             return summaryRow + detailRows;
           }).join('');
           return barHtml + colHdr + rowsHtml;
