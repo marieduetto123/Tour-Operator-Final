@@ -3062,7 +3062,7 @@ function clearCalSelection() {
     // ── Figma two-column popup builders (200px left | ~148px right) ──
     var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
     var _hasCmp = calCompareMode !== 'none';
-    var _cmpLbl = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Budget'}[calCompareMode] || '';
+    var _cmpLbl = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Locked Budget'}[calCompareMode] || '';
     var _cmpDot = {stly:'#C4FF45', ly:'#facc15', fcst:'#fb923c', budget:'#a78bfa'}[calCompareMode] || '#C4FF45';
     var _cm = (function(){
       switch(calCompareMode) {
