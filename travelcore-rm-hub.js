@@ -2163,6 +2163,11 @@ function renderCalMonthlySummary() {
     return false;
   }
 
+  var _moSectIds = {};
+  var _moSectsWithKids = {};
+  moRows.forEach(function(r){ if (r.type === 'sect') _moSectIds[r.id] = true; });
+  moRows.forEach(function(r){ if (r.parent && _moSectIds[r.parent]) _moSectsWithKids[r.parent] = true; });
+
   var html = '<div class="wb-layout">';
 
   // ── Header row with month names ─────────────────────────────────────────
@@ -2187,8 +2192,9 @@ function renderCalMonthlySummary() {
             + '<span class="wb-chev">' + (collapsed ? chevDown : chevUp) + '</span>'
             + '<span class="wb-grp-label">' + row.label + '</span></div>';
     } else if (row.type === 'sect') {
-      html += '<div class="wb-label-cell wb-sect-lbl" onclick="moToggle(\'' + row.id + '\')">'
-            + '<span class="wb-chev">' + (collapsed ? chevDown : chevUp) + '</span>'
+      var _moHasKids = _moSectsWithKids[row.id];
+      html += '<div class="wb-label-cell wb-sect-lbl"' + (_moHasKids ? ' onclick="moToggle(\'' + row.id + '\')"' : '') + '>'
+            + (_moHasKids ? '<span class="wb-chev">' + (collapsed ? chevDown : chevUp) + '</span>' : '')
             + '<span class="wb-sect-label">' + row.label + '</span></div>';
     } else {
       var dotHtml = row.dot ? '<span class="wb-sub-dot" style="background:' + row.dot + '"></span>' : '';
@@ -4615,6 +4621,9 @@ function buildDailyBView(days, month, activeDay) {
   var rowMap = {};
   rows.forEach(function(r){ rowMap[r.id] = r; });
 
+  var _sectsWithKids = {};
+  rows.forEach(function(r){ if (r.parent && rowMap[r.parent] && rowMap[r.parent].type === 'sect') _sectsWithKids[r.parent] = true; });
+
   function isHidden(row) {
     if (!row.parent) return false;
     if (_wbCollapsed[row.parent]) return true;
@@ -4729,8 +4738,9 @@ function buildDailyBView(days, month, activeDay) {
             + '<span class="wb-grp-label">' + row.label + '</span>'
             + '</div>';
     } else if (row.type === 'sect') {
-        html += '<div class="wb-label-cell wb-sect-lbl" onclick="wbToggle(\'' + row.id + '\')">'
-              + '<span class="wb-chev">' + (collapsed ? chevDown : chevUp) + '</span>'
+        var _hasKids = _sectsWithKids[row.id];
+        html += '<div class="wb-label-cell wb-sect-lbl"' + (_hasKids ? ' onclick="wbToggle(\'' + row.id + '\')"' : '') + '>'
+              + (_hasKids ? '<span class="wb-chev">' + (collapsed ? chevDown : chevUp) + '</span>' : '')
               + '<span class="wb-sect-label">' + row.label + '</span>'
               + '</div>';
     } else {
