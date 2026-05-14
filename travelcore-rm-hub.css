@@ -8378,6 +8378,26 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   padding: 4px 0;
 }
 
+/* ── Dark-mode: weekly table ── */
+body.dark .wb-layout { background: #0E2124; }
+body.dark .wb-row { border-bottom-color: #1a3336; }
+body.dark .wb-label-cell { background: #0E2124; border-right-color: #1a3336; }
+body.dark .wb-data-cell { border-right-color: #1a3336; }
+body.dark .wb-grp-hdr { background: #122a2d; border-bottom-color: #1a3336; }
+body.dark .wb-grp-label { color: #e0e4e4; }
+body.dark .wb-chev { color: #5ceade !important; }
+body.dark .wb-row-top .wb-data-cell { background: #122a2d; }
+body.dark .wb-sect-lbl { background: #0E2124; }
+body.dark .wb-sect-label { color: #c8e6e5; }
+body.dark .wb-sub-label { color: #c8e6e5; }
+body.dark .wb-sub-v1 { color: #e0e4e4; }
+body.dark .wb-sub-v2 { color: #7aabad; }
+body.dark .wb-sub-lbl-rem { color: #6ee7b7; }
+body.dark .wb-sub-val-rem .wb-sub-v1 { color: #6ee7b7; }
+body.dark .wb-sub-val-rem .wb-sub-v2 { color: #6ee7b7; }
+body.dark .wb-row[data-wb-id="occ_rem"] .wb-label-cell,
+body.dark .wb-row[data-wb-id="occ_rem"] .wb-data-cell { background: rgba(110,231,183,.06); }
+body.dark .wb-col-locked { background: rgba(255,255,255,.04) !important; }
 
 /* ── Select Dates button ──────────────────────────────────────────────── */
 .mo-select-dates-btn {
@@ -8441,6 +8461,23 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
 }
 .mo-sel-footer-action:hover { background: #004948; }
 .mo-sel-footer-action:disabled { opacity: .5; cursor: default; }
+
+/* ── Dark-mode: buttons & controls ── */
+body.dark .mo-select-dates-btn { background: #173336; border: 1px solid #254548; color: #fff; }
+body.dark .mo-select-dates-btn:hover { background: #1c3c40; border-color: #7aabad; }
+body.dark .mo-sel-footer { background: #0E2124; border-top-color: var(--border); }
+body.dark .mo-sel-footer-cancel { background: var(--surface-2); border-color: var(--border); color: var(--text-primary); }
+body.dark .mo-sel-footer-cancel:hover { background: var(--surface-3); color: #fff; }
+body.dark .mo-sel-footer-info { color: var(--text-secondary); }
+body.dark .wv-topbar-cmp-select { background: var(--surface-2); border-color: var(--border); color: var(--text-primary); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237aabad' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+body.dark .wv-outline-btn { background: var(--surface-2); border-color: #5ceade; color: #5ceade; }
+body.dark .wv-outline-btn:hover { background: rgba(92,234,222,0.08); }
+body.dark .wv-acc-action-btn { color: #9cb8b7; }
+body.dark .wv-acc-action-btn:hover { background: rgba(196,255,69,0.08); color: #C4FF45; }
+body.dark .wv-table-settings-btn { color: #9cb8b7; }
+body.dark .wv-table-settings-btn:hover { background: rgba(196,255,69,0.08); color: #C4FF45; }
+body.dark .wv-cmp-select { background: var(--surface-2); border-color: var(--border); color: var(--text-primary); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237aabad' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+body.dark .closeout-badge { background: var(--surface-3); color: #fca5a5; }
 
 /* ═══════════════════════════════════════════════════════
    TDH KPI CARDS ROW
