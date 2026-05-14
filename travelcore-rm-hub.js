@@ -8378,6 +8378,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
           const WV_CAP_DMH = 250;
           const dmToRev = Math.floor(dmToRn * dmToAdr);
           const dmToTrev = Math.floor(dmToRev / WV_CAP_DMH);
+          const dmHotelTrev = Math.floor(rev / dmHotelRn);
           const dmToPickup = Math.max(0, Math.floor((v%25+5) * to / Math.max(1, hotel)));
           const dmHotelPickup = Math.floor(v%25+5);
           function dmRefRow(sv, lv, fv, hv) {
@@ -8416,7 +8417,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
             ['Avg Children',   dmAvgChildren,  null,  null,  null,  '#d33030', Math.min(92, 20+v%40),               'dm_avgChildren',  hotelAvgChildren,  Math.min(92, 20+v%40+8)],
             ['Total Adults',   dmTotalAdults,  null,  null,  null,  '#2e65e8', Math.min(92, 60+v%28),               'dm_totalAdults',  hotelTotalAdults,  Math.min(92, 60+v%28+8)],
             ['Total Children', dmTotalChildren,null,  null,  null,  '#d33030', Math.min(92, 15+v%35),               'dm_totalChildren',hotelTotalChildren,Math.min(92, 15+v%35+8)],
-            ['RevPAR',         '$'+dmToTrev,   '$'+S.trev, '$'+L.trev, null,  '#2e65e8', Math.min(92, 65+v%25),    'dm_trevpar',      '$'+(adr+80),      Math.min(92, 65+v%25+10)],
+            ['RevPAR',         '$'+dmToTrev,   '$'+S.trev, '$'+L.trev, null,  '#2e65e8', Math.min(92, 65+v%25),    'dm_trevpar',      '$'+dmHotelTrev,   Math.min(92, 65+v%25+10)],
             ['Avail Rooms',    availRooms,     null,  null,  null,  '#16a34a', Math.min(92, Math.max(5, hotel*0.8)),'dm_availRooms',   '__hotelOnly',     null],
             ['Avail Guar.',    Math.floor(8+v%5), null,null, null,  '#2e65e8', Math.min(92, 10+v%50),               'dm_availGuar',    null,              null],
             ['Avg LOS',        (2.8+v%5*.3).toFixed(1)+'n', null,null,null,'#0891b2', Math.min(92, 40+v%40), 'dm_avgLos',       hotelAvgLos,       Math.min(92, 40+v%40+8)],
