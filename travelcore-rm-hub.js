@@ -8543,58 +8543,41 @@ function buildWeekGrid(month, weekStart, activeDay) {
             { name:'Half Board',      short:'HB', pct:hbPct, toPct:toHbPct,  color:'#C4FF45' },
             { name:'Room Only',       short:'RO', pct:roPct, toPct:toRoPct,  color:'#D97706' },
           ];
-          const colHdr = '<div style="display:flex;justify-content:flex-end;gap:10px;padding:1px 8px 0;margin-bottom:-2px">'
-            +'<span style="font-size:7px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;width:30px;text-align:right">Hotel</span>'
-            +'<span style="font-size:7px;font-weight:700;color:#006461;text-transform:uppercase;letter-spacing:.3px;width:30px;text-align:right">TO</span>'
-            +'</div>';
           const barHtml = '<div class="wv-meals-bar">'
             + plans.map(p=>'<div style="width:'+p.pct+'%;background:'+p.color+';height:100%"></div>').join('')
             + '</div>';
-          // Per-plan base values
           const baseAdr     = adr;
-          const baseAdrNet  = Math.round(adr * 0.88);
           const toAdrGross  = Math.round(adr * 0.82);
-          const toAdrNet    = Math.round(toAdrGross * 0.91);
           const avgAdultsV  = 1.8 + (dm*11+dd*7)%3 * 0.1;
           const avgChildrenV= 0.3 + (dm*7+dd*13)%5 * 0.1;
 
           const rowsHtml = plans.map(function(p){
             const totalPlanRooms = Math.round(totalRooms * p.pct / 100);
             const toRoomsAmt     = Math.round(totalRooms * p.toPct / 100);
-            const hotelOnlyRooms = Math.max(0, totalPlanRooms - toRoomsAmt);
-            const hAdults   = Math.round(totalPlanRooms * avgAdultsV);
-            const hChildren = Math.round(totalPlanRooms * avgChildrenV);
-            const hGuests   = hAdults + hChildren;
+            const hGuests   = Math.round(totalPlanRooms * (avgAdultsV + avgChildrenV));
             const hRev      = Math.round(totalPlanRooms * baseAdr);
             const hRevStr   = hRev >= 1000 ? '$'+Math.round(hRev/1000)+'k' : '$'+hRev;
-            const tAdults   = Math.round(toRoomsAmt * avgAdultsV);
-            const tChildren = Math.round(toRoomsAmt * avgChildrenV);
-            const tGuests   = tAdults + tChildren;
+            const tGuests   = Math.round(toRoomsAmt * (avgAdultsV + avgChildrenV));
             const tRev      = Math.round(toRoomsAmt * toAdrGross);
             const tRevStr   = tRev >= 1000 ? '$'+Math.round(tRev/1000)+'k' : '$'+tRev;
-            const toShare   = totalPlanRooms > 0 ? Math.round(toRoomsAmt / totalPlanRooms * 100) : 0;
-            // Summary row (occ-br style: dot | name | pct | hotel rm | TO rm)
-            const summaryRow = '<div class="wv-occ-br-row" style="grid-template-columns:8px 1fr 28px 30px 30px;padding:3px 8px">'
+            const headerRow = '<div class="wv-occ-br-row" style="grid-template-columns:8px 1fr 28px;padding:3px 8px">'
               +'<span class="wv-occ-br-dot" style="background:'+p.color+'"></span>'
               +'<span class="wv-occ-br-lbl" style="font-weight:700">'+p.short+' <span style="font-weight:400;color:#9ca3af">'+p.name+'</span></span>'
               +'<span class="wv-occ-br-pct">'+p.pct+'%</span>'
-              +'<span class="wv-occ-br-rms" title="Hotel rooms">'+totalPlanRooms+'</span>'
-              +'<span class="wv-occ-br-rms" style="color:#006461" title="TO rooms">'+toRoomsAmt+'</span>'
               +'</div>';
-            function dmRow(lbl, val, color) {
-              return '<div class="wv-dm-row" style="padding:0 8px 0 20px">'
-                +'<div class="wv-dm-top">'
-                +'<span class="wv-dm-label">'+lbl+'</span>'
-                +'<span class="wv-dm-val" style="color:'+color+'">'+val+'</span>'
-                +'</div>'
-                +'</div>';
-            }
-            let detailRows = '';
-            detailRows += dmRow('TO', toRoomsAmt+' RN · '+tGuests+' G · '+tRevStr+' · $'+toAdrGross, '#006461');
-            detailRows += dmRow('Hotel', totalPlanRooms+' RN · '+hGuests+' G · '+hRevStr+' · $'+baseAdr, '#374151');
-            return summaryRow + detailRows;
+            const toRow = '<div class="wv-occ-br-row" style="grid-template-columns:8px 1fr auto;padding:1px 8px 1px 20px">'
+              +'<span class="wv-occ-br-dot" style="background:#004948"></span>'
+              +'<span class="wv-occ-br-lbl" style="color:#006461">TO</span>'
+              +'<span class="wv-occ-br-rms" style="color:#006461">'+toRoomsAmt+' RN · '+tGuests+' G · '+tRevStr+' · $'+toAdrGross+'</span>'
+              +'</div>';
+            const hotelRow = '<div class="wv-occ-br-row" style="grid-template-columns:8px 1fr auto;padding:1px 8px 1px 20px">'
+              +'<span class="wv-occ-br-dot" style="background:#52d9ce"></span>'
+              +'<span class="wv-occ-br-lbl">Hotel</span>'
+              +'<span class="wv-occ-br-rms">'+totalPlanRooms+' RN · '+hGuests+' G · '+hRevStr+' · $'+baseAdr+'</span>'
+              +'</div>';
+            return headerRow + toRow + hotelRow;
           }).join('');
-          return barHtml + colHdr + rowsHtml;
+          return barHtml + rowsHtml;
         })()) : ''}
       ${wvGroupBy === 'combined' ? wvMetricState.mealsSummary ? (function(){
         const aiPct2 = Math.max(45, Math.min(68, 55 + (dm*7+dd*3)%14));
