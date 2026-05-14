@@ -1576,7 +1576,8 @@ function renderCalendar() {
   if (calDisplayView >= 3) gridCols = Math.min(calView, 4);
   container.style.gridTemplateColumns = 'repeat(' + gridCols + ', 1fr)';
 
-  const DOW = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const _isCompactView = (calDisplayView >= 3);
+  const DOW = _isCompactView ? ['M','T','W','T','F','S','S'] : ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   container.innerHTML = visible.map(m => {
     let cells = '';
     const mondayFirst = (m.firstDay + 6) % 7;
