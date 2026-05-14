@@ -3061,6 +3061,18 @@ function clearCalSelection() {
 
     // ── Figma two-column popup builders (200px left | ~148px right) ──
     var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
+    var _hasCmp = calCompareMode !== 'none';
+    var _cmpLbl = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Budget'}[calCompareMode] || '';
+    var _cmpDot = {stly:'#C4FF45', ly:'#facc15', fcst:'#fb923c', budget:'#a78bfa'}[calCompareMode] || '#C4FF45';
+    var _cm = (function(){
+      switch(calCompareMode) {
+        case 'stly':   return {occD:-(3+v%5), adrD:-8, rev:0.90, rn:0.88, revpar:0.92, pu:0.88, avgA:0.92, avgC:0.90, tot:0.90};
+        case 'ly':     return {occD:-(4+v%6), adrD:-12, rev:0.87, rn:0.85, revpar:0.89, pu:0.85, avgA:0.89, avgC:0.87, tot:0.87};
+        case 'fcst':   return {occD:(2+v%3), adrD:5, rev:1.04, rn:1.03, revpar:1.05, pu:1.06, avgA:1.03, avgC:1.02, tot:1.03};
+        case 'budget': return {occD:(1+v%2), adrD:3, rev:1.02, rn:1.01, revpar:1.03, pu:1.02, avgA:1.01, avgC:1.01, tot:1.01};
+        default:       return null;
+      }
+    })();
     var _sectIdx=0;
     // Progress bars — rendered inside right column
     function _pBar(pct,c){return'<div class="pb-bar"><div class="pb-bar-fill" style="width:'+Math.max(2,pct)+'%;background:'+c+'"></div></div>';}
@@ -3170,7 +3182,7 @@ function clearCalSelection() {
     _pb += _pSectS('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]));
     _pb += _pSub('Travel Distribution Hubs', toRms+' RN  '+to+'%', _C1);
     _pb += _pSub('Other Segments', otherRms+' RN  '+otherPct+'%', _C2);
-    _pb += _pSub('STLY', hotelSDLY+'%', _CSTLY);
+    if (_hasCmp) _pb += _pSub(_cmpLbl, Math.max(5,hotel+_cm.occD)+'%', _cmpDot);
     _pb += _pSub('Total Hotel Occupancy', freeRms+' RN  '+freePct+'%', _CREM, true);
     _pb += _pSectE();
     _pb += _pSectS('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
