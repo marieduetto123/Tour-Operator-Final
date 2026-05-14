@@ -1612,7 +1612,11 @@ body.dark .cal-day.today .day-num {
   align-items: center;
   justify-content: space-between;
   height: 100%;
+  flex-direction: row-reverse;
 }
+.cal-compact .cell-day-hdr .mo-day-chk { position: static !important; margin: 0; }
+.cal-compact .cell-day-hdr .day-num { flex: 1; text-align: center; }
+.cal-compact .cell-day-hdr .cell-hdr-spacer { flex-shrink: 0; }
 .cal-compact .cell-content { display: none !important; }
 .cal-compact .allot-badge,
 .cal-compact .pickup-badge,
