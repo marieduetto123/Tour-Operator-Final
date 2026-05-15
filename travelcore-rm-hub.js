@@ -1687,19 +1687,26 @@ function renderCalendar() {
           var shortLabel = isTO ? lbl.substring(3) : (isH ? lbl.substring(2) : lbl);
           shortLabel = shortLabel.replace(/^LY-|^STLY-|^Fcst-/, '');
 
+          // Detect metric unit from value string and label (value takes priority)
+          var _sl = shortLabel.toLowerCase();
+          var _v = r.value;
+          var _hasUnit = _v.indexOf('%') >= 0 || _v.indexOf('$') >= 0 || _v.indexOf('RN') >= 0 || _v.indexOf('n') >= 0 || _v.indexOf('d') >= 0;
+          var _isPercent = _v.indexOf('%') >= 0 || (!_hasUnit && (_sl.indexOf('occ') >= 0 || _sl.indexOf('mix') >= 0));
+          var _isDollarK = _v.indexOf('$') >= 0 && _v.indexOf('k') >= 0;
+          var _isDollar = !_isDollarK && (_v.indexOf('$') >= 0 || (!_hasUnit && (_sl.indexOf('adr') >= 0 || (_sl.indexOf('rev') >= 0 && _sl.indexOf('revpar') < 0) || _sl.indexOf('revpar') >= 0 || _sl.indexOf('rate') >= 0 || _sl === 'base')));
+
           // Build inline compare delta (arrow + difference)
           var cmpHtml = '';
           if (_cmpMult && r.raw != null && !isNaN(r.raw)) {
             var cmpRaw = Math.round(r.raw * _cmpMult);
             var diff = r.raw - cmpRaw;
             var absDiff = Math.abs(diff);
-            var val = r.value;
             var diffStr;
-            if (val.indexOf('$') >= 0 && val.indexOf('k') >= 0) {
+            if (_isDollarK) {
               diffStr = absDiff >= 1000 ? '$' + Math.round(absDiff / 1000) + 'k' : '$' + Math.round(absDiff);
-            } else if (val.indexOf('$') >= 0) {
+            } else if (_isDollar) {
               diffStr = '$' + Math.round(absDiff);
-            } else if (val.indexOf('%') >= 0) {
+            } else if (_isPercent) {
               diffStr = Math.round(absDiff) + '%';
             } else {
               diffStr = String(Math.round(absDiff));
@@ -1713,12 +1720,17 @@ function renderCalendar() {
             }
           }
 
+          // Ensure primary value has unit when missing
+          var displayVal = r.value;
+          if (_isPercent && _v.indexOf('%') < 0) displayVal = Math.round(r.raw) + '%';
+          else if (_isDollar && _v.indexOf('$') < 0) displayVal = '$' + Math.round(r.raw);
+
           if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + r._html + '</div>';
           return '<div class="cell-m-row ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
-            + '<span class="cell-m-val">' + r.value + '</span>'
+            + '<span class="cell-m-val">' + displayVal + '</span>'
             + cmpHtml
             + '</div>';
         }).join('');
