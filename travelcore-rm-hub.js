@@ -1675,6 +1675,8 @@ function renderCalendar() {
           : calCompareMode === 'fcst' ? _fcstF
           : calCompareMode === 'budget' ? _budgF : 0;
 
+        var _cmpLblShort = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Bgt'}[calCompareMode] || '';
+
         return rows.map(function(r) {
           // Determine if this is a Hotel (H-) or TO (TO-) metric by label prefix
           var lbl = r.label || '';
@@ -1685,12 +1687,21 @@ function renderCalendar() {
           var shortLabel = isTO ? lbl.substring(3) : (isH ? lbl.substring(2) : lbl);
           shortLabel = shortLabel.replace(/^LY-|^STLY-|^Fcst-/, '');
 
+          // Build inline compare suffix
+          var cmpSuffix = '';
+          if (_cmpMult && r.raw != null && !isNaN(r.raw)) {
+            var cmpRaw = Math.round(r.raw * _cmpMult);
+            var cmpStr = r.value.replace(/[\d,]+/, cmpRaw);
+            var cmpClr = r.raw > cmpRaw ? '#16a34a' : r.raw < cmpRaw ? '#dc2626' : '#6b7280';
+            cmpSuffix = '<span class="cell-m-cmp" style="color:'+cmpClr+'"> / '+cmpStr+'</span>';
+          }
+
           if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + r._html + '</div>';
           return '<div class="cell-m-row ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
-            + '<span class="cell-m-val">' + r.value + '</span>'
+            + '<span class="cell-m-val">' + r.value + cmpSuffix + '</span>'
             + '</div>';
         }).join('');
       })();
@@ -3186,6 +3197,7 @@ function clearCalSelection() {
     _pb += _pSectS('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
     _pb += _pSub('Online', onlinePct+'%', _C1);
     _pb += _pSub('Offline', offlinePct+'%', _C2);
+    if (_hasCmp) { var _cOnl=Math.min(100,Math.max(10,Math.round(onlinePct*_cm.rev))); _pb += _pSub(_cmpLbl, _cOnl+'%', _cmpDot); }
     _pb += _pSectE();
     _pb += _pSectS('ADR', '$'+adr, _pBar(adrBar, _C1));
     _pb += _pSub('TO', '$'+_toAdr, _C1);
@@ -3253,15 +3265,17 @@ function clearCalSelection() {
     _pb += _pSub('Hotel', String(_hTotG), _C2);
     if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totGuestsTO*_cm.tot)), _cmpDot);
     _pb += _pSectE();
-    // Average LOS (TO + Hotel)
+    // Average LOS (TO + Hotel + compare)
     _pb += _pSectS('Average LOS', _avgLos, _pBar(Math.min(92, 40+v%40), _C1));
     _pb += _pSub('TO', _avgLos, _C1);
     _pb += _pSub('Hotel', _hLos, _C2);
+    if (_hasCmp) { var _cLos=parseFloat(_avgLos)*_cm.rev; _pb += _pSub(_cmpLbl, _cLos.toFixed(1)+'n', _cmpDot); }
     _pb += _pSectE();
-    // Lead Time (TO + Hotel)
+    // Lead Time (TO + Hotel + compare)
     _pb += _pSectS('Lead Time', _avgLead, _pBar(Math.min(92, 25+v%55), _C1));
     _pb += _pSub('TO', _avgLead, _C1);
     _pb += _pSub('Hotel', _hLead, _C2);
+    if (_hasCmp) { var _cLead=Math.round(parseInt(_avgLead)*_cm.rev); _pb += _pSub(_cmpLbl, _cLead+'d', _cmpDot); }
     _pb += _pSectE();
     // Avail Rooms (hotel-only)
     _pb += _pSect('Avail Rooms', availRooms+' RN', _pBar(Math.min(92, Math.max(5, hotel*0.8)), _C1));
