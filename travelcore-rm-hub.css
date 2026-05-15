@@ -2004,8 +2004,8 @@ body.dark .figma-fab { border-color: rgba(255,255,255,.08); }
   height: 148px;
 }
 .cal-months-grid[style*="repeat(1"] .day-num { font-size: 13px; }
-.cal-months-grid[style*="repeat(1"] .cell-m-label { font-size: 10px; }
-.cal-months-grid[style*="repeat(1"] .cell-m-val { font-size: 10px; }
+.cal-months-grid[style*="repeat(1"] .cell-m-label { font-size: 14px; }
+.cal-months-grid[style*="repeat(1"] .cell-m-val { font-size: 14px; }
 
 /* 2-month view */
 .cal-months-grid[style*="repeat(2"] .cal-day,
