@@ -1687,13 +1687,30 @@ function renderCalendar() {
           var shortLabel = isTO ? lbl.substring(3) : (isH ? lbl.substring(2) : lbl);
           shortLabel = shortLabel.replace(/^LY-|^STLY-|^Fcst-/, '');
 
-          // Build inline compare suffix
-          var cmpSuffix = '';
+          // Build inline compare delta (arrow + difference)
+          var cmpHtml = '';
           if (_cmpMult && r.raw != null && !isNaN(r.raw)) {
             var cmpRaw = Math.round(r.raw * _cmpMult);
-            var cmpStr = r.value.replace(/[\d,]+/, cmpRaw);
-            var cmpClr = r.raw > cmpRaw ? '#16a34a' : r.raw < cmpRaw ? '#dc2626' : '#6b7280';
-            cmpSuffix = '<span class="cell-m-cmp" style="color:'+cmpClr+'"> / '+cmpStr+'</span>';
+            var diff = r.raw - cmpRaw;
+            var absDiff = Math.abs(diff);
+            var val = r.value;
+            var diffStr;
+            if (val.indexOf('$') >= 0 && val.indexOf('k') >= 0) {
+              diffStr = absDiff >= 1000 ? '$' + Math.round(absDiff / 1000) + 'k' : '$' + Math.round(absDiff);
+            } else if (val.indexOf('$') >= 0) {
+              diffStr = '$' + Math.round(absDiff);
+            } else if (val.indexOf('%') >= 0) {
+              diffStr = Math.round(absDiff) + '%';
+            } else {
+              diffStr = String(Math.round(absDiff));
+            }
+            if (diff !== 0) {
+              var cmpClr = diff > 0 ? '#388C3F' : '#D32F2F';
+              var arrow = diff > 0 ? 'arrow_upward' : 'arrow_downward';
+              cmpHtml = '<span class="cell-m-cmp" style="color:'+cmpClr+'">'
+                + '<span class="material-icons">'+arrow+'</span>'
+                + diffStr + '</span>';
+            }
           }
 
           if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
@@ -1701,7 +1718,8 @@ function renderCalendar() {
             + r._html + '</div>';
           return '<div class="cell-m-row ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
-            + '<span class="cell-m-val">' + r.value + cmpSuffix + '</span>'
+            + '<span class="cell-m-val">' + r.value + '</span>'
+            + cmpHtml
             + '</div>';
         }).join('');
       })();
