@@ -4627,7 +4627,7 @@ function buildDailyBView(days, month, activeDay) {
   // exactly 2 flex children (value + badges), keeping space-between sane with multiple compares
   function trendBadge(curr, stlyComp, lyComp, fcstComp) {
     var b = _wvMultiTrendBadge(curr, stlyComp, lyComp, fcstComp);
-    return b ? '<span style="display:inline-flex;gap:2px;flex-wrap:wrap;flex-shrink:0;align-items:center">' + b + '</span>' : '';
+    return b ? '<span style="display:inline-flex;gap:2px;flex-wrap:wrap;align-items:center">' + b + '</span>' : '';
   }
 
   function wbGrad(clr) {
