@@ -1677,12 +1677,17 @@ function renderCalendar() {
 
         var _cmpLblShort = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Bgt'}[calCompareMode] || '';
 
-        return rows.map(function(r) {
+        var _hasCmp = !!_cmpMult;
+        return rows.map(function(r, _ri, _ra) {
           // Determine if this is a Hotel (H-) or TO (TO-) metric by label prefix
           var lbl = r.label || '';
           var isTO = lbl.substring(0, 3) === 'TO-';
           var isH  = lbl.charAt(0) === 'H' && lbl.charAt(1) === '-';
           var metricColorClass = isTO ? 'cell-m-to' : 'cell-m-hotel';
+          // Border: default = all except last; compare = Hotel rows only
+          var isLast = (_ri === _ra.length - 1);
+          var hasBorder = _hasCmp ? (isH || (!isTO && !isLast)) : !isLast;
+          var borderClass = hasBorder ? ' cell-m-border' : '';
           // Short label: strip H-/TO- prefix, then strip LY-/STLY-/Fcst- for cleanliness
           var shortLabel = isTO ? lbl.substring(3) : (isH ? lbl.substring(2) : lbl);
           shortLabel = shortLabel.replace(/^LY-|^STLY-|^Fcst-/, '');
@@ -1725,10 +1730,10 @@ function renderCalendar() {
           if (_isPercent && _v.indexOf('%') < 0) displayVal = Math.round(r.raw) + '%';
           else if (_isDollar && _v.indexOf('$') < 0) displayVal = '$' + Math.round(r.raw);
 
-          if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
+          if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + borderClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + r._html + '</div>';
-          return '<div class="cell-m-row ' + metricColorClass + '">'
+          return '<div class="cell-m-row ' + metricColorClass + borderClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + '<span class="cell-m-val">' + displayVal + '</span>'
             + cmpHtml
@@ -1774,7 +1779,7 @@ function renderCalendar() {
         </div>
         ${isLocked && !isCompact ? '<span class="cell-closed-label">Closed' + _lockFilled + '</span>' : ''}
         ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partial' + _lockOutlined + '</span>' : ''}
-        ${!isCompact ? `<div class="cell-content">${metricRows}</div>` : ''}
+        ${!isCompact ? `<div class="cell-content${calCompareMode !== 'none' ? ' cmp-active' : ''}">${metricRows}</div>` : ''}
         ${!isCompact && hasCalEvents ? '<span class="cell-event-ico" onmouseenter="calShowEventTip(event,\''+m.month+'-'+d+'\')" onmouseleave="calHideEventTip()"><span class="material-icons" style="font-size:16px;color:#006461">today</span></span>' : ''}
       </div>`;
     }
