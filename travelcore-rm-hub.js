@@ -15217,7 +15217,7 @@ window.calHideCapTip = function() {
       hfcstRevpar:'H-Fcst-RevPAR', tfcstRevpar:'TO-Fcst-RevPAR',
       hfcstLos:'H-Fcst-LOS', tfcstLos:'TO-Fcst-LOS',
       hly:'H-LY', tly:'TO-LY', hstly:'H-STLY', tstly:'TO-STLY', hfcst:'H-Fcst', tfcst:'TO-Fcst',
-      availRooms:'AR', availGuar:'T-AvG',
+      availRooms:'ADR', availGuar:'T-AvG',
       bizMixTO:'TO%', bizMixDirect:'Dir%', bizMixOTA:'OTA%',
       rateTO:'TO-R', ratePromo:'Prmo%', rateBase:'Base',
     };
