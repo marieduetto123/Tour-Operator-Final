@@ -5037,32 +5037,8 @@ function buildDailyBView(days, month, activeDay) {
             }
           } break;
           // occupancy
-          case 'occ_tdh': {
-            v1 = d.toRn+' RN'; v2 = d.to+'%';
-            if (wvCompare.size > 0) {
-              // Use seed-based fallback when toRn=0 so comparisons still show
-              var _tdSeed = Math.abs((d.dm*9+d.dd*11)%15);
-              var _tdBase = d.toRn > 0 ? d.toRn : (20 + _tdSeed * 3);
-              var _tdStly = d.sdlyRn > 0 ? d.sdlyRn : Math.round(_tdBase * (0.84 + _tdSeed * 0.004));
-              var _tdLy   = d.lyRn   > 0 ? d.lyRn   : Math.round(_tdBase * (0.89 + _tdSeed * 0.004));
-              var _tdFcst = d.fcstRn > 0 ? d.fcstRn  : Math.round(_tdBase * (0.92 + _tdSeed * 0.008));
-              var _tdCmp = _wvMultiCmpSfx(d.toRn, _tdStly, _tdLy, _tdFcst, String);
-              if (_tdCmp) v1 = '<span style="display:block">'+d.toRn+' RN</span><span class="wb-cmp-line" style="display:block">'+_tdCmp+'</span>';
-            }
-            break;
-          }
-          case 'occ_other': {
-            v1 = d.otherRms+' RN'; v2 = d.otherPct+'%';
-            if (wvCompare.size > 0) {
-              var _othSeed = Math.abs((d.dm*5+d.dd*9)%12);
-              var _othStly = Math.round(d.otherRms*(0.84+_othSeed*0.003));
-              var _othLy   = Math.round(d.otherRms*(0.90+_othSeed*0.003));
-              var _othFcst = Math.round(d.otherRms*(1.04+_othSeed*0.003));
-              var _othCmp  = _wvMultiCmpSfx(d.otherRms, _othStly, _othLy, _othFcst, String);
-              if (_othCmp) v1 = '<span style="display:block">'+d.otherRms+' RN</span><span class="wb-cmp-line" style="display:block">'+_othCmp+'</span>';
-            }
-            break;
-          }
+          case 'occ_tdh':    v1 = d.toRn+' RN'; v2 = d.to+'%'; break;
+          case 'occ_other':  v1 = d.otherRms+' RN'; v2 = d.otherPct+'%'; break;
           case 'occ_rem':    v1 = d.freeRms+' RN';  v2 = Math.max(0,100-d.hotel)+'%';     break;
           // online/offline
           case 'onoff_on':   v1 = d.onlinePct+'%';                                          break;
