@@ -19374,7 +19374,6 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_daily.push({type:'sect', id:'occ',       label:'Occupancy',               parent:'g_daily'});
     grp.g_daily.push({type:'sub',  id:'occ_tdh',   label:'Travel Distribution Hubs',dot:'#004948', parent:'occ'});
     grp.g_daily.push({type:'sub',  id:'occ_other', label:'Other Segments',          dot:'#52d9ce', parent:'occ'});
-    grp.g_daily.push({type:'sub',  id:'occ_stly',  label:compLabel,                 dot:'#C4FF45', parent:'occ'});
     grp.g_daily.push({type:'sub',  id:'occ_rem',   label:'Total Hotel Occupancy',   dot:'#445e0d', parent:'occ', isRem:true});
   }
   if (wvMetricState.onlineOffline) {
@@ -19386,13 +19385,11 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_daily.push({type:'sect', id:'adr',       label:'ADR',          parent:'g_daily'});
     grp.g_daily.push({type:'sub',  id:'adr_t',     label:'TO ADR',        dot:'#004948', parent:'adr'});
     grp.g_daily.push({type:'sub',  id:'adr_hotel', label:'Hotel ADR',    dot:'#52d9ce', parent:'adr'});
-    grp.g_daily.push({type:'sub',  id:'adr_stly',  label:compLabel,      dot:'#C4FF45', parent:'adr'});
   }
   if (wvMetricState.revenue) {
     grp.g_daily.push({type:'sect', id:'rev',       label:'Revenue',       parent:'g_daily'});
     grp.g_daily.push({type:'sub',  id:'rev_t',     label:'TO Revenue',     dot:'#004948', parent:'rev'});
     grp.g_daily.push({type:'sub',  id:'rev_hotel', label:'Hotel Revenue', dot:'#52d9ce', parent:'rev'});
-    grp.g_daily.push({type:'sub',  id:'rev_stly',  label:compLabel,       dot:'#C4FF45', parent:'rev'});
   }
 
   // Group: More Metrics
@@ -19407,12 +19404,10 @@ function buildDailyBView(days, month, activeDay) {
       grp.g_more.push({type:'sect', id:'rn',       label:'RN Sold',    parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'rn_t',     label:'TO RN',       dot:'#004948', parent:'rn'});
       grp.g_more.push({type:'sub',  id:'rn_hotel', label:'Hotel RN',   dot:'#52d9ce', parent:'rn'});
-      grp.g_more.push({type:'sub',  id:'rn_stly',  label:compLabel,    dot:'#C4FF45', parent:'rn'});
     }
     if (wvMetricState.dm_trevpar) {
       grp.g_more.push({type:'sect', id:'revpar_s',    label:'RevPAR',    parent:'g_more'});
       grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:'#52d9ce', parent:'revpar_s'});
-      grp.g_more.push({type:'sub',  id:'revpar_stly', label:compLabel,   dot:'#C4FF45', parent:'revpar_s'});
     }
     if (wvMetricState.dm_pickup) {
       pickupDayValues.forEach(function(dv, i) {
