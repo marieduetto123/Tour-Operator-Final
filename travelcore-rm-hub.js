@@ -4825,10 +4825,8 @@ function buildDailyBView(days, month, activeDay) {
         switch (row.id) {
           // ── Daily Metrics ──────────────────────────────────────────────────
           case 'occ': {
-            cs = _wvMultiCmpSfx(d.hotel, d.sdlyH, d.lyH, d.fcstH, function(v){ return v+'%'; });
             var _cv0 = wvCompare.has('stly')?d.sdlyH:wvCompare.has('ly')?d.lyH:wvCompare.has('fcst')?d.fcstH:null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.hotel+'%</span>'+trendBadge(d.hotel,d.sdlyH,d.lyH,d.fcstH)+'</div>'
-              + (cs ? '<div class="wb-cmp-line">'+cs+'</div>' : '')
               + wbBarMark('<div class="wv-occ-bar-track">'
                 + '<div style="width:'+d.to+'%;background:'+wbGrad('#004948')+';height:6px"></div>'
                 + '<div style="width:'+d.otherPct+'%;background:'+wbGrad('#52d9ce')+';height:6px"></div>'
@@ -4840,9 +4838,7 @@ function buildDailyBView(days, month, activeDay) {
             var _onStly = Math.max(20, d.onlinePct - 4 - _onSeed);
             var _onLy   = Math.max(20, d.onlinePct - 2 - _onSeed/2);
             var _onFcst = Math.min(90, d.onlinePct + 2 + _onSeed/2);
-            cs = _wvMultiCmpSfx(d.onlinePct, _onStly, _onLy, _onFcst, function(v){ return v+'%'; });
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.onlinePct+'%</span>'+trendBadge(d.onlinePct,_onStly,_onLy,_onFcst)+'</div>'
-              + (cs ? '<div class="wb-cmp-line">'+cs+'</div>' : '')
               + '<div class="wv-occ-bar-track">'
               + '<div style="width:'+d.onlinePct+'%;background:'+wbGrad('#004948')+';height:6px"></div>'
               + '<div style="width:'+(100-d.onlinePct)+'%;background:'+wbGrad('#52d9ce')+';height:6px"></div>'
@@ -4850,39 +4846,31 @@ function buildDailyBView(days, month, activeDay) {
             break;
           }
           case 'adr': {
-            cs = _wvMultiCmpSfx(d.toAdr, d.sdlyA, d.lyA, d.fcstA, function(v){ return '$'+v; });
             var _cv0 = wvCompare.has('stly')?d.sdlyA:wvCompare.has('ly')?d.lyA:wvCompare.has('fcst')?d.fcstA:null;
             var cvPct = _cv0!=null?Math.min(90,Math.round(_cv0/280*100)):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">$'+d.toAdr+'</span>'+trendBadge(d.toAdr,d.sdlyA,d.lyA,d.fcstA)+'</div>'
-              + (cs ? '<div class="wb-cmp-line">'+cs+'</div>' : '')
               + wbBarMark(wbBar(d.adrBar, '#004948'), cvPct);
             break;
           }
           case 'rev': {
-            cs = _wvMultiCmpSfx(d.toRev, d.sdlyR, d.lyR, d.fcstR, d.fR);
             var _cv0 = wvCompare.has('stly')?d.sdlyR:wvCompare.has('ly')?d.lyR:wvCompare.has('fcst')?d.fcstR:null;
             var cvPct = _cv0!=null?Math.min(90,Math.round(_cv0/4500000*100)):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.fR(d.toRev)+'</span>'+trendBadge(d.toRev,d.sdlyR,d.lyR,d.fcstR)+'</div>'
-              + (cs ? '<div class="wb-cmp-line">'+cs+'</div>' : '')
               + wbBarMark(wbBar(d.revBar, '#004948'), cvPct);
             break;
           }
           // ── More Metrics ───────────────────────────────────────────────────
           case 'rn': {
-            cs = _wvMultiCmpSfx(d.toRn, d.sdlyRn, d.lyRn, d.fcstRn, String);
             var _cv0 = wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:null;
             var cvPct = _cv0!=null?Math.round(_cv0/WV_CAP*100):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.toRn+'</span>'+trendBadge(d.toRn,d.sdlyRn,d.lyRn,d.fcstRn)+'</div>'
-              + (cs ? '<div class="wb-cmp-line">'+cs+'</div>' : '')
               + wbBarMark(wbBar(Math.round(d.toRn/WV_CAP*100), '#004948'), cvPct) + wbBar(Math.round(d.hnRn/WV_CAP*100), '#52d9ce');
             break;
           }
           case 'revpar_s': {
             var _cv0 = wvCompare.has('stly')?d.sdlyRevpar:wvCompare.has('ly')?d.lyRevpar:null;
             var cvPct = _cv0!=null?Math.min(90,Math.round(_cv0/4)):null;
-            var _rcs = _wvMultiCmpSfx(d.hRevpar,d.sdlyRevpar,d.lyRevpar,null,function(v){return '$'+v;});
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">$'+d.hRevpar+'</span>'+trendBadge(d.hRevpar,d.sdlyRevpar,d.lyRevpar,null)+'</div>'
-              + (_rcs ? '<div class="wb-cmp-line">'+_rcs+'</div>' : '')
               + wbBarMark(wbBar(Math.min(90,Math.round(d.hRevpar/4)), '#004948'), cvPct);
             break;
           }
