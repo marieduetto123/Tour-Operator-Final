@@ -134,8 +134,8 @@ export function heatmapCssVars(state: HeatmapState): CSSProperties {
   return {
     ['--hm-grey-bg' as string]: `${gc}30`,
     ['--hm-grey-bdr' as string]: gc,
-    ['--hm-blue-bg' as string]: `${bc}30`,
-    ['--hm-blue-bdr' as string]: bc,
+    ['--hm-blue-bg' as string]: isStop ? `${bc}30` : bc,
+    ['--hm-blue-bdr' as string]: isStop ? bc : '#e8eaed',
     ['--hm-green-bg' as string]: `${gnc}30`,
     ['--hm-green-bdr' as string]: gnc,
     ['--hm-closed-bg' as string]: `${gc}40`,
@@ -145,6 +145,10 @@ export function heatmapCssVars(state: HeatmapState): CSSProperties {
     ['--hm-open-bg' as string]: `${gnc}30`,
     ['--hm-open-bdr' as string]: gnc,
   };
+}
+
+export function isStopSalesHeatmapActive(state: HeatmapState): boolean {
+  return state.enabled && state.type === 'stopsales';
 }
 
 export function heatmapTypeLabel(type: HeatmapType | ''): string {

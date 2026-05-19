@@ -7,8 +7,10 @@ import Typography from '@mui/material/Typography';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CompareMode } from '@/lib/calendar/metrics';
 import { ALL_MONTHS, type MetricKey } from '@/data/calendarData';
+import { DEFAULT_SEGMENTS, SEGMENT_OPTIONS, type SegmentKey } from '@/data/metricTree';
 import { useCalendar } from '@/context/CalendarContext';
 import { buildCellMetrics } from '@/lib/calendar/metrics';
+import { getWeekDays, shiftWeekAnchor, weekRangeLabel } from '@/lib/calendar/weekGridData';
 import { heatmapCssVars } from '@/lib/calendar/heatmap';
 import type { FilterGroupId } from '@/data/filterOptions';
 import { toggleFilterValue } from '@/data/filterOptions';
@@ -75,6 +77,7 @@ export function CalendarApp() {
   const [selectedDays, setSelectedDays] = useState<Set<string>>(() => new Set());
   const [appliedMetrics, setAppliedMetrics] = useState<MetricKey[]>(DEFAULT_METRICS);
   const [metricDraft, setMetricDraft] = useState<MetricKey[]>(DEFAULT_METRICS);
+  const [segmentDraft, setSegmentDraft] = useState<SegmentKey[]>(DEFAULT_SEGMENTS);
   const [metricsOpen, setMetricsOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [heatmapModalOpen, setHeatmapModalOpen] = useState(false);
@@ -111,10 +114,7 @@ export function CalendarApp() {
   };
 
   const shiftWeek = (delta: number) => {
-    setWeekAnchor({
-      month: weekAnchor.month,
-      day: Math.max(1, Math.min(28, weekAnchor.day + delta * 7)),
-    });
+    setWeekAnchor(shiftWeekAnchor(weekAnchor.month, weekAnchor.day, delta));
   };
 
   const handleTabChange = (tab: CalendarViewTab) => {
@@ -137,11 +137,31 @@ export function CalendarApp() {
     setDayModal({ month, day, label });
   };
 
+  const handleGoToWeek = (month: number, day: number) => {
+    if (displayView >= 6) {
+      handleOpenDay(month, day, `${MONTH_NAMES[month]} ${day}, 2026`);
+      return;
+    }
+    openWeekView(month, day);
+    setViewMode('weekly');
+  };
+
   const handleMetricToggle = (key: MetricKey) => {
     setMetricDraft((prev) => {
       if (prev.includes(key)) return prev.filter((k) => k !== key);
       if (prev.length >= 4) return prev;
       return [...prev, key];
+    });
+  };
+
+  const handleSegmentToggle = (key: SegmentKey) => {
+    const allKeys = SEGMENT_OPTIONS.map((s) => s.key);
+    setSegmentDraft((prev) => {
+      if (key === 'all') {
+        const allOn = allKeys.every((k) => prev.includes(k));
+        return allOn ? [] : [...allKeys];
+      }
+      return prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
     });
   };
 
@@ -175,7 +195,7 @@ export function CalendarApp() {
     }
 
     const sync = () => {
-      const cell = grid.querySelector('.cal-day:not(.cal-day-empty)');
+      const cell = grid.querySelector('.cal-day:not(.cal-day-empty):not(.empty)');
       const w = cell?.getBoundingClientRect().width ?? 0;
       setCmpVisible(w >= 108);
     };
@@ -215,7 +235,7 @@ export function CalendarApp() {
     gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
   };
 
-  const weekRangeLabel = `${MONTH_NAMES[weekAnchor.month]} ${weekAnchor.day}–${weekAnchor.day + 6}, 2026`;
+  const weekNavLabel = weekRangeLabel(getWeekDays(2026, weekAnchor.month, weekAnchor.day));
 
   const dateShuffler = viewMode === 'monthly' ? (
     <Box className="wv-date-shuffler">
@@ -245,7 +265,7 @@ export function CalendarApp() {
         <ChevronLeftIcon />
       </IconButton>
       <Typography component="span" className="wv-range">
-        {weekRangeLabel}
+        {weekNavLabel}
         {!filters.operator.includes('all') && filters.operator.length > 0 && (
           <Typography
             component="span"
@@ -277,9 +297,14 @@ export function CalendarApp() {
           metricsOpen={metricsOpen}
           onMetricsOpen={setMetricsOpen}
           metricDraft={metricDraft}
+          segmentDraft={segmentDraft}
           appliedMetrics={appliedMetrics}
           onMetricToggle={handleMetricToggle}
-          onMetricsReset={() => setMetricDraft(DEFAULT_METRICS)}
+          onSegmentToggle={handleSegmentToggle}
+          onMetricsReset={() => {
+            setMetricDraft(DEFAULT_METRICS);
+            setSegmentDraft(DEFAULT_SEGMENTS);
+          }}
           onMetricsApply={() => {
             setAppliedMetrics(metricDraft);
             setMetricsOpen(false);
@@ -338,12 +363,18 @@ export function CalendarApp() {
                   compare={compare}
                   onSelectDay={handleSelectDay}
                   onOpenDay={handleOpenDay}
+                  onGoToWeek={handleGoToWeek}
                 />
               ))}
             </Box>
           </Box>
         ) : (
-          <WeeklyView selectedMetrics={appliedMetrics} />
+          <WeeklyView
+            month={weekAnchor.month}
+            startDay={weekAnchor.day}
+            compare={compare}
+            selectedMetrics={appliedMetrics}
+          />
         )}
       </Paper>
 
@@ -371,6 +402,10 @@ export function CalendarApp() {
         open={closeOutOpen}
         selectedDays={selectedDays}
         onClose={() => setCloseOutOpen(false)}
+        onComplete={() => {
+          setCloseOutOpen(false);
+          exitSelectMode();
+        }}
       />
 
       <HeatmapModal

@@ -11,20 +11,24 @@ type Props = {
 export function DayTooltip({ x, y, hotelPct, toPct }: Props) {
   const hotelRooms = toRooms(hotelPct);
   const toRoomsSold = toRooms(toPct);
-  const avail = HOTEL_CAPACITY - hotelRooms - toRoomsSold;
+  const avail = Math.max(0, HOTEL_CAPACITY - hotelRooms - toRoomsSold);
+  const availClass =
+    avail < 10
+      ? 'cal-cap-tip-line cal-cap-tip-line--avail cal-cap-tip-line--low'
+      : 'cal-cap-tip-line cal-cap-tip-line--avail cal-cap-tip-line--ok';
+
+  let left = x + 14;
+  let top = y - 10;
+  if (left + 240 > window.innerWidth) left = x - 250;
+  if (top + 100 > window.innerHeight) top = y - 110;
 
   return (
-    <div
-      className="pointer-events-none fixed z-[500] min-w-[200px] rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg"
-      style={{ left: x + 12, top: y + 12 }}
-    >
-      <p className="text-slate-700">
-        <span className="font-semibold text-slate-900">Hotel:</span> {hotelPct}% ({hotelRooms} rooms)
-      </p>
-      <p className="mt-1 text-slate-700">
-        <span className="font-semibold text-teal-800">TO:</span> {toPct}% ({toRoomsSold} rooms)
-      </p>
-      <p className="mt-1 font-medium text-slate-600">{avail} rooms available</p>
+    <div id="calCapTip" className="cal-cap-tip" style={{ left, top, display: 'block' }} role="tooltip">
+      <div className="cal-cap-tip-line cal-cap-tip-line--hotel">
+        Hotel: {hotelPct}% ({hotelRooms} rooms)
+      </div>
+      <div className="cal-cap-tip-line">TO: {toPct}% ({toRoomsSold} rooms)</div>
+      <div className={availClass}>{avail} rooms available</div>
     </div>
   );
 }

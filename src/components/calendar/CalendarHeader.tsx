@@ -17,6 +17,7 @@ import { FiltersDropdown } from './FiltersDropdown';
 import { MonthRangePicker } from './MonthRangePicker';
 import type { FilterGroupId, FilterState } from '@/data/filterOptions';
 import type { MetricKey } from '@/data/calendarData';
+import type { SegmentKey } from '@/data/metricTree';
 import type { CompareMode } from '@/lib/calendar/metrics';
 import { heatmapTypeLabel } from '@/lib/calendar/heatmap';
 import type { HeatmapType } from '@/data/heatmapTypes';
@@ -31,8 +32,10 @@ type Props = {
   metricsOpen: boolean;
   onMetricsOpen: (open: boolean) => void;
   metricDraft: MetricKey[];
+  segmentDraft: SegmentKey[];
   appliedMetrics: MetricKey[];
   onMetricToggle: (key: MetricKey) => void;
+  onSegmentToggle: (key: SegmentKey) => void;
   onMetricsReset: () => void;
   onMetricsApply: () => void;
   filtersOpen: boolean;
@@ -67,8 +70,10 @@ export function CalendarHeader({
   metricsOpen,
   onMetricsOpen,
   metricDraft,
+  segmentDraft,
   appliedMetrics,
   onMetricToggle,
+  onSegmentToggle,
   onMetricsReset,
   onMetricsApply,
   filtersOpen,
@@ -135,7 +140,9 @@ export function CalendarHeader({
           open={metricsOpen}
           anchorEl={metricsRef.current}
           draft={metricDraft}
+          segmentDraft={segmentDraft}
           onToggle={onMetricToggle}
+          onSegmentToggle={onSegmentToggle}
           onClose={() => onMetricsOpen(false)}
           onReset={onMetricsReset}
           onApply={onMetricsApply}

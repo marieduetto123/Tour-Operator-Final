@@ -16,6 +16,7 @@ import {
 import {
   buildHeatmapDayData,
   getHeatmapCellClass,
+  isStopSalesHeatmapActive,
 } from '@/lib/calendar/heatmap';
 import type { MetricKey } from '@/data/calendarData';
 import type { CompareMode } from '@/lib/calendar/metrics';
@@ -32,6 +33,7 @@ type Props = {
   compare: CompareMode;
   onSelectDay: (iso: string) => void;
   onOpenDay: (month: number, day: number, label: string) => void;
+  onGoToWeek: (month: number, day: number) => void;
 };
 
 const MONTH_NAMES = [
@@ -50,6 +52,7 @@ export function CalendarDay({
   compare,
   onSelectDay,
   onOpenDay,
+  onGoToWeek,
 }: Props) {
   const { isLocked, isPartial, getFilteredOccupancy, heatmap } = useCalendar();
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
@@ -65,13 +68,15 @@ export function CalendarDay({
   const today = isToday(month, day);
   const dateLabel = `${MONTH_NAMES[month]} ${day}, 2026`;
 
+  const stopSalesHm = isStopSalesHeatmapActive(heatmap);
+  const showCloseIndicators = !stopSalesHm;
   const hmData = buildHeatmapDayData(month, day, locked, partial, to);
   const hmClass = heatmap.enabled ? getHeatmapCellClass(hmData, heatmap) : '';
 
   const dayClasses = [
     'cal-day',
-    locked ? 'locked' : '',
-    partial ? 'cal-partial-close' : '',
+    showCloseIndicators && locked ? 'locked' : '',
+    showCloseIndicators && partial ? 'cal-partial-close' : '',
     today ? 'today cal-day-today' : '',
     hmClass,
   ]
@@ -105,10 +110,21 @@ export function CalendarDay({
     <>
       <div
         className={dayClasses}
-        onMouseEnter={(e) => !locked && setHover({ x: e.clientX, y: e.clientY })}
-        onMouseMove={(e) => !locked && hover && setHover({ x: e.clientX, y: e.clientY })}
+        onMouseEnter={(e) => setHover({ x: e.clientX, y: e.clientY })}
+        onMouseMove={(e) => hover && setHover({ x: e.clientX, y: e.clientY })}
         onMouseLeave={() => setHover(null)}
-        onDoubleClick={() => onOpenDay(month, day, dateLabel)}
+        onClick={(e) => {
+          if (selectMode) return;
+          const t = e.target as HTMLElement;
+          if (t.closest('.mo-day-chk, .cell-eye-btn, .MuiCheckbox-root, .MuiIconButton-root, button, label')) {
+            return;
+          }
+          onGoToWeek(month, day);
+        }}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          onOpenDay(month, day, dateLabel);
+        }}
       >
         <div className="cell-day-hdr">
           {selectMode ? (
@@ -139,7 +155,7 @@ export function CalendarDay({
           </span>
         </div>
 
-        {!compact && (
+        {!compact && showCloseIndicators && (
           <div className="cell-close-slot">
             {locked && (
               <span className="cell-closed-label">
@@ -167,9 +183,7 @@ export function CalendarDay({
         )}
       </div>
 
-      {hover && !locked && (
-        <DayTooltip x={hover.x} y={hover.y} hotelPct={hotel} toPct={to} />
-      )}
+      {hover && <DayTooltip x={hover.x} y={hover.y} hotelPct={hotel} toPct={to} />}
     </>
   );
 }

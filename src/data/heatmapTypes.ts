@@ -27,16 +27,18 @@ export const DEFAULT_HEATMAP: HeatmapState = {
   stopSalesRoomTypes: [],
 };
 
+/** Stop sales: closed / partial / open */
 export const HM_STOP_SALES_COLORS = {
   closed: '#D32F2F',
   partial: '#FFB90F',
   open: '#388C3F',
 };
 
+/** Hotel occ, remaining rooms, meal plan, TO forecast — grey / blue / green tier keys */
 export const HM_METRIC_COLORS = {
-  grey: '#9CA3AF',
-  blue: '#3B82F6',
-  green: '#22C55E',
+  grey: '#D33030',
+  blue: '#FDF6F6',
+  green: '#2E65E8',
 };
 
 export const HEATMAP_TYPE_OPTIONS: {

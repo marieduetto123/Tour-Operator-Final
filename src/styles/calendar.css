@@ -301,6 +301,18 @@
   font-size: 18px;
 }
 
+.cal-weekly-wrap {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+  padding: 0;
+  background: #fff;
+}
+
+.cal-week-grid.wb-layout {
+  min-width: 900px;
+}
+
 .wv-range {
   font-size: 14px;
   font-weight: 400;
@@ -764,28 +776,31 @@ body {
 }
 
 /* Heatmap on cells */
+/* Metric heatmaps: hotel occ, remaining, meal plan, TO forecast */
 .hm-view .cal-day.hm-grey {
-  background: var(--hm-grey-bg, rgba(156, 163, 175, 0.2)) !important;
-  box-shadow: inset 0 0 0 1px var(--hm-grey-bdr, #9ca3af);
+  background: var(--hm-grey-bg, #d3303030) !important;
+  box-shadow: inset 0 0 0 1px var(--hm-grey-bdr, #d33030);
 }
 .hm-view .cal-day.hm-blue {
-  background: var(--hm-blue-bg, rgba(59, 130, 246, 0.2)) !important;
-  box-shadow: inset 0 0 0 1px var(--hm-blue-bdr, #3b82f6);
+  background: var(--hm-blue-bg, #fdf6f6) !important;
+  box-shadow: inset 0 0 0 1px var(--hm-blue-bdr, #e8eaed);
 }
 .hm-view .cal-day.hm-green {
-  background: var(--hm-green-bg, rgba(34, 197, 94, 0.2)) !important;
-  box-shadow: inset 0 0 0 1px var(--hm-green-bdr, #22c55e);
+  background: var(--hm-green-bg, #2e65e830) !important;
+  box-shadow: inset 0 0 0 1px var(--hm-green-bdr, #2e65e8);
 }
+
+/* Stop sales heatmap */
 .hm-view .cal-day.hm-closed {
-  background: var(--hm-closed-bg, rgba(211, 47, 47, 0.25)) !important;
+  background: var(--hm-closed-bg, #d32f2f40) !important;
   box-shadow: inset 0 0 0 1px var(--hm-closed-bdr, #d32f2f);
 }
 .hm-view .cal-day.hm-partial {
-  background: var(--hm-partial-bg, rgba(255, 185, 15, 0.25)) !important;
+  background: var(--hm-partial-bg, #ffb90f40) !important;
   box-shadow: inset 0 0 0 1px var(--hm-partial-bdr, #ffb90f);
 }
 .hm-view .cal-day.hm-open {
-  background: var(--hm-open-bg, rgba(56, 140, 63, 0.2)) !important;
+  background: var(--hm-open-bg, #388c3f30) !important;
   box-shadow: inset 0 0 0 1px var(--hm-open-bdr, #388c3f);
 }
 
@@ -1255,6 +1270,348 @@ button.caldr-cell {
 .calendar-page.mo-select-active,
 .section-card.mo-select-active {
   padding-bottom: 88px;
+}
+
+/* Occupancy capacity tooltip (shown on all days including closed) */
+.cal-cap-tip {
+  position: fixed;
+  z-index: 500;
+  min-width: 200px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #dde1e2;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-size: 12px;
+  font-family: 'Lato', Inter, sans-serif;
+  pointer-events: none;
+}
+
+.cal-cap-tip-line {
+  color: #4f5b60;
+  line-height: 1.4;
+}
+
+.cal-cap-tip-line--hotel {
+  color: #1c1c1c;
+  font-weight: 500;
+}
+
+.cal-cap-tip-line--avail {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.cal-cap-tip-line--avail.cal-cap-tip-line--ok {
+  color: #388c3f;
+}
+
+.cal-cap-tip-line--avail.cal-cap-tip-line--low {
+  color: #d32f2f;
+}
+
+/* Cell metrics dropdown — Figma MELIA panel */
+.cal-metrics-dropdown {
+  width: 298px !important;
+}
+
+.cal-metrics-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: min(560px, 85vh);
+}
+
+.cal-metrics-segments {
+  flex-shrink: 0;
+  padding: 8px 12px 9px;
+  border-bottom: 1px solid #dcfce7;
+}
+
+.cal-metrics-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.cal-metrics-seg-row,
+.cal-metrics-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 3px 0;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.cal-metrics-seg-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.cal-metrics-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  padding-top: 16px;
+}
+
+.cal-metrics-body-head {
+  flex-shrink: 0;
+  padding: 0 16px 10px;
+}
+
+.cal-metrics-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.cal-metrics-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.cal-metrics-search input::placeholder {
+  color: #aeb4ba;
+}
+
+.cal-metrics-search-icon {
+  color: #aeb4ba;
+  flex-shrink: 0;
+}
+
+.cal-metrics-tree {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: 324px;
+}
+
+.cal-metrics-row--group {
+  width: 100%;
+  border: none;
+  background: #fff;
+  text-align: left;
+  font-family: inherit;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-right: 8px;
+}
+
+.cal-metrics-row--group:hover {
+  background: #fafafa;
+}
+
+.cal-metrics-row--leaf {
+  width: 100%;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-right: 8px;
+}
+
+.cal-metrics-row--leaf:hover {
+  background: #fafafa;
+}
+
+.cal-metrics-row--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cal-metrics-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: transform 0.15s ease;
+}
+
+.cal-metrics-chevron--open {
+  transform: rotate(90deg);
+}
+
+.cal-metrics-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-primary);
+}
+
+.cal-metrics-unit {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 24px;
+  color: #585858;
+  padding-right: 4px;
+}
+
+.cal-metrics-check {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.cal-metrics-check-ui {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  border: 1px solid #c5c9cc;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.cal-metrics-check:checked + .cal-metrics-check-ui {
+  background: var(--teal-700);
+  border-color: var(--teal-700);
+}
+
+.cal-metrics-check:checked + .cal-metrics-check-ui::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.cal-metrics-check:disabled + .cal-metrics-check-ui {
+  opacity: 0.5;
+}
+
+.cal-metrics-footer {
+  flex-shrink: 0;
+  justify-content: space-between !important;
+  border-top-color: #e5e7eb !important;
+  padding: 11px 12px 10px !important;
+}
+
+.cal-metrics-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--teal-700);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cal-metrics-reset:hover {
+  background: rgba(0, 100, 97, 0.06);
+}
+
+/* Filters dropdown — compact panel + sticky footer */
+.cal-filters-dropdown.wv-metrics-dropdown {
+  min-width: 220px;
+}
+
+.cal-filter-pickup-input {
+  width: 100%;
+  height: 32px;
+  padding: 4px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.cal-filters-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--border);
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.cal-filter-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-family: 'Lato', Inter, sans-serif;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.cal-filter-reset:hover {
+  color: #d32f2f;
+}
+
+.cal-filter-apply {
+  height: 30px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: var(--teal-700);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Lato', Inter, sans-serif;
+}
+
+.cal-filter-apply:hover {
+  opacity: 0.88;
+}
+
+/* Compare inline deltas — always show when cal-cmp-visible (legacy) */
+.cal-months-grid.cal-cmp-visible .cell-content.cmp-active .cell-m-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.cal-months-grid.cal-cmp-visible .cell-content.cmp-active .cell-m-cmp {
+  display: inline-flex !important;
+}
+
+.cal-months-grid.cal-cmp-visible .cell-content.cmp-active .cell-m-val {
+  font-weight: 700;
 }
 
 @media (max-width: 1024px) {

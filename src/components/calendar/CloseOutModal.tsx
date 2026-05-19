@@ -1,20 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import IconButton from '@mui/material/IconButton';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import { createPortal } from 'react-dom';
 import { useCalendar } from '@/context/CalendarContext';
 import { dayKey } from '@/lib/calendar/metrics';
 
@@ -22,11 +13,19 @@ type CloseType = 'full' | 'los' | 'reopen';
 
 type DateRange = { id: number; from: string; to: string };
 
+type Props = {
+  open: boolean;
+  selectedDays: Set<string>;
+  onClose: () => void;
+  onComplete: () => void;
+};
+
 const OPERATORS = ['TUI Group', 'Thomas Cook', 'Sunwing', 'Club Med', 'Jet2 Holidays'];
 const ROOM_TYPES = ['Standard Double', 'Superior Double', 'Junior Suite', 'Suite', 'Deluxe Ocean View'];
 const BOARD_TYPES = ['All Inclusive', 'Full Board', 'Half Board', 'Bed & Breakfast', 'Room Only'];
 
-let rangeId = 0;
+let rangeIdSeq = 0;
+let ruleIdSeq = 0;
 
 function parseIsoRange(from: string, to: string): string[] {
   if (!from || !to) return [];
@@ -49,34 +48,143 @@ function isoToKey(iso: string) {
   return dayKey(m, d);
 }
 
-type Props = {
-  open: boolean;
-  selectedDays: Set<string>;
-  onClose: () => void;
-};
+function fmtDisplay(iso: string) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${m}/${d}/${y}`;
+}
 
-export function CloseOutModal({ open, selectedDays, onClose }: Props) {
-  const { lockDay, unlockDay, setPartial, setCloseOutOpen } = useCalendar();
+type Rule = { id: number; ops: Set<string>; rooms: Set<string>; boards: Set<string> };
+
+function MultiSelect({
+  label,
+  items,
+  selected,
+  onChange,
+}: {
+  label: string;
+  items: string[];
+  selected: Set<string>;
+  onChange: (next: Set<string>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('click', onDoc);
+    return () => document.removeEventListener('click', onDoc);
+  }, []);
+
+  const triggerText =
+    selected.has('all') || selected.size === 0
+      ? 'All'
+      : selected.size === 1
+        ? [...selected][0]
+        : `${selected.size} selected`;
+
+  const toggle = (val: string) => {
+    if (val === 'all') {
+      onChange(new Set(['all']));
+      return;
+    }
+    const next = new Set([...selected].filter((v) => v !== 'all'));
+    if (next.has(val)) next.delete(val);
+    else next.add(val);
+    onChange(next.size ? next : new Set(['all']));
+  };
+
+  const chips = [...selected].filter((v) => v !== 'all');
+
+  return (
+    <div className="co2-field-group">
+      <span className="co2-field-label">{label}</span>
+      <div ref={wrapRef} className="co2-ms-wrap">
+        <button
+          type="button"
+          className={`co2-ms-trigger${open ? ' open' : ''}`}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <span className="co2-ms-text">{triggerText}</span>
+          <ExpandMoreIcon className="co2-select-arrow" />
+        </button>
+        <div className={`co2-ms-list${open ? ' open' : ''}`}>
+          <label className="co2-ms-item">
+            <input
+              type="checkbox"
+              checked={selected.has('all') || selected.size === 0}
+              onChange={() => toggle('all')}
+            />
+            All
+          </label>
+          {items.map((item) => (
+            <label key={item} className="co2-ms-item">
+              <input
+                type="checkbox"
+                checked={!selected.has('all') && selected.has(item)}
+                onChange={() => toggle(item)}
+              />
+              {item}
+            </label>
+          ))}
+        </div>
+        {chips.length > 0 ? (
+          <div className="co2-ms-chips">
+            {chips.map((v) => (
+              <span key={v} className="co2-ms-chip">
+                {v}
+                <button
+                  type="button"
+                  className="co2-ms-chip-x"
+                  aria-label={`Remove ${v}`}
+                  onClick={() => toggle(v)}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props) {
+  const { lockDay, unlockDay, setPartial } = useCalendar();
+  const titleId = useId();
   const [closeType, setCloseType] = useState<CloseType>('full');
   const [minNights, setMinNights] = useState(3);
   const [ranges, setRanges] = useState<DateRange[]>([
-    { id: ++rangeId, from: '2026-03-01', to: '2026-03-07' },
+    { id: ++rangeIdSeq, from: '2026-03-01', to: '2026-03-07' },
+  ]);
+  const [rules, setRules] = useState<Rule[]>([
+    { id: ++ruleIdSeq, ops: new Set(['all']), rooms: new Set(['all']), boards: new Set(['all']) },
   ]);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sendAction, setSendAction] = useState<'email' | 'internal' | 'both'>('email');
 
-  const addRange = () => {
-    setRanges((r) => [...r, { id: ++rangeId, from: '', to: '' }]);
-  };
+  const resetState = useCallback(() => {
+    setCloseType('full');
+    setMinNights(3);
+    setRanges([{ id: ++rangeIdSeq, from: '2026-03-01', to: '2026-03-07' }]);
+    setRules([{ id: ++ruleIdSeq, ops: new Set(['all']), rooms: new Set(['all']), boards: new Set(['all']) }]);
+    setEmail('');
+    setMessage('');
+    setSendAction('email');
+  }, []);
 
-  const removeRange = (id: number) => {
-    setRanges((r) => r.filter((x) => x.id !== id));
-  };
-
-  const updateRange = (id: number, field: 'from' | 'to', val: string) => {
-    setRanges((r) => r.map((x) => (x.id === id ? { ...x, [field]: val } : x)));
-  };
+  useEffect(() => {
+    if (!open) return;
+    resetState();
+    if (selectedDays.size > 0) {
+      const sorted = [...selectedDays].sort();
+      setRanges([{ id: ++rangeIdSeq, from: sorted[0], to: sorted[sorted.length - 1] }]);
+    }
+  }, [open, resetState, selectedDays]);
 
   const handleConfirm = () => {
     const keysFromRanges = ranges.flatMap((r) => parseIsoRange(r.from, r.to).map(isoToKey));
@@ -92,171 +200,268 @@ export function CloseOutModal({ open, selectedDays, onClose }: Props) {
         setPartial(key, false);
       } else if (closeType === 'full') {
         lockDay(key);
+        setPartial(key, false);
       } else {
+        unlockDay(key);
         setPartial(key, true);
       }
     });
 
-    setCloseOutOpen(false);
-    onClose();
+    onComplete();
   };
 
   const closeOptions = [
-    { type: 'full' as const, label: 'Close all Day', icon: LockIcon },
-    { type: 'los' as const, label: 'Min Length of Stay', icon: LockIcon },
-    { type: 'reopen' as const, label: 'Re-Open', icon: LockOpenIcon },
+    { type: 'full' as const, label: 'Close all Day', Icon: LockIcon },
+    { type: 'los' as const, label: 'Min Length of Stay', Icon: LockIcon },
+    { type: 'reopen' as const, label: 'Re-Open', Icon: LockOpenIcon },
   ];
 
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-        Close out sales
-        <IconButton aria-label="Close" onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+  if (!open) return null;
 
-      <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Please select
-          </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1 }}>
-            {closeOptions.map((opt) => {
-              const Icon = opt.icon;
-              const selected = closeType === opt.type;
-              return (
-                <Button
-                  key={opt.type}
-                  variant="outlined"
-                  color={selected ? 'primary' : 'inherit'}
-                  onClick={() => setCloseType(opt.type)}
-                  sx={{
-                    flexDirection: 'column',
-                    gap: 0.5,
-                    py: 1.5,
-                    borderColor: selected ? 'primary.main' : 'divider',
-                    bgcolor: selected ? 'action.selected' : 'transparent',
-                  }}
-                >
-                  <Icon color="primary" />
-                  <Typography variant="caption" sx={{ fontWeight: 500, textAlign: 'center' }}>
-                    {opt.label}
-                  </Typography>
-                </Button>
-              );
-            })}
-          </Box>
-        </Box>
+  return createPortal(
+    <div
+      className="modal-overlay open"
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="co2-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="co2-title-row">
+          <span className="co2-title" id={titleId}>
+            Close or re-open sales
+          </span>
+          <button type="button" className="co2-close" onClick={onClose} aria-label="Close">
+            <CloseIcon sx={{ fontSize: 20 }} />
+          </button>
+        </div>
 
-        {closeType === 'los' && (
-          <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              Minimum Nights
-            </Typography>
-            <TextField
-              type="number"
-              size="small"
-              slotProps={{ htmlInput: { min: 1, max: 30 } }}
-              value={minNights}
-              onChange={(e) => setMinNights(Number(e.target.value))}
-              sx={{ width: 96 }}
-            />
-          </Box>
-        )}
+        <div className="co2-body">
+          <div className="co2-section">
+            <div className="co2-heading" style={{ fontWeight: 400, fontSize: 14 }}>
+              Please select
+            </div>
+            <div className="co2-type-row">
+              {closeOptions.map((opt) => {
+                const active = closeType === opt.type;
+                return (
+                  <button
+                    key={opt.type}
+                    type="button"
+                    className={`co2-type-card${active ? ' active' : ''}`}
+                    onClick={() => setCloseType(opt.type)}
+                  >
+                    <span className="co2-radio">
+                      <span className="co2-radio-dot" />
+                    </span>
+                    <opt.Icon className="co2-type-ico" />
+                    <span className="co2-type-label">{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-        <Box>
-          <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
-            Date ranges
-          </Typography>
-          {ranges.map((r) => (
-            <Box key={r.id} sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1 }}>
-              <TextField
-                type="date"
-                size="small"
-                value={r.from}
-                onChange={(e) => updateRange(r.id, 'from', e.target.value)}
-                slotProps={{ inputLabel: { shrink: true } }}
+          {closeType === 'los' && (
+            <div className="co2-section">
+              <label className="co2-field-label" htmlFor="co-min-nights">
+                Minimum Nights
+              </label>
+              <input
+                id="co-min-nights"
+                className="co2-input"
+                type="number"
+                min={1}
+                max={30}
+                value={minNights}
+                onChange={(e) => setMinNights(Number(e.target.value))}
               />
-              <Typography color="text.disabled">–</Typography>
-              <TextField
-                type="date"
-                size="small"
-                value={r.to}
-                onChange={(e) => updateRange(r.id, 'to', e.target.value)}
-                slotProps={{ inputLabel: { shrink: true } }}
-              />
-              {ranges.length > 1 && (
-                <IconButton size="small" onClick={() => removeRange(r.id)} aria-label="Remove range">
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-          ))}
-          <Button size="small" color="primary" startIcon={<AddIcon />} onClick={addRange}>
-            Add Date Range
-          </Button>
-          {selectedDays.size > 0 && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-              Also applies to {selectedDays.size} selected day(s) from the calendar
-            </Typography>
+            </div>
           )}
-        </Box>
 
-        <Box>
-          <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 600, textTransform: 'uppercase' }}>
-            What to close
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Operators: {OPERATORS.slice(0, 3).join(', ')}… · Rooms: {ROOM_TYPES[0]}… · Board:{' '}
-            {BOARD_TYPES[0]}…
-          </Typography>
-        </Box>
+          <div className="co2-section">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {ranges.map((r, idx) => (
+                <div key={r.id} className="co2-dr-wrap">
+                  <span className="co2-dr-label">Date Range {idx + 1}</span>
+                  <div className="co2-dr-trigger">
+                    <CalendarTodayIcon className="co2-dr-cal-ico" />
+                    <span className="co2-dr-text">
+                      {fmtDisplay(r.from) || 'Start'} – {fmtDisplay(r.to) || 'End'}
+                    </span>
+                    {ranges.length > 1 ? (
+                      <button
+                        type="button"
+                        className="co2-dr-remove"
+                        aria-label="Remove range"
+                        onClick={() => setRanges((prev) => prev.filter((x) => x.id !== r.id))}
+                      >
+                        ×
+                      </button>
+                    ) : null}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                    <input
+                      className="co2-input"
+                      type="date"
+                      value={r.from}
+                      onChange={(e) =>
+                        setRanges((prev) =>
+                          prev.map((x) => (x.id === r.id ? { ...x, from: e.target.value } : x)),
+                        )
+                      }
+                      aria-label={`Range ${idx + 1} start`}
+                    />
+                    <input
+                      className="co2-input"
+                      type="date"
+                      value={r.to}
+                      onChange={(e) =>
+                        setRanges((prev) =>
+                          prev.map((x) => (x.id === r.id ? { ...x, to: e.target.value } : x)),
+                        )
+                      }
+                      aria-label={`Range ${idx + 1} end`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="co2-add-btn"
+              onClick={() => setRanges((prev) => [...prev, { id: ++rangeIdSeq, from: '', to: '' }])}
+            >
+              <AddIcon sx={{ fontSize: 16 }} />
+              Add Date Range
+            </button>
+          </div>
 
-        <Box>
-          <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
-            Contact sales team
-          </Typography>
-          <TextField
-            fullWidth
-            size="small"
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            sx={{ mb: 1 }}
-          />
-          <TextField
-            fullWidth
-            size="small"
-            multiline
-            rows={3}
-            placeholder="Sales message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-        </Box>
+          <div className="co2-section">
+            <div className="co2-heading">What to Close</div>
+            {rules.map((rule) => (
+              <div key={rule.id} className="co2-strategy-group">
+                <MultiSelect
+                  label="Operators"
+                  items={OPERATORS}
+                  selected={rule.ops}
+                  onChange={(ops) =>
+                    setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, ops } : r)))
+                  }
+                />
+                <MultiSelect
+                  label="Room Types"
+                  items={ROOM_TYPES}
+                  selected={rule.rooms}
+                  onChange={(rooms) =>
+                    setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, rooms } : r)))
+                  }
+                />
+                <MultiSelect
+                  label="Meal Plans"
+                  items={BOARD_TYPES}
+                  selected={rule.boards}
+                  onChange={(boards) =>
+                    setRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, boards } : r)))
+                  }
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              className="co2-add-btn"
+              onClick={() =>
+                setRules((prev) => [
+                  ...prev,
+                  {
+                    id: ++ruleIdSeq,
+                    ops: new Set(['all']),
+                    rooms: new Set(['all']),
+                    boards: new Set(['all']),
+                  },
+                ])
+              }
+            >
+              <AddIcon sx={{ fontSize: 16 }} />
+              Add Strategy
+            </button>
+          </div>
 
-        <Box>
-          <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
-            Send Action
-          </Typography>
-          <RadioGroup value={sendAction} onChange={(_, v) => setSendAction(v as typeof sendAction)}>
-            <FormControlLabel value="email" control={<Radio size="small" />} label="Email Operators" />
-            <FormControlLabel value="internal" control={<Radio size="small" />} label="Internal Note" />
-            <FormControlLabel value="both" control={<Radio size="small" />} label="Both" />
-          </RadioGroup>
-        </Box>
-      </DialogContent>
+          <div className="co2-section">
+            <div className="co2-heading">Contact sales team</div>
+            <div className="co2-field-group">
+              <label className="co2-field-label" htmlFor="co-email">
+                Email Address
+              </label>
+              <input
+                id="co-email"
+                className="co2-input"
+                type="email"
+                placeholder="Placeholder"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="co2-field-group">
+              <label className="co2-field-label" htmlFor="co-message">
+                Sales Messages
+              </label>
+              <textarea
+                id="co-message"
+                className="co2-textarea"
+                placeholder="Placeholder"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </div>
+          </div>
 
-      <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
-        <Button variant="outlined" color="inherit" fullWidth onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" color="primary" fullWidth onClick={handleConfirm}>
-          {closeType === 'reopen' ? 'Re-Open' : 'Close Out'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <div className="co2-section">
+            <div className="co2-send-label">Send Action</div>
+            <div className="co2-radio-group">
+              {(
+                [
+                  ['email', 'Email Operators'],
+                  ['internal', 'Internal Note'],
+                  ['both', 'Both'],
+                ] as const
+              ).map(([value, label]) => (
+                <label key={value} className="co2-radio-row">
+                  <input
+                    type="radio"
+                    name="coSendAction"
+                    className="co2-radio-input"
+                    value={value}
+                    checked={sendAction === value}
+                    onChange={() => setSendAction(value)}
+                  />
+                  <span className="co2-radio-circle" />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="co2-footer">
+          <div className="co2-footer-divider" />
+          <div className="co2-footer-btns">
+            <button type="button" className="co2-btn-cancel" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="button" className="co2-btn-confirm" onClick={handleConfirm}>
+              {closeType === 'reopen' ? 'Re-Open' : 'Close Out'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }

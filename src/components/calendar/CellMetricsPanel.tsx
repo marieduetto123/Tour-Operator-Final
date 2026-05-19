@@ -1,37 +1,160 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Paper from '@mui/material/Paper';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import SearchIcon from '@mui/icons-material/Search';
 import Popover from '@mui/material/Popover';
-import Typography from '@mui/material/Typography';
-import { METRIC_OPTIONS, type MetricKey } from '@/data/calendarData';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  METRIC_TREE,
+  SEGMENT_OPTIONS,
+  type MetricKey,
+  type MetricTreeNode,
+  type SegmentKey,
+} from '@/data/metricTree';
 import { metricLabelForKeys } from '@/lib/calendar/metrics';
 
 const MAX = 4;
-const GROUPS = ['Metrics', 'ADR', 'Revenue', 'RN Sold'] as const;
 
 type Props = {
   open: boolean;
   anchorEl: HTMLElement | null;
   draft: MetricKey[];
+  segmentDraft: SegmentKey[];
   onToggle: (key: MetricKey) => void;
+  onSegmentToggle: (key: SegmentKey) => void;
   onClose: () => void;
   onReset: () => void;
   onApply: () => void;
 };
 
+function defaultExpandedState(): Record<string, boolean> {
+  const out: Record<string, boolean> = {};
+  const walk = (nodes: MetricTreeNode[]) => {
+    for (const n of nodes) {
+      if (n.type === 'group') {
+        if (n.defaultExpanded) out[n.id] = true;
+        walk(n.children);
+      }
+    }
+  };
+  walk(METRIC_TREE);
+  return out;
+}
+
+function nodeMatchesSearch(node: MetricTreeNode, q: string): boolean {
+  if (!q) return true;
+  const lower = q.toLowerCase();
+  if (node.type === 'leaf') return node.label.toLowerCase().includes(lower);
+  return node.label.toLowerCase().includes(lower) || node.children.some((c) => nodeMatchesSearch(c, q));
+}
+
+function MetricsTree({
+  nodes,
+  depth,
+  draft,
+  atMax,
+  expanded,
+  search,
+  onToggleExpand,
+  onToggleMetric,
+}: {
+  nodes: MetricTreeNode[];
+  depth: number;
+  draft: MetricKey[];
+  atMax: boolean;
+  expanded: Record<string, boolean>;
+  search: string;
+  onToggleExpand: (id: string) => void;
+  onToggleMetric: (key: MetricKey) => void;
+}) {
+  return (
+    <>
+      {nodes.map((node) => {
+        if (!nodeMatchesSearch(node, search)) return null;
+
+        if (node.type === 'group') {
+          const isOpen = search ? true : expanded[node.id] ?? false;
+          const pad = 8 + depth * 22;
+          return (
+            <div key={node.id}>
+              <button
+                type="button"
+                className="cal-metrics-row cal-metrics-row--group"
+                style={{ paddingLeft: pad }}
+                onClick={() => onToggleExpand(node.id)}
+              >
+                <span className={`cal-metrics-chevron${isOpen ? ' cal-metrics-chevron--open' : ''}`}>
+                  <ChevronRightIcon sx={{ fontSize: 20 }} />
+                </span>
+                <span className="cal-metrics-label">{node.label}</span>
+              </button>
+              {isOpen ? (
+                <MetricsTree
+                  nodes={node.children}
+                  depth={depth + 1}
+                  draft={draft}
+                  atMax={atMax}
+                  expanded={expanded}
+                  search={search}
+                  onToggleExpand={onToggleExpand}
+                  onToggleMetric={onToggleMetric}
+                />
+              ) : null}
+            </div>
+          );
+        }
+
+        const checked = draft.includes(node.key);
+        const disabled = !checked && atMax;
+        const pad = 30 + depth * 22;
+        return (
+          <label
+            key={node.key}
+            className={`cal-metrics-row cal-metrics-row--leaf${disabled ? ' cal-metrics-row--disabled' : ''}`}
+            style={{ paddingLeft: pad }}
+          >
+            <input
+              type="checkbox"
+              className="cal-metrics-check"
+              checked={checked}
+              disabled={disabled}
+              onChange={() => onToggleMetric(node.key)}
+            />
+            <span className="cal-metrics-check-ui" aria-hidden />
+            <span className="cal-metrics-label">{node.label}</span>
+            <span className="cal-metrics-unit">{node.unit}</span>
+          </label>
+        );
+      })}
+    </>
+  );
+}
+
 export function CellMetricsPanel({
   open,
   anchorEl,
   draft,
+  segmentDraft,
   onToggle,
+  onSegmentToggle,
   onClose,
   onReset,
   onApply,
 }: Props) {
   const atMax = draft.length >= MAX;
+  const [search, setSearch] = useState('');
+  const [expanded, setExpanded] = useState(defaultExpandedState);
+
+  useEffect(() => {
+    if (!open) setSearch('');
+  }, [open]);
+
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const allSegmentKeys = useMemo(() => SEGMENT_OPTIONS.map((s) => s.key), []);
+  const allSegmentsOn = allSegmentKeys.every((k) => segmentDraft.includes(k));
+
+  const handleAllSegments = () => onSegmentToggle('all');
 
   return (
     <Popover
@@ -40,72 +163,81 @@ export function CellMetricsPanel({
       onClose={onClose}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-      slotProps={{ paper: { className: 'cal-dropdown-panel', sx: { width: 288 } } }}
+      slotProps={{
+        paper: {
+          className: 'cal-dropdown-panel cal-metrics-dropdown',
+          sx: { width: 298, maxHeight: 'min(560px, 85vh)', overflow: 'hidden', display: 'flex', flexDirection: 'column', p: 0 },
+        },
+      }}
     >
-      <Paper elevation={0} sx={{ py: 1 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            display: 'block',
-            px: 1.5,
-            pb: 1,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            color: 'text.secondary',
-          }}
-        >
-          Cell metrics (max {MAX})
-        </Typography>
-        {GROUPS.map((group) => (
-          <Box key={group} sx={{ borderTop: 1, borderColor: 'divider', px: 1.5, py: 1 }}>
-            <Typography
-              variant="caption"
-              sx={{ display: 'block', mb: 0.5, fontWeight: 600, textTransform: 'uppercase', color: 'text.disabled' }}
-            >
-              {group}
-            </Typography>
-            {METRIC_OPTIONS.filter((o) => o.group === group).map((opt) => {
-              const checked = draft.includes(opt.key);
-              const disabled = !checked && atMax;
-              return (
-                <FormControlLabel
-                  key={opt.key}
-                  sx={{ display: 'flex', width: '100%', mx: 0, mb: 0.25 }}
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={checked}
-                      disabled={disabled}
-                      onChange={() => onToggle(opt.key)}
-                      color="primary"
-                    />
-                  }
-                  label={
-                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" color="text.primary">
-                        {opt.label}
-                      </Typography>
-                      <Typography variant="caption" color="text.disabled" sx={{ ml: 'auto' }}>
-                        {opt.prefix}
-                      </Typography>
-                    </Box>
-                  }
-                />
-              );
-            })}
-          </Box>
-        ))}
-        <Divider />
-        <Box sx={{ display: 'flex', gap: 1, px: 1.5, pt: 1 }}>
-          <Button variant="outlined" color="inherit" fullWidth size="small" onClick={onReset}>
+      <div className="cal-metrics-panel">
+        <section className="cal-metrics-segments">
+          <p className="cal-metrics-title">Segments to show</p>
+          <label className="cal-metrics-seg-row">
+            <input
+              type="checkbox"
+              className="cal-metrics-check"
+              checked={allSegmentsOn}
+              onChange={handleAllSegments}
+            />
+            <span className="cal-metrics-check-ui" aria-hidden />
+            <span className="cal-metrics-label">All</span>
+          </label>
+          {SEGMENT_OPTIONS.filter((s) => s.key !== 'all').map((seg) => (
+            <label key={seg.key} className="cal-metrics-seg-row">
+              <input
+                type="checkbox"
+                className="cal-metrics-check"
+                checked={segmentDraft.includes(seg.key)}
+                onChange={() => onSegmentToggle(seg.key)}
+              />
+              <span className="cal-metrics-check-ui" aria-hidden />
+              {seg.color ? (
+                <span className="cal-metrics-seg-swatch" style={{ background: seg.color }} />
+              ) : null}
+              <span className="cal-metrics-label">{seg.label}</span>
+            </label>
+          ))}
+        </section>
+
+        <section className="cal-metrics-body">
+          <div className="cal-metrics-body-head">
+            <p className="cal-metrics-title">Select {MAX} metrics</p>
+            <div className="cal-metrics-search">
+              <SearchIcon className="cal-metrics-search-icon" sx={{ fontSize: 18 }} />
+              <input
+                type="search"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search metrics"
+              />
+            </div>
+          </div>
+
+          <div className="cal-metrics-tree">
+            <MetricsTree
+              nodes={METRIC_TREE}
+              depth={0}
+              draft={draft}
+              atMax={atMax}
+              expanded={expanded}
+              search={search.trim()}
+              onToggleExpand={toggleExpand}
+              onToggleMetric={onToggle}
+            />
+          </div>
+        </section>
+
+        <footer className="cal-filters-footer cal-metrics-footer">
+          <button type="button" className="cal-metrics-reset" onClick={onReset}>
             Reset
-          </Button>
-          <Button variant="contained" color="primary" fullWidth size="small" onClick={onApply}>
+          </button>
+          <button type="button" className="cal-filter-apply" onClick={onApply}>
             Apply
-          </Button>
-        </Box>
-      </Paper>
+          </button>
+        </footer>
+      </div>
     </Popover>
   );
 }
@@ -113,3 +245,5 @@ export function CellMetricsPanel({
 export function cellMetricsButtonLabel(keys: MetricKey[]) {
   return metricLabelForKeys(keys) || 'Cell Metrics';
 }
+
+export { MAX as METRICS_MAX };

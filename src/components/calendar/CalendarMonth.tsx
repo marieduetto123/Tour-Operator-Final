@@ -3,6 +3,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import { DOW_LABELS, EVENT_DAYS, type MonthMeta } from '@/data/calendarData';
 import type { MetricKey } from '@/data/calendarData';
 import { useCalendar } from '@/context/CalendarContext';
+import { isStopSalesHeatmapActive } from '@/lib/calendar/heatmap';
 import { dayKey, type CompareMode } from '@/lib/calendar/metrics';
 import { CalendarDay } from './CalendarDay';
 
@@ -18,6 +19,7 @@ type Props = {
   compare: CompareMode;
   onSelectDay: (iso: string) => void;
   onOpenDay: (month: number, day: number, label: string) => void;
+  onGoToWeek: (month: number, day: number) => void;
 };
 
 export function CalendarMonth({
@@ -29,8 +31,10 @@ export function CalendarMonth({
   compare,
   onSelectDay,
   onOpenDay,
+  onGoToWeek,
 }: Props) {
-  const { isLocked, isPartial } = useCalendar();
+  const { isLocked, isPartial, heatmap } = useCalendar();
+  const hideCloseIndicators = isStopSalesHeatmapActive(heatmap);
   const pad = (month.firstDay + 6) % 7;
   const dowLabels = compact ? DOW_COMPACT : DOW_SHORT;
   const closedCount = useMemo(() => {
@@ -66,6 +70,7 @@ export function CalendarMonth({
         isSelected={selectedDays.has(iso)}
         onSelectDay={onSelectDay}
         onOpenDay={onOpenDay}
+        onGoToWeek={onGoToWeek}
       />
     );
   });
@@ -74,7 +79,7 @@ export function CalendarMonth({
     <article className="cal-month">
       <header className="cal-month-hdr">
         <h3 className="cal-month-name">{month.name}</h3>
-        {closedCount > 0 && (
+        {!hideCloseIndicators && closedCount > 0 && (
           <span className="cal-lock-badge">
             <LockIcon sx={{ fontSize: 12 }} />
             {closedCount}

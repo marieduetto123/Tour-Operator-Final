@@ -1,9 +1,5 @@
-import {
-  HOTEL_CAPACITY,
-  LOW_TO_DAYS,
-  METRIC_OPTIONS,
-  type MetricKey,
-} from '@/data/calendarData';
+import { HOTEL_CAPACITY, LOW_TO_DAYS, type MetricKey } from '@/data/calendarData';
+import { metricGroupLabelForKey, metricLeafByKey } from '@/data/metricTree';
 
 export type CellMetrics = {
   hotelOcc: number;
@@ -14,6 +10,28 @@ export type CellMetrics = {
   toRev: number;
   hotelRn: number;
   toRn: number;
+  hotelRevpar: number;
+  toRevpar: number;
+  hotelPickup: number;
+  toPickup: number;
+  hotelAvgLos: number;
+  toAvgLos: number;
+  hotelLeadTime: number;
+  toLeadTime: number;
+  hotelAvgAdults: number;
+  toAvgAdults: number;
+  hotelAvgChildren: number;
+  toAvgChildren: number;
+  hotelTotalGuests: number;
+  toTotalGuests: number;
+  hotelAvailRooms: number;
+  toAvailGuaranteed: number;
+  toMixPct: number;
+  directMixPct: number;
+  otaMixPct: number;
+  toContractRate: number;
+  promotionPct: number;
+  baseSegmentRate: number;
 };
 
 export function dayKey(month: number, day: number) {
@@ -32,12 +50,17 @@ export function getOccupancy(month: number, day: number) {
 export function buildCellMetrics(month: number, day: number): CellMetrics {
   const { hotel, to: toRaw } = getOccupancy(month, day);
   const to = Math.min(95, toRaw);
+  const s = month * 31 + day;
   const cellAdr = 150 + Math.abs((month * 47 + day * 31) % 130);
   const cellRev = Math.floor((hotel * cellAdr * HOTEL_CAPACITY) / 100 / 1.1);
   const cellRnSold = Math.floor((hotel * HOTEL_CAPACITY) / 100);
   const toRnSold = Math.round((HOTEL_CAPACITY * to) / 100);
   const toAdrVal = Math.max(80, cellAdr - 20 - Math.abs((month * 3 + day * 7) % 15));
   const toRevVal = Math.floor(toRnSold * toAdrVal);
+  const hotelRevpar = Math.round((cellRev / HOTEL_CAPACITY) * 10) / 10;
+  const toRevpar = Math.round((toRevVal / HOTEL_CAPACITY) * 10) / 10;
+  const hotelAvail = HOTEL_CAPACITY - cellRnSold;
+  const toAvail = Math.max(0, Math.round(HOTEL_CAPACITY * 0.15) - Math.floor(to / 12));
 
   return {
     hotelOcc: hotel,
@@ -48,6 +71,28 @@ export function buildCellMetrics(month: number, day: number): CellMetrics {
     toRev: toRevVal,
     hotelRn: cellRnSold,
     toRn: toRnSold,
+    hotelRevpar,
+    toRevpar,
+    hotelPickup: 4 + (s % 18),
+    toPickup: 2 + (s % 12),
+    hotelAvgLos: 2.5 + (s % 5) * 0.3,
+    toAvgLos: 2.2 + (s % 4) * 0.35,
+    hotelLeadTime: 14 + (s % 45),
+    toLeadTime: 21 + (s % 38),
+    hotelAvgAdults: 1.6 + (s % 3) * 0.2,
+    toAvgAdults: 1.5 + (s % 3) * 0.15,
+    hotelAvgChildren: 0.3 + (s % 2) * 0.25,
+    toAvgChildren: 0.25 + (s % 2) * 0.2,
+    hotelTotalGuests: cellRnSold * 2 + (s % 20),
+    toTotalGuests: toRnSold * 2 + (s % 15),
+    hotelAvailRooms: hotelAvail,
+    toAvailGuaranteed: toAvail,
+    toMixPct: 35 + (s % 25),
+    directMixPct: 20 + (s % 18),
+    otaMixPct: 100 - (35 + (s % 25)) - (20 + (s % 18)),
+    toContractRate: toAdrVal - 8,
+    promotionPct: 5 + (s % 20),
+    baseSegmentRate: cellAdr + 12,
   };
 }
 
@@ -111,25 +156,65 @@ export function compareMultiplier(mode: CompareMode, month: number, day: number)
   return 0.95 + Math.abs((month * 9 + day * 4) % 8) * 0.004;
 }
 
-function formatCmpDiff(absDiff: number, isMoney: boolean, isPercent: boolean) {
+function formatCmpDiff(absDiff: number, isMoney: boolean, isPercent: boolean, isRn: boolean) {
   if (isMoney) return formatMoney(absDiff);
   if (isPercent) return `${Math.round(absDiff)}%`;
-  return String(Math.round(absDiff));
+  if (isRn) return `${Math.round(absDiff)}`;
+  return String(Math.round(absDiff * 10) / 10);
 }
+
+type MetricFormat = 'money' | 'percent' | 'rn' | 'decimal';
 
 const METRIC_MAP: Record<
   MetricKey,
-  { field: keyof CellMetrics; suffix?: string; isMoney?: boolean; short: string }
+  { field: keyof CellMetrics; format: MetricFormat; short: string }
 > = {
-  hocc: { field: 'hotelOcc', suffix: '%', short: 'Occ' },
-  tocc: { field: 'toOcc', suffix: '%', short: 'Occ' },
-  hadr: { field: 'hotelAdr', isMoney: true, short: 'ADR' },
-  tadr: { field: 'toAdr', isMoney: true, short: 'ADR' },
-  hrev: { field: 'hotelRev', isMoney: true, short: 'Rev' },
-  trev: { field: 'toRev', isMoney: true, short: 'Rev' },
-  hrn: { field: 'hotelRn', short: 'RN' },
-  trn: { field: 'toRn', short: 'RN' },
+  hocc: { field: 'hotelOcc', format: 'percent', short: 'Occ' },
+  tocc: { field: 'toOcc', format: 'percent', short: 'Occ' },
+  hadr: { field: 'hotelAdr', format: 'money', short: 'ADR' },
+  tadr: { field: 'toAdr', format: 'money', short: 'ADR' },
+  hrev: { field: 'hotelRev', format: 'money', short: 'Rev' },
+  trev: { field: 'toRev', format: 'money', short: 'Rev' },
+  hrn: { field: 'hotelRn', format: 'rn', short: 'RN' },
+  trn: { field: 'toRn', format: 'rn', short: 'RN' },
+  hrevpar: { field: 'hotelRevpar', format: 'money', short: 'RevPAR' },
+  trevpar: { field: 'toRevpar', format: 'money', short: 'RevPAR' },
+  hpickup: { field: 'hotelPickup', format: 'rn', short: 'PU' },
+  tpickup: { field: 'toPickup', format: 'rn', short: 'PU' },
+  havgLos: { field: 'hotelAvgLos', format: 'decimal', short: 'LOS' },
+  tavgLos: { field: 'toAvgLos', format: 'decimal', short: 'LOS' },
+  hleadTime: { field: 'hotelLeadTime', format: 'rn', short: 'LT' },
+  tleadTime: { field: 'toLeadTime', format: 'rn', short: 'LT' },
+  havgAdults: { field: 'hotelAvgAdults', format: 'decimal', short: 'AD' },
+  tavgAdults: { field: 'toAvgAdults', format: 'decimal', short: 'AD' },
+  havgChildren: { field: 'hotelAvgChildren', format: 'decimal', short: 'CHD' },
+  tavgChildren: { field: 'toAvgChildren', format: 'decimal', short: 'CHD' },
+  htotalGuests: { field: 'hotelTotalGuests', format: 'rn', short: 'PAX' },
+  ttotalGuests: { field: 'toTotalGuests', format: 'rn', short: 'PAX' },
+  havailRooms: { field: 'hotelAvailRooms', format: 'rn', short: 'AR' },
+  tavailGuaranteed: { field: 'toAvailGuaranteed', format: 'rn', short: 'AG' },
+  toMixPct: { field: 'toMixPct', format: 'percent', short: 'TO Mix' },
+  directMixPct: { field: 'directMixPct', format: 'percent', short: 'Direct' },
+  otaMixPct: { field: 'otaMixPct', format: 'percent', short: 'OTA' },
+  toContractRate: { field: 'toContractRate', format: 'money', short: 'TO Rate' },
+  promotionPct: { field: 'promotionPct', format: 'percent', short: 'Promo' },
+  baseSegmentRate: { field: 'baseSegmentRate', format: 'money', short: 'Base' },
 };
+
+function formatMetricValue(raw: number, format: MetricFormat) {
+  switch (format) {
+    case 'money':
+      return formatMoney(raw);
+    case 'percent':
+      return `${Math.round(raw)}%`;
+    case 'rn':
+      return String(Math.round(raw));
+    case 'decimal':
+      return raw % 1 === 0 ? String(Math.round(raw)) : raw.toFixed(1);
+    default:
+      return String(raw);
+  }
+}
 
 export function buildMetricRows(
   metrics: CellMetrics,
@@ -143,13 +228,10 @@ export function buildMetricRows(
   return selected.map((key, rowIdx) => {
     const map = METRIC_MAP[key];
     const raw = metrics[map.field];
-    const isPercent = Boolean(map.suffix);
-    const isMoney = Boolean(map.isMoney);
-    const value = isMoney
-      ? formatMoney(raw)
-      : map.suffix
-        ? `${Math.round(raw)}${map.suffix}`
-        : String(Math.round(raw));
+    const isPercent = map.format === 'percent';
+    const isMoney = map.format === 'money';
+    const isRn = map.format === 'rn';
+    const value = formatMetricValue(raw, map.format);
 
     let cmp: MetricRow['cmp'];
     if (mult && !Number.isNaN(raw)) {
@@ -157,16 +239,21 @@ export function buildMetricRows(
       const diff = raw - ref;
       if (diff !== 0) {
         cmp = {
-          diffStr: formatCmpDiff(Math.abs(diff), isMoney, isPercent),
+          diffStr: formatCmpDiff(Math.abs(diff), isMoney, isPercent, isRn),
           positive: diff > 0,
         };
       }
     }
 
+    const leaf = metricLeafByKey(key);
+    const shortLabel = leaf?.label === 'Hotel' || leaf?.label === 'Tour Operator'
+      ? map.short
+      : leaf?.label.slice(0, 8) ?? map.short;
+
     return {
-      shortLabel: map.short,
+      shortLabel,
       value,
-      tone: key.startsWith('t') ? 'to' : 'hotel',
+      tone: key.startsWith('t') || key.startsWith('to') ? 'to' : 'hotel',
       cmp,
     };
   });
@@ -182,14 +269,8 @@ export function isToday(month: number, day: number) {
 
 export function metricLabelForKeys(keys: MetricKey[]) {
   if (keys.length === 0) return 'Cell Metrics';
-  const groups = [
-    ...new Set(
-      keys
-        .map((k) => METRIC_OPTIONS.find((o) => o.key === k)?.group)
-        .filter(Boolean),
-    ),
-  ] as string[];
-  if (groups.length === 1) return groups[0] === 'Metrics' ? 'Metrics' : groups[0];
+  const groups = [...new Set(keys.map((k) => metricGroupLabelForKey(k)))];
+  if (groups.length === 1) return groups[0];
   if (keys.length <= 2) return groups.join(', ');
   return `${keys.length} metrics`;
 }

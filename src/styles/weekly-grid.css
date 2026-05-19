@@ -1,0 +1,286 @@
+.wv-occ-bar-wrap { margin-bottom: 5px; }
+.wv-occ-bar-labels {
+ display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin-bottom: 6px;
+}
+.wv-occ-bar-labels .wv-q-label { font-size: 14px !important; color: #6b7280; font-weight: 400; flex: 0 0 auto; }
+/* Right-side header block */
+.wv-hdr-right { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.wv-occ-total { font-size: 14px; font-weight: 400; color: #1C1C1C; }
+/* Inline compare value (" / 97%") */
+.wv-cmp-sep { color: #8a9096; }
+.wv-cmp-val-txt { color: #8a9096; font-size: 14px; }
+.wv-cmp-val-txt.wv-cmp-up { color: #388c3f; }
+.wv-cmp-val-txt.wv-cmp-dn { color: #d32f2f; }
+.wv-cmp-val-txt.wv-cmp-neutral { color: #8a9096; }
+body.dark .wv-cmp-sep { color: #7aabad; }
+body.dark .wv-cmp-val-txt { color: #7aabad; }
+body.dark .wv-cmp-val-txt.wv-cmp-up { color: #5ceade; }
+body.dark .wv-cmp-val-txt.wv-cmp-dn { color: #fca5a5; }
+body.dark .wv-cmp-val-txt.wv-cmp-neutral { color: #7aabad; }
+/* Bar track */
+.wv-occ-bar-track {
+ display: flex; height: 12px; border-radius: 12px; overflow: hidden;
+ background: #e5e7eb; width: 100%;
+}
+/* Daily B — slimmer bars, less rounded */
+.wb-row .wv-occ-bar-track { height: 6px; border-radius: 2px; }
+.wv-occ-seg { height: 100%; transition: width 0.2s; }
+/* ═══════════════════════════════════════════════════════════════
+ Daily B View (.wb-*)
+ ═══════════════════════════════════════════════════════════════ */
+.wb-layout {
+ display: flex;
+ flex-direction: column;
+ flex: 1;
+ min-width: 0;
+ max-width: 100%;
+ overflow-x: hidden;
+ background: #fff;
+}
+
+/* Every row is a horizontal flex strip */
+.wb-row {
+ display: flex;
+ border-bottom: 1px solid #dde1e2;
+ max-width: 100%;
+}
+.wb-row-hidden { display: none !important; }
+
+/* ── Sticky label column ── */
+.wb-label-cell {
+ width: 200px;
+ flex-shrink: 0;
+ position: sticky;
+ left: 0;
+ z-index: 10;
+ background: #fff;
+ border-right: 1px solid #dde1e2;
+ overflow: hidden;
+ box-sizing: border-box;
+}
+
+/* ── Day data columns ── */
+.wb-data-cell {
+ flex: 1 1 0%;
+ min-width: 0;
+ border-right: 1px solid #e5e7eb;
+ box-sizing: border-box;
+ overflow: hidden;
+}
+
+/* ── Date header row ── */
+.wb-hdr-row {
+ position: sticky;
+ top: 0;
+ z-index: 20;
+}
+.wb-hdr-label-cell {
+ background: #004948;
+}
+.wb-hdr-cell {
+ background: #004948;
+ height: 46px;
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ padding: 0 10px;
+ cursor: pointer;
+ transition: background 0.12s;
+ user-select: none;
+}
+.wb-hdr-cell:hover { background: #006461; }
+.wb-hdr-active { background: #003736; border-left: 2px solid #C4FF45; }
+.wb-hdr-selected { }
+.wb-hdr-selected .wb-hdr-dow,
+.wb-hdr-selected .wb-hdr-date { }
+.wb-hdr-co-badge {
+ font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+ padding: 1px 5px; border-radius: 3px; white-space: nowrap; line-height: 1.4;
+}
+.wb-hdr-co-full { background: rgba(255,255,255,0.22); color: #fca5a5; }
+.wb-hdr-co-part { background: rgba(255,255,255,0.18); color: #fde68a; }
+.wb-hdr-sel-icon { margin-left: auto; line-height: 0; flex-shrink: 0; }
+.wb-hdr-lock-icon { margin-left: auto; line-height: 0; flex-shrink: 0; }
+.wb-col-locked { background: #fefce8 !important; }
+.wb-hdr-dow { font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+.wb-hdr-date { font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 400; color: rgba(255,255,255,.7); }
+
+/* ── Group header row (Daily Metrics) ── */
+.wb-grp-hdr {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ padding: 0 13px;
+ height: 44px;
+ width: 100%;
+ cursor: pointer;
+ background: #f8f9fd;
+ border-top: 2px solid #aeb4ba;
+ border-right: 1px solid #dde1e2;
+ border-left: none;
+ border-bottom: none;
+ font: inherit;
+ text-align: left;
+ user-select: none;
+}
+.wb-sect-lbl {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ padding: 1px 19px;
+ min-height: 44px;
+ height: 53px;
+ width: 100%;
+ cursor: pointer;
+ user-select: none;
+ background: #fff;
+ border: none;
+ border-right: 1px solid #dde1e2;
+ font: inherit;
+ text-align: left;
+}
+.wb-grp-label {
+ font-family: 'Lato', sans-serif;
+ font-size: 14px;
+ font-weight: 400;
+ color: #1c1c1c;
+}
+.wb-chev { color: #004948 !important; }
+.wb-row-top .wb-data-cell { background: #f8f9fd; height: 44px; padding: 4px 8px; border-top: 2px solid #aeb4ba; }
+
+.wb-sect-label {
+ font-family: 'Lato', sans-serif;
+ font-size: 13px;
+ font-weight: 400;
+ color: #1c1c1c;
+}
+.wb-sect-cell {
+ padding: 10px 8px 8px;
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ min-height: 53px;
+ box-sizing: border-box;
+}
+.wb-sect-cell:has(.wv-pu-fig-wrap) {
+ padding: 0;
+ gap: 0;
+ min-height: unset;
+}
+.wb-sect-val {
+ display: flex;
+ align-items: center;
+ gap: 4px;
+ flex-wrap: wrap;
+ overflow: hidden;
+ min-width: 0;
+}
+/* Value text: shrink-to-fit, never force cell wider */
+.wb-sect-val > .wv-occ-total {
+ flex: 1;
+ min-width: 0;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+/* Compare line: sits below the value row, wraps within the cell */
+.wb-cmp-line {
+ font-size: 14px;
+ line-height: 1.4;
+ overflow: hidden;
+}
+.wb-cmp-line .wv-cmp-sep,
+.wb-cmp-line .wv-cmp-val-txt { font-size: 14px; }
+
+/* ── Sub-row label ── */
+.wb-sub-lbl-cell {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ padding: 8px 13px;
+ height: auto;
+ min-height: 48px;
+}
+.wb-sub-dot {
+ width: 9px;
+ height: 9px;
+ border-radius: 50%;
+ flex-shrink: 0;
+}
+.wb-sub-label {
+ font-family: 'Lato', sans-serif;
+ font-size: 13px;
+ color: #1c1c1c;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+.wb-sub-lbl-rem { color: #388c3f; font-weight: 600; }
+
+/* ── Sub-row data cell ── */
+.wb-sub-cell {
+ display: flex;
+ align-items: center;
+ height: auto;
+ min-height: 48px;
+ padding: 8px;
+}
+.wb-sub-vals {
+ display: flex;
+ align-items: center;
+ justify-content: flex-end;
+ flex-wrap: wrap;
+ gap: 4px 8px;
+ width: 100%;
+ height: 100%;
+ padding: 0 8px;
+}
+.wb-sub-v1 {
+ font-family: 'Lato', sans-serif;
+ font-size: 13px;
+ color: #1C1C1C;
+ text-align: right;
+ white-space: normal;
+ word-break: break-word;
+}
+/* When sub-v1 contains block compare lines, allow normal flow */
+.wb-sub-v1:has(.wb-cmp-line) { white-space: normal; }
+.wb-sub-v2 {
+ font-family: 'Lato', sans-serif;
+ font-size: 13px;
+ color: #6b7280;
+ text-align: right;
+ min-width: 30px;
+ white-space: nowrap;
+}
+.wb-sub-val-rem .wb-sub-v1 { color: #388c3f; }
+.wb-sub-val-rem .wb-sub-v2 { color: #388c3f; }
+
+/* Remaining row highlight */
+.wb-row[data-wb-id="occ_rem"] .wb-label-cell,
+.wb-row[data-wb-id="occ_rem"] .wb-data-cell { background: #fff8f5; }
+
+/* Chevron icon */
+.wb-chev { display: flex; align-items: center; color: #006461; flex-shrink: 0; }
+
+/* Section data cell: same min-height as label, padding matches body padding */
+.wb-row-sect .wb-data-cell {
+ padding: 10px 8px 8px;
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ min-height: 53px;
+ box-sizing: border-box;
+}
+/* Sub data row height */
+.wb-row-sub .wb-data-cell {
+ height: 32px;
+ display: flex;
+ align-items: center;
+}
+/* Allow sub-rows to grow taller when compare lines are present */
+.wb-row-sub .wb-data-cell:has(.wb-cmp-line) {
+ height: auto;
+ min-height: 32px;
+ padding: 4px 0;
+}

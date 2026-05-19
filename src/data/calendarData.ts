@@ -50,15 +50,5 @@ export const LOW_TO_DAYS: Record<string, { hotel: number; to: number }> = {
 export const DOW_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 export const DOW_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-export const METRIC_OPTIONS = [
-  { key: 'hocc', label: 'Hotel', group: 'Metrics', prefix: 'H' },
-  { key: 'tocc', label: 'Tour Operator', group: 'Metrics', prefix: 'TO' },
-  { key: 'hadr', label: 'Hotel', group: 'ADR', prefix: 'H' },
-  { key: 'tadr', label: 'Tour Operator', group: 'ADR', prefix: 'TO' },
-  { key: 'hrev', label: 'Hotel', group: 'Revenue', prefix: 'H' },
-  { key: 'trev', label: 'Tour Operator', group: 'Revenue', prefix: 'TO' },
-  { key: 'hrn', label: 'Hotel', group: 'RN Sold', prefix: 'H' },
-  { key: 'trn', label: 'Tour Operator', group: 'RN Sold', prefix: 'TO' },
-] as const;
-
-export type MetricKey = (typeof METRIC_OPTIONS)[number]['key'];
+export type { MetricKey, SegmentKey } from './metricTree';
+export { ALL_METRIC_LEAVES, METRIC_TREE, SEGMENT_OPTIONS, DEFAULT_SEGMENTS } from './metricTree';
