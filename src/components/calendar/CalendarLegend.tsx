@@ -1,32 +1,37 @@
-import { Icon } from '@/components/ui/Icon';
+import LockIcon from '@mui/icons-material/Lock';
+import TodayIcon from '@mui/icons-material/Today';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 export function CalendarLegend() {
   return (
-    <div className="cal-legend">
-      <div className="leg-item">
-        <Icon name="visibility" style={{ fontSize: 14 }} />
-        <span>Hover cell for quick view</span>
-      </div>
-      <div className="leg-item">
-        <Icon name="lock" style={{ fontSize: 14, color: '#dc2626' }} />
-        <span>Full close out</span>
-      </div>
-      <div className="leg-item">
-        <Icon name="lock" style={{ fontSize: 14, color: '#ea580c' }} />
-        <span>Partial close out</span>
-      </div>
-      <div className="leg-item leg-item-event">
-        <Icon name="today" style={{ fontSize: 18, color: '#006461' }} />
-        <span>Event</span>
-      </div>
-      <div className="leg-item">
-        <span className="leg-color-swatch" style={{ background: '#1C1C1C' }} />
-        <span>Hotel</span>
-      </div>
-      <div className="leg-item">
-        <span className="leg-color-swatch" style={{ background: '#47c5bc' }} />
-        <span>Tour Operator</span>
-      </div>
-    </div>
+    <Stack direction="row" className="cal-legend" spacing={2} useFlexGap sx={{ flexWrap: 'wrap' }}>
+      <Box className="leg-item" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <VisibilityIcon sx={{ fontSize: 14 }} />
+        <Typography variant="body2">Hover cell for quick view</Typography>
+      </Box>
+      <Box className="leg-item" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <LockIcon sx={{ fontSize: 14, color: '#dc2626' }} />
+        <Typography variant="body2">Full close out</Typography>
+      </Box>
+      <Box className="leg-item" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <LockIcon sx={{ fontSize: 14, color: '#ea580c' }} />
+        <Typography variant="body2">Partial close out</Typography>
+      </Box>
+      <Box className="leg-item leg-item-event" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <TodayIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+        <Typography variant="body2">Event</Typography>
+      </Box>
+      <Box className="leg-item" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box className="leg-color-swatch" sx={{ bgcolor: '#1C1C1C' }} />
+        <Typography variant="body2">Hotel</Typography>
+      </Box>
+      <Box className="leg-item" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box className="leg-color-swatch" sx={{ bgcolor: '#47c5bc' }} />
+        <Typography variant="body2">Tour Operator</Typography>
+      </Box>
+    </Stack>
   );
 }

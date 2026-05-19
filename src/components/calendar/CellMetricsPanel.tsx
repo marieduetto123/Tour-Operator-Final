@@ -1,11 +1,20 @@
-import { useEffect, useRef } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Paper from '@mui/material/Paper';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 import { METRIC_OPTIONS, type MetricKey } from '@/data/calendarData';
 import { metricLabelForKeys } from '@/lib/calendar/metrics';
 
 const MAX = 4;
+const GROUPS = ['Metrics', 'ADR', 'Revenue', 'RN Sold'] as const;
 
 type Props = {
   open: boolean;
+  anchorEl: HTMLElement | null;
   draft: MetricKey[];
   onToggle: (key: MetricKey) => void;
   onClose: () => void;
@@ -15,80 +24,89 @@ type Props = {
 
 export function CellMetricsPanel({
   open,
+  anchorEl,
   draft,
   onToggle,
   onClose,
   onReset,
   onApply,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
-  const groups = ['Occupancy', 'ADR', 'Revenue', 'RN Sold'] as const;
   const atMax = draft.length >= MAX;
 
   return (
-    <div
-      ref={ref}
-      className="cal-dropdown-panel w-72 py-2"
+    <Popover
+      open={open && Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      slotProps={{ paper: { className: 'cal-dropdown-panel', sx: { width: 288 } } }}
     >
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-        Cell metrics (max {MAX})
-      </p>
-      {groups.map((group) => (
-        <div key={group} className="border-t border-slate-100 px-3 py-2">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase text-slate-400">{group}</p>
-          {METRIC_OPTIONS.filter((o) => o.group === group).map((opt) => {
-            const checked = draft.includes(opt.key);
-            const disabled = !checked && atMax;
-            return (
-              <label
-                key={opt.key}
-                className={`mb-1 flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-sm ${
-                  disabled ? 'cursor-not-allowed opacity-40' : 'hover:bg-slate-50'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  disabled={disabled}
-                  onChange={() => onToggle(opt.key)}
-                  className="rounded border-slate-300 text-teal-800"
+      <Paper elevation={0} sx={{ py: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            px: 1.5,
+            pb: 1,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            color: 'text.secondary',
+          }}
+        >
+          Cell metrics (max {MAX})
+        </Typography>
+        {GROUPS.map((group) => (
+          <Box key={group} sx={{ borderTop: 1, borderColor: 'divider', px: 1.5, py: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{ display: 'block', mb: 0.5, fontWeight: 600, textTransform: 'uppercase', color: 'text.disabled' }}
+            >
+              {group}
+            </Typography>
+            {METRIC_OPTIONS.filter((o) => o.group === group).map((opt) => {
+              const checked = draft.includes(opt.key);
+              const disabled = !checked && atMax;
+              return (
+                <FormControlLabel
+                  key={opt.key}
+                  sx={{ display: 'flex', width: '100%', mx: 0, mb: 0.25 }}
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={checked}
+                      disabled={disabled}
+                      onChange={() => onToggle(opt.key)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="body2" color="text.primary">
+                        {opt.label}
+                      </Typography>
+                      <Typography variant="caption" color="text.disabled" sx={{ ml: 'auto' }}>
+                        {opt.prefix}
+                      </Typography>
+                    </Box>
+                  }
                 />
-                <span className="text-slate-700">{opt.label}</span>
-                <span className="ml-auto text-xs text-slate-400">{opt.prefix}</span>
-              </label>
-            );
-          })}
-        </div>
-      ))}
-      <div className="flex gap-2 border-t border-slate-200 px-3 pt-2">
-        <button
-          type="button"
-          onClick={onReset}
-          className="flex-1 rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-        >
-          Reset
-        </button>
-        <button
-          type="button"
-          onClick={onApply}
-          className="flex-1 rounded bg-teal-800 px-3 py-1.5 text-sm text-white hover:bg-teal-900"
-        >
-          Apply
-        </button>
-      </div>
-    </div>
+              );
+            })}
+          </Box>
+        ))}
+        <Divider />
+        <Box sx={{ display: 'flex', gap: 1, px: 1.5, pt: 1 }}>
+          <Button variant="outlined" color="inherit" fullWidth size="small" onClick={onReset}>
+            Reset
+          </Button>
+          <Button variant="contained" color="primary" fullWidth size="small" onClick={onApply}>
+            Apply
+          </Button>
+        </Box>
+      </Paper>
+    </Popover>
   );
 }
 

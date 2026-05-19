@@ -58,7 +58,64 @@ export function formatMoney(n: number) {
   return `$${v}`;
 }
 
-export type MetricRow = { shortLabel: string; value: string; tone: 'hotel' | 'to' };
+export type CompareMode = 'none' | 'ly' | 'stly' | 'fcst' | 'budget';
+
+export type MetricRow = {
+  shortLabel: string;
+  value: string;
+  tone: 'hotel' | 'to';
+  cmp?: { diffStr: string; positive: boolean };
+};
+
+function cmpRowSeed(month: number, day: number, rowIdx: number, label: string) {
+  let h = 0;
+  for (let i = 0; i < label.length; i++) h = (h * 31 + label.charCodeAt(i)) | 0;
+  return Math.abs((month * 37 + day * 19 + rowIdx * 11 + (h % 997)) % 997);
+}
+
+function cmpRefMult(
+  baseMult: number,
+  rowIdx: number,
+  month: number,
+  day: number,
+  label: string,
+) {
+  const h = cmpRowSeed(month, day, rowIdx, label);
+  const wantUp = (rowIdx + Math.floor(h / 31)) % 2 === 0;
+  const jitter = 0.9 + (h % 11) * 0.008;
+  if (wantUp) {
+    if (baseMult < 1) return baseMult * jitter;
+    return 0.86 + (h % 13) * 0.006;
+  }
+  if (baseMult < 1) return 1.03 + (h % 9) * 0.005;
+  return baseMult * (1.05 + (h % 7) * 0.006);
+}
+
+function cmpRefValue(
+  current: number,
+  baseMult: number,
+  rowIdx: number,
+  month: number,
+  day: number,
+  label: string,
+) {
+  return current * cmpRefMult(baseMult, rowIdx, month, day, label);
+}
+
+export function compareMultiplier(mode: CompareMode, month: number, day: number) {
+  if (mode === 'none') return 0;
+  const lyF = 0.88 + Math.abs((month * 3 + day * 7) % 12) * 0.008;
+  if (mode === 'ly') return lyF;
+  if (mode === 'stly') return 0.85 + Math.abs((month * 5 + day * 3) % 10) * 0.006;
+  if (mode === 'fcst') return 1.04 + Math.abs((month * 5 + day * 11) % 6) * 0.005;
+  return 0.95 + Math.abs((month * 9 + day * 4) % 8) * 0.004;
+}
+
+function formatCmpDiff(absDiff: number, isMoney: boolean, isPercent: boolean) {
+  if (isMoney) return formatMoney(absDiff);
+  if (isPercent) return `${Math.round(absDiff)}%`;
+  return String(Math.round(absDiff));
+}
 
 const METRIC_MAP: Record<
   MetricKey,
@@ -74,19 +131,43 @@ const METRIC_MAP: Record<
   trn: { field: 'toRn', short: 'RN' },
 };
 
-export function buildMetricRows(metrics: CellMetrics, selected: MetricKey[]): MetricRow[] {
-  return selected.map((key) => {
+export function buildMetricRows(
+  metrics: CellMetrics,
+  selected: MetricKey[],
+  compare: CompareMode = 'none',
+  month = 1,
+  day = 1,
+): MetricRow[] {
+  const mult = compareMultiplier(compare, month, day);
+
+  return selected.map((key, rowIdx) => {
     const map = METRIC_MAP[key];
     const raw = metrics[map.field];
-    const value = map.isMoney
+    const isPercent = Boolean(map.suffix);
+    const isMoney = Boolean(map.isMoney);
+    const value = isMoney
       ? formatMoney(raw)
       : map.suffix
         ? `${Math.round(raw)}${map.suffix}`
         : String(Math.round(raw));
+
+    let cmp: MetricRow['cmp'];
+    if (mult && !Number.isNaN(raw)) {
+      const ref = cmpRefValue(raw, mult, rowIdx, month, day, map.short);
+      const diff = raw - ref;
+      if (diff !== 0) {
+        cmp = {
+          diffStr: formatCmpDiff(Math.abs(diff), isMoney, isPercent),
+          positive: diff > 0,
+        };
+      }
+    }
+
     return {
       shortLabel: map.short,
       value,
       tone: key.startsWith('t') ? 'to' : 'hotel',
+      cmp,
     };
   });
 }
@@ -101,11 +182,14 @@ export function isToday(month: number, day: number) {
 
 export function metricLabelForKeys(keys: MetricKey[]) {
   if (keys.length === 0) return 'Cell Metrics';
-  if (keys.length <= 2) {
-    return keys
-      .map((k) => METRIC_OPTIONS.find((o) => o.key === k)?.group)
-      .filter(Boolean)
-      .join(', ');
-  }
+  const groups = [
+    ...new Set(
+      keys
+        .map((k) => METRIC_OPTIONS.find((o) => o.key === k)?.group)
+        .filter(Boolean),
+    ),
+  ] as string[];
+  if (groups.length === 1) return groups[0] === 'Metrics' ? 'Metrics' : groups[0];
+  if (keys.length <= 2) return groups.join(', ');
   return `${keys.length} metrics`;
 }

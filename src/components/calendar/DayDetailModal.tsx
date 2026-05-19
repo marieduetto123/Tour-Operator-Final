@@ -1,76 +1,85 @@
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CloseIcon from '@mui/icons-material/Close';
+import LockIcon from '@mui/icons-material/Lock';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import { useCalendar } from '@/context/CalendarContext';
-import { Icon } from '@/components/ui/Icon';
 import { buildMetricRows, toRooms, type CellMetrics } from '@/lib/calendar/metrics';
 import type { MetricKey } from '@/data/calendarData';
 
 type Props = {
+  open: boolean;
   dateLabel: string;
   metrics: CellMetrics;
   selectedMetrics: MetricKey[];
   onClose: () => void;
 };
 
-export function DayDetailModal({ dateLabel, metrics, selectedMetrics, onClose }: Props) {
+export function DayDetailModal({ open, dateLabel, metrics, selectedMetrics, onClose }: Props) {
   const { setCloseOutOpen } = useCalendar();
   const rows = buildMetricRows(metrics, selectedMetrics);
 
   return (
-    <div
-      className="fixed inset-0 z-[400] flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-sm rounded-xl bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between border-b border-slate-200 px-4 py-3">
-          <div>
-            <p className="text-sm font-semibold text-slate-900">{dateLabel}</p>
-            <p className="text-xs text-slate-500">All Operators</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1 text-slate-500 hover:bg-slate-100"
-            aria-label="Close"
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', pr: 1 }}>
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {dateLabel}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            All Operators
+          </Typography>
+        </Box>
+        <IconButton aria-label="Close" onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers>
+        {rows.map((r) => (
+          <Box
+            key={`${r.shortLabel}-${r.tone}`}
+            sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, py: 0.5 }}
           >
-            <Icon name="close" className="text-xl" />
-          </button>
-        </div>
-        <div className="space-y-2 px-4 py-3 text-sm">
-          {rows.map((r) => (
-            <div key={`${r.shortLabel}-${r.tone}`} className="flex justify-between gap-4">
-              <span className={r.tone === 'to' ? 'text-teal-800' : 'text-slate-600'}>
-                {r.tone === 'to' ? 'TO' : 'Hotel'} {r.shortLabel}
-              </span>
-              <span className="font-semibold tabular-nums">{r.value}</span>
-            </div>
-          ))}
-          <p className="border-t border-slate-100 pt-2 text-xs text-slate-500">
-            {toRooms(metrics.hotelOcc)} hotel rooms · {toRooms(metrics.toOcc)} TO rooms
-          </p>
-        </div>
-        <div className="flex gap-2 border-t border-slate-200 px-4 py-3">
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              setCloseOutOpen(true);
-            }}
-            className="flex flex-1 items-center justify-center gap-1 rounded border border-teal-800 px-3 py-2 text-sm text-teal-800 hover:bg-teal-50"
-          >
-            <Icon name="lock" className="text-base" />
-            Close Out
-          </button>
-          <button
-            type="button"
-            className="flex flex-1 items-center justify-center gap-1 rounded bg-teal-800 px-3 py-2 text-sm text-white hover:bg-teal-900"
-          >
-            View More Details
-            <Icon name="chevron_right" className="text-base" />
-          </button>
-        </div>
-      </div>
-    </div>
+            <Typography
+              variant="body2"
+              color={r.tone === 'to' ? 'primary.main' : 'text.secondary'}
+            >
+              {r.tone === 'to' ? 'TO' : 'Hotel'} {r.shortLabel}
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+              {r.value}
+            </Typography>
+          </Box>
+        ))}
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, pt: 1, borderTop: 1, borderColor: 'divider' }}>
+          {toRooms(metrics.hotelOcc)} hotel rooms · {toRooms(metrics.toOcc)} TO rooms
+        </Typography>
+      </DialogContent>
+
+      <DialogActions sx={{ flexDirection: 'column', gap: 1, px: 2, py: 1.5 }}>
+        <Button
+          fullWidth
+          variant="outlined"
+          color="primary"
+          startIcon={<LockIcon />}
+          onClick={() => {
+            onClose();
+            setCloseOutOpen(true);
+          }}
+        >
+          Close Out
+        </Button>
+        <Button fullWidth variant="contained" color="primary" endIcon={<ChevronRightIcon />}>
+          View More Details
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

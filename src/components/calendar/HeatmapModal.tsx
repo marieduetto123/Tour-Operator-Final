@@ -1,4 +1,26 @@
-import { Icon } from '@/components/ui/Icon';
+import CloseIcon from '@mui/icons-material/Close';
+import HotelIcon from '@mui/icons-material/Hotel';
+import LockIcon from '@mui/icons-material/Lock';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Radio from '@mui/material/Radio';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import type { SvgIconComponent } from '@mui/icons-material';
 import {
   HEATMAP_TYPE_OPTIONS,
   HM_METRIC_COLORS,
@@ -7,6 +29,14 @@ import {
   type HeatmapState,
   type HeatmapType,
 } from '@/data/heatmapTypes';
+
+const TYPE_ICONS: Record<HeatmapType, SvgIconComponent> = {
+  stopsales: LockIcon,
+  hotelocc: HotelIcon,
+  remaining: MeetingRoomIcon,
+  mealplan: RestaurantIcon,
+  toforecast: TrendingUpIcon,
+};
 
 type Props = {
   open: boolean;
@@ -18,8 +48,6 @@ type Props = {
 };
 
 export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply }: Props) {
-  if (!open) return null;
-
   const isStop = draft.type === 'stopsales';
 
   const setType = (type: HeatmapType) => onChange({ ...draft, type });
@@ -46,83 +74,81 @@ export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply 
       ];
 
   return (
-    <div
-      className="fixed inset-0 z-[500] flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-          <h3 className="text-base font-semibold text-slate-900">Heatmap</h3>
-          <button type="button" onClick={onClose} className="rounded p-1 text-slate-500 hover:bg-slate-100">
-            <Icon name="close" />
-          </button>
-        </div>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
+        Heatmap
+        <IconButton aria-label="Close" onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3">
-          <p className="mb-3 text-sm text-slate-600">
-            Select a heatmap type, then configure each colour threshold
-          </p>
+      <DialogContent dividers>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Select a heatmap type, then configure each colour threshold
+        </Typography>
 
-          <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {HEATMAP_TYPE_OPTIONS.map((opt) => (
-              <button
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1, mb: 2 }}>
+          {HEATMAP_TYPE_OPTIONS.map((opt) => {
+            const Icon = TYPE_ICONS[opt.key];
+            const selected = draft.type === opt.key;
+            return (
+              <Button
                 key={opt.key}
-                type="button"
+                variant="outlined"
+                color={selected ? 'primary' : 'inherit'}
                 onClick={() => setType(opt.key)}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
-                  draft.type === opt.key
-                    ? 'border-teal-800 bg-teal-50 text-teal-900'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
+                sx={{
+                  justifyContent: 'flex-start',
+                  gap: 1,
+                  py: 1,
+                  textAlign: 'left',
+                  borderColor: selected ? 'primary.main' : 'divider',
+                  bgcolor: selected ? 'action.selected' : 'transparent',
+                }}
+                startIcon={
+                  <Radio checked={selected} size="small" sx={{ p: 0 }} tabIndex={-1} />
+                }
               >
-                <span
-                  className={`flex h-4 w-4 shrink-0 rounded-full border-2 ${
-                    draft.type === opt.key ? 'border-teal-800 bg-teal-800' : 'border-slate-300'
-                  }`}
-                />
-                <Icon name={opt.icon} className="text-lg text-teal-800" />
+                <Icon color="primary" fontSize="small" />
                 {opt.label}
-              </button>
-            ))}
-          </div>
+              </Button>
+            );
+          })}
+        </Box>
 
-          {draft.type && (
-            <>
-              {isStop && (
-                <div className="mb-4">
-                  <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Room Type</p>
-                  <div className="flex flex-wrap gap-1">
-                    {ROOM_TYPE_OPTIONS.map((rt) => {
-                      const on = draft.stopSalesRoomTypes.includes(rt);
-                      return (
-                        <button
-                          key={rt}
-                          type="button"
-                          onClick={() => {
-                            const next = on
-                              ? draft.stopSalesRoomTypes.filter((x) => x !== rt)
-                              : [...draft.stopSalesRoomTypes, rt];
-                            onChange({ ...draft, stopSalesRoomTypes: next });
-                          }}
-                          className={`rounded-full px-2 py-0.5 text-xs ${
-                            on ? 'bg-teal-800 text-white' : 'bg-slate-100 text-slate-600'
-                          }`}
-                        >
-                          {rt}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+        {draft.type && (
+          <>
+            {isStop && (
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
+                  Room Type
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {ROOM_TYPE_OPTIONS.map((rt) => {
+                    const on = draft.stopSalesRoomTypes.includes(rt);
+                    return (
+                      <Chip
+                        key={rt}
+                        label={rt}
+                        size="small"
+                        color={on ? 'primary' : 'default'}
+                        onClick={() => {
+                          const next = on
+                            ? draft.stopSalesRoomTypes.filter((x) => x !== rt)
+                            : [...draft.stopSalesRoomTypes, rt];
+                          onChange({ ...draft, stopSalesRoomTypes: next });
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              </Box>
+            )}
 
-              {!isStop && (
-                <label className="mb-3 flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+            {!isStop && (
+              <FormControlLabel
+                control={
+                  <Checkbox
                     checked={draft.condition.enabled}
                     onChange={(e) =>
                       onChange({
@@ -131,13 +157,16 @@ export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply 
                       })
                     }
                   />
-                  Add condition
-                </label>
-              )}
+                }
+                label="Add condition"
+                sx={{ mb: 1 }}
+              />
+            )}
 
-              {draft.condition.enabled && !isStop && (
-                <div className="mb-4 flex flex-wrap gap-2">
-                  <select
+            {draft.condition.enabled && !isStop && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                <FormControl size="small">
+                  <Select
                     value={draft.condition.metric}
                     onChange={(e) =>
                       onChange({
@@ -148,14 +177,15 @@ export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply 
                         },
                       })
                     }
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
                   >
-                    <option value="hotel">Hotel Occ (%)</option>
-                    <option value="remainRooms">Remaining Rooms</option>
-                    <option value="totalGuests">Meal Plan Guests</option>
-                    <option value="toOtb">TO OTB (rooms)</option>
-                  </select>
-                  <select
+                    <MenuItem value="hotel">Hotel Occ (%)</MenuItem>
+                    <MenuItem value="remainRooms">Remaining Rooms</MenuItem>
+                    <MenuItem value="totalGuests">Meal Plan Guests</MenuItem>
+                    <MenuItem value="toOtb">TO OTB (rooms)</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small">
+                  <Select
                     value={draft.condition.op}
                     onChange={(e) =>
                       onChange({
@@ -166,79 +196,88 @@ export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply 
                         },
                       })
                     }
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
                   >
-                    <option value=">">&gt; above</option>
-                    <option value=">=">&gt;= at least</option>
-                    <option value="<">&lt; below</option>
-                    <option value="<=">&lt;= at most</option>
-                  </select>
-                  <input
-                    type="number"
-                    value={draft.condition.value}
-                    onChange={(e) =>
-                      onChange({
-                        ...draft,
-                        condition: { ...draft.condition, value: Number(e.target.value) },
-                      })
-                    }
-                    className="w-20 rounded border border-slate-300 px-2 py-1 text-sm"
-                  />
-                </div>
-              )}
+                    <MenuItem value=">">&gt; above</MenuItem>
+                    <MenuItem value=">=">&gt;= at least</MenuItem>
+                    <MenuItem value="<">&lt; below</MenuItem>
+                    <MenuItem value="<=">&lt;= at most</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  type="number"
+                  size="small"
+                  sx={{ width: 88 }}
+                  value={draft.condition.value}
+                  onChange={(e) =>
+                    onChange({
+                      ...draft,
+                      condition: { ...draft.condition, value: Number(e.target.value) },
+                    })
+                  }
+                />
+              </Box>
+            )}
 
-              <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Colour Thresholds</p>
-              <div className="space-y-3">
-                {thresholdRows.map((row) => (
-                  <div key={row.key} className="flex gap-3 rounded-lg border border-slate-100 p-3">
-                    <div className="flex flex-col items-center gap-1">
-                      <input
-                        type="color"
-                        value={draft.colors[row.key] ?? row.color}
-                        onChange={(e) => setColor(row.key, e.target.value)}
-                        className="h-10 w-10 cursor-pointer rounded border-0"
+            <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
+              Colour Thresholds
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {thresholdRows.map((row) => (
+                <Box
+                  key={row.key}
+                  sx={{
+                    display: 'flex',
+                    gap: 1.5,
+                    p: 1.5,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                  }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                    <Box
+                      component="input"
+                      type="color"
+                      value={draft.colors[row.key] ?? row.color}
+                      onChange={(e) => setColor(row.key, e.target.value)}
+                      sx={{ width: 40, height: 40, border: 0, cursor: 'pointer', p: 0 }}
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      Change
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {row.label}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {row.desc}
+                    </Typography>
+                    {'input' in row && row.input && (
+                      <TextField
+                        type="number"
+                        size="small"
+                        sx={{ mt: 0.5, width: 96 }}
+                        value={row.which === 'grey' ? draft.greyThreshold : draft.greenThreshold}
+                        onChange={(e) => setThreshold(row.which!, Number(e.target.value))}
                       />
-                      <span className="text-[10px] text-slate-500">Change</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-800">{row.label}</p>
-                      <p className="text-xs text-slate-500">{row.desc}</p>
-                      {'input' in row && row.input && (
-                        <input
-                          type="number"
-                          className="mt-1 w-24 rounded border border-slate-300 px-2 py-1 text-sm"
-                          value={
-                            row.which === 'grey' ? draft.greyThreshold : draft.greenThreshold
-                          }
-                          onChange={(e) => setThreshold(row.which!, Number(e.target.value))}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </>
+        )}
+      </DialogContent>
 
-        <div className="flex gap-2 border-t border-slate-200 px-4 py-3">
-          <button
-            type="button"
-            onClick={onReset}
-            className="flex-1 rounded border border-slate-300 py-2 text-sm hover:bg-slate-50"
-          >
-            Reset
-          </button>
-          <button
-            type="button"
-            onClick={onApply}
-            disabled={!draft.type}
-            className="flex-1 rounded bg-teal-800 py-2 text-sm text-white hover:bg-teal-900 disabled:opacity-40"
-          >
-            Apply
-          </button>
-        </div>
-      </div>
-    </div>
+      <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
+        <Button variant="outlined" color="inherit" fullWidth onClick={onReset}>
+          Reset
+        </Button>
+        <Button variant="contained" color="primary" fullWidth disabled={!draft.type} onClick={onApply}>
+          Apply
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

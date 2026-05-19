@@ -51,8 +51,8 @@ export const DOW_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday
 export const DOW_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export const METRIC_OPTIONS = [
-  { key: 'hocc', label: 'Hotel', group: 'Occupancy', prefix: 'H' },
-  { key: 'tocc', label: 'Tour Operator', group: 'Occupancy', prefix: 'TO' },
+  { key: 'hocc', label: 'Hotel', group: 'Metrics', prefix: 'H' },
+  { key: 'tocc', label: 'Tour Operator', group: 'Metrics', prefix: 'TO' },
   { key: 'hadr', label: 'Hotel', group: 'ADR', prefix: 'H' },
   { key: 'tadr', label: 'Tour Operator', group: 'ADR', prefix: 'TO' },
   { key: 'hrev', label: 'Hotel', group: 'Revenue', prefix: 'H' },

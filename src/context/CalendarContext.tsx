@@ -13,6 +13,8 @@ import {
 import {
   DEFAULT_FILTERS,
   TO_FILTER_MULT,
+  countActiveFilters,
+  primaryFilterValue,
   type FilterState,
 } from '@/data/filterOptions';
 import { DEFAULT_HEATMAP, type HeatmapState } from '@/data/heatmapTypes';
@@ -55,10 +57,6 @@ type CalendarContextValue = {
 
 const CalendarContext = createContext<CalendarContextValue | null>(null);
 
-function countActiveFilters(f: FilterState) {
-  return (Object.keys(f) as (keyof FilterState)[]).filter((k) => f[k] !== 'all').length;
-}
-
 export function CalendarProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [filterDraft, setFilterDraft] = useState<FilterState>(DEFAULT_FILTERS);
@@ -74,7 +72,8 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const [closeOutOpen, setCloseOutOpen] = useState(false);
   const [weekAnchor, setWeekAnchor] = useState<WeekAnchor>({ month: 3, day: 9 });
 
-  const toMultiplier = TO_FILTER_MULT[filters.operator] ?? 1;
+  const operatorKey = primaryFilterValue(filters.operator);
+  const toMultiplier = TO_FILTER_MULT[operatorKey] ?? 1;
 
   const getFilteredOccupancy = useCallback(
     (month: number, day: number) => {

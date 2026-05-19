@@ -1,22 +1,34 @@
-import { useCallback, useMemo, useState } from 'react';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CompareMode } from '@/lib/calendar/metrics';
 import { ALL_MONTHS, type MetricKey } from '@/data/calendarData';
 import { useCalendar } from '@/context/CalendarContext';
 import { buildCellMetrics } from '@/lib/calendar/metrics';
 import { heatmapCssVars } from '@/lib/calendar/heatmap';
+import type { FilterGroupId } from '@/data/filterOptions';
+import { toggleFilterValue } from '@/data/filterOptions';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarLegend } from './CalendarLegend';
 import { CalendarMonth } from './CalendarMonth';
+import { CalendarTabBar, type CalendarViewTab } from './CalendarTabBar';
 import { CloseOutModal } from './CloseOutModal';
 import { DayDetailModal } from './DayDetailModal';
 import { HeatmapModal } from './HeatmapModal';
-import { Icon } from '@/components/ui/Icon';
+import { SelectDatesFooter } from './SelectDatesFooter';
 import { WeeklyView } from './WeeklyView';
-import type { FilterGroupId } from '@/data/filterOptions';
 
 const DEFAULT_METRICS: MetricKey[] = ['hocc', 'tocc'];
-const VISIBLE_COUNT = 2;
 
-type ViewMode = 'monthly' | 'weekly';
+const MONTH_NAMES = [
+  '', 'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
 type DayModal = { month: number; day: number; label: string };
 
 function rangeLabel(startIdx: number, count: number) {
@@ -40,6 +52,7 @@ export function CalendarApp() {
     applyFilters,
     resetFilters,
     activeFilterCount,
+    filters,
     heatmap,
     heatmapDraft,
     setHeatmapDraft,
@@ -48,16 +61,16 @@ export function CalendarApp() {
     closeOutOpen,
     setCloseOutOpen,
     openWeekView,
+    weekAnchor,
+    setWeekAnchor,
   } = useCalendar();
 
-  const [viewMode, setViewMode] = useState<ViewMode>('monthly');
+  const [viewMode, setViewMode] = useState<CalendarViewTab>('monthly');
   const [startIdx, setStartIdx] = useState(0);
   const [rangeStartIdx, setRangeStartIdx] = useState(0);
-  const [rangeEndIdx, setRangeEndIdx] = useState(11);
-  const [pickerYear, setPickerYear] = useState(2026);
+  const [rangeEndIdx, setRangeEndIdx] = useState(1);
+  const [displayView, setDisplayView] = useState(2);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [pickerDraftStart, setPickerDraftStart] = useState(0);
-  const [pickerDraftEnd, setPickerDraftEnd] = useState(11);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedDays, setSelectedDays] = useState<Set<string>>(() => new Set());
   const [appliedMetrics, setAppliedMetrics] = useState<MetricKey[]>(DEFAULT_METRICS);
@@ -66,23 +79,50 @@ export function CalendarApp() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [heatmapModalOpen, setHeatmapModalOpen] = useState(false);
   const [pickupDays, setPickupDays] = useState(365);
-  const [compare, setCompare] = useState('none');
+  const [compare, setCompare] = useState<CompareMode>('none');
+  const [cmpVisible, setCmpVisible] = useState(false);
   const [dayModal, setDayModal] = useState<DayModal | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const isCompact = displayView >= 3;
+  const isSingleMonth = displayView === 1;
 
   const visibleMonths = useMemo(
-    () => ALL_MONTHS.slice(startIdx, startIdx + VISIBLE_COUNT),
-    [startIdx],
+    () => ALL_MONTHS.slice(startIdx, startIdx + displayView),
+    [startIdx, displayView],
   );
-  const navLabel = rangeLabel(startIdx, VISIBLE_COUNT);
+  const navLabel = rangeLabel(startIdx, displayView);
   const dateLabel = fullDateRangeLabel(rangeStartIdx, rangeEndIdx);
   const hmVars = heatmapCssVars(heatmap);
 
-  const clampStart = useCallback((idx: number) => {
-    return Math.max(0, Math.min(idx, ALL_MONTHS.length - VISIBLE_COUNT));
-  }, []);
+  const clampStart = useCallback(
+    (idx: number) => Math.max(0, Math.min(idx, ALL_MONTHS.length - displayView)),
+    [displayView],
+  );
 
-  const handlePrev = () => setStartIdx((i) => clampStart(i - 1));
-  const handleNext = () => setStartIdx((i) => clampStart(i + 1));
+  const handlePrev = () => {
+    const step = displayView >= 6 ? displayView : 1;
+    setStartIdx((i) => clampStart(i - step));
+  };
+
+  const handleNext = () => {
+    const step = displayView >= 6 ? displayView : 1;
+    setStartIdx((i) => clampStart(i + step));
+  };
+
+  const shiftWeek = (delta: number) => {
+    setWeekAnchor({
+      month: weekAnchor.month,
+      day: Math.max(1, Math.min(28, weekAnchor.day + delta * 7)),
+    });
+  };
+
+  const handleTabChange = (tab: CalendarViewTab) => {
+    if (tab === 'weekly') {
+      openWeekView(weekAnchor.month || 3, weekAnchor.day || 9);
+    }
+    setViewMode(tab);
+  };
 
   const handleSelectDay = (iso: string) => {
     setSelectedDays((prev) => {
@@ -105,185 +145,246 @@ export function CalendarApp() {
     });
   };
 
-  const openDatePicker = () => {
-    setPickerDraftStart(rangeStartIdx);
-    setPickerDraftEnd(rangeEndIdx);
-    setDatePickerOpen((o) => !o);
+  const exitSelectMode = () => {
+    setSelectMode(false);
+    setSelectedDays(new Set());
   };
 
-  const handlePickerSelectMonth = (idx: number) => {
-    if (pickerDraftStart === pickerDraftEnd) {
-      setPickerDraftStart(idx);
-      setPickerDraftEnd(idx);
+  const handleRangeApply = (start: number, end: number) => {
+    const lo = Math.min(start, end);
+    const hi = Math.max(start, end);
+    const viewLen = hi - lo + 1;
+    setRangeStartIdx(lo);
+    setRangeEndIdx(hi);
+    setDisplayView(viewLen);
+    setStartIdx(clampStart(lo));
+    setDatePickerOpen(false);
+  };
+
+  useEffect(() => {
+    const root = document.querySelector('.calendar-page');
+    root?.classList.toggle('mo-select-active', selectMode);
+    return () => root?.classList.remove('mo-select-active');
+  }, [selectMode]);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid || isCompact || compare === 'none') {
+      setCmpVisible(false);
       return;
     }
-    if (idx < pickerDraftStart) setPickerDraftStart(idx);
-    else setPickerDraftEnd(idx);
-  };
 
-  const goWeekly = () => {
-    openWeekView(3, 9);
-    setViewMode('weekly');
-  };
+    const sync = () => {
+      const cell = grid.querySelector('.cal-day:not(.cal-day-empty)');
+      const w = cell?.getBoundingClientRect().width ?? 0;
+      setCmpVisible(w >= 108);
+    };
+
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(grid);
+    window.addEventListener('resize', sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', sync);
+    };
+  }, [compare, isCompact, displayView, startIdx]);
 
   const modalMetrics = dayModal ? buildCellMetrics(dayModal.month, dayModal.day) : null;
 
+  const gridClass = [
+    'cal-months-grid',
+    isCompact ? 'cal-compact' : '',
+    isSingleMonth ? 'cal-single-month' : '',
+    `cal-view-${displayView}`,
+    displayView === 12 ? 'cal-12m' : '',
+    cmpVisible && compare !== 'none' ? 'cal-cmp-visible' : '',
+    heatmap.enabled ? ' hm-view' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const gridStyle = {
+    ...hmVars,
+    ...(isSingleMonth
+      ? { gridTemplateColumns: '1fr' }
+      : isCompact
+        ? { gridTemplateColumns: `repeat(${Math.min(displayView, 3)}, 1fr)` }
+        : {}),
+  };
+
+  const weekRangeLabel = `${MONTH_NAMES[weekAnchor.month]} ${weekAnchor.day}–${weekAnchor.day + 6}, 2026`;
+
+  const dateShuffler = viewMode === 'monthly' ? (
+    <Box className="wv-date-shuffler">
+      <IconButton
+        className="wv-nav-btn"
+        onClick={handlePrev}
+        aria-label="Previous months"
+        size="small"
+      >
+        <ChevronLeftIcon />
+      </IconButton>
+      <Typography component="span" className="wv-range">
+        {navLabel}
+      </Typography>
+      <IconButton
+        className="wv-nav-btn"
+        onClick={handleNext}
+        aria-label="Next months"
+        size="small"
+      >
+        <ChevronRightIcon />
+      </IconButton>
+    </Box>
+  ) : (
+    <Box className="wv-date-shuffler">
+      <IconButton className="wv-nav-btn" onClick={() => shiftWeek(-1)} aria-label="Previous week" size="small">
+        <ChevronLeftIcon />
+      </IconButton>
+      <Typography component="span" className="wv-range">
+        {weekRangeLabel}
+        {!filters.operator.includes('all') && filters.operator.length > 0 && (
+          <Typography
+            component="span"
+            sx={{ ml: 1, fontSize: 12, fontWeight: 400, color: 'primary.main' }}
+          >
+            · {filters.operator.join(', ')}
+          </Typography>
+        )}
+      </Typography>
+      <IconButton className="wv-nav-btn" onClick={() => shiftWeek(1)} aria-label="Next week" size="small">
+        <ChevronRightIcon />
+      </IconButton>
+    </Box>
+  );
+
   return (
-  <>
-    <article className="section-card" id="demand-calendar">
-      <div className="wv-groupby-bar">
-        <div className="wv-groupby-row">
-          <button
-            type="button"
-            onClick={() => setViewMode('monthly')}
-            className={`wv-groupby-btn${viewMode === 'monthly' ? ' active' : ''}`}
-          >
-            Monthly
-          </button>
-          <button
-            type="button"
-            onClick={goWeekly}
-            className={`wv-groupby-btn${viewMode === 'weekly' ? ' active' : ''}`}
-          >
-            Weekly
-          </button>
-          {viewMode === 'monthly' && (
-            <div className="wv-date-shuffler">
-              <button type="button" className="wv-nav-btn" onClick={handlePrev} aria-label="Previous months">
-                <Icon name="chevron_left" />
-              </button>
-              <span className="wv-range">{navLabel}</span>
-              <button type="button" className="wv-nav-btn" onClick={handleNext} aria-label="Next months">
-                <Icon name="chevron_right" />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+    <>
+      <Paper component="article" className="section-card" id="demand-calendar" elevation={0}>
+        <CalendarHeader
+          selectMode={selectMode}
+          onToggleSelectMode={() => {
+            if (selectMode) exitSelectMode();
+            else setSelectMode(true);
+          }}
+          selectedCount={selectedDays.size}
+          onOpenCloseOut={() => setCloseOutOpen(true)}
+          compare={compare}
+          onCompareChange={setCompare}
+          metricsOpen={metricsOpen}
+          onMetricsOpen={setMetricsOpen}
+          metricDraft={metricDraft}
+          appliedMetrics={appliedMetrics}
+          onMetricToggle={handleMetricToggle}
+          onMetricsReset={() => setMetricDraft(DEFAULT_METRICS)}
+          onMetricsApply={() => {
+            setAppliedMetrics(metricDraft);
+            setMetricsOpen(false);
+          }}
+          filtersOpen={filtersOpen}
+          onFiltersOpen={setFiltersOpen}
+          filterDraft={filterDraft}
+          onFilterToggle={(id: FilterGroupId, value) =>
+            setFilterDraft((f) => ({ ...f, [id]: toggleFilterValue(f[id], value) }))
+          }
+          onFiltersReset={() => {
+            resetFilters();
+            setFiltersOpen(false);
+          }}
+          onFiltersApply={() => {
+            applyFilters();
+            setFiltersOpen(false);
+          }}
+          activeFilterCount={activeFilterCount}
+          pickupDays={pickupDays}
+          onPickupChange={setPickupDays}
+          heatmapOpen={heatmapModalOpen}
+          onHeatmapOpen={() => {
+            setHeatmapDraft(heatmap);
+            setHeatmapModalOpen(true);
+          }}
+          heatmapActive={heatmap.enabled}
+          heatmapType={heatmap.type}
+          dateLabel={dateLabel}
+          datePickerOpen={datePickerOpen}
+          onDatePickerToggle={() => setDatePickerOpen((o) => !o)}
+          rangeStartIdx={rangeStartIdx}
+          rangeEndIdx={rangeEndIdx}
+          onRangeApply={handleRangeApply}
+          onDatePickerClose={() => setDatePickerOpen(false)}
+        />
 
-      {viewMode === 'monthly' && (
-        <>
-          <CalendarHeader
-            selectMode={selectMode}
-            onToggleSelectMode={() => {
-              setSelectMode((m) => !m);
-              if (selectMode) setSelectedDays(new Set());
-            }}
-            selectedCount={selectedDays.size}
-            onOpenCloseOut={() => setCloseOutOpen(true)}
-            compare={compare}
-            onCompareChange={setCompare}
-            metricsOpen={metricsOpen}
-            onMetricsOpen={setMetricsOpen}
-            metricDraft={metricDraft}
-            appliedMetrics={appliedMetrics}
-            onMetricToggle={handleMetricToggle}
-            onMetricsReset={() => setMetricDraft(DEFAULT_METRICS)}
-            onMetricsApply={() => {
-              setAppliedMetrics(metricDraft);
-              setMetricsOpen(false);
-            }}
-            filtersOpen={filtersOpen}
-            onFiltersOpen={setFiltersOpen}
-            filterDraft={filterDraft}
-            onFilterChange={(id: FilterGroupId, value) =>
-              setFilterDraft((f) => ({ ...f, [id]: value }))
-            }
-            onFiltersReset={() => {
-              resetFilters();
-              setFiltersOpen(false);
-            }}
-            onFiltersApply={() => {
-              applyFilters();
-              setFiltersOpen(false);
-            }}
-            activeFilterCount={activeFilterCount}
-            pickupDays={pickupDays}
-            onPickupChange={setPickupDays}
-            heatmapOpen={heatmapModalOpen}
-            onHeatmapOpen={() => {
-              setHeatmapDraft(heatmap);
-              setHeatmapModalOpen(true);
-            }}
-            heatmapActive={heatmap.enabled}
-            heatmapType={heatmap.type}
-            dateLabel={dateLabel}
-            datePickerOpen={datePickerOpen}
-            onDatePickerToggle={openDatePicker}
-            pickerYear={pickerYear}
-            rangeStartIdx={pickerDraftStart}
-            rangeEndIdx={pickerDraftEnd}
-            onPickerYearChange={(d) => setPickerYear((y) => y + d)}
-            onPickerSelectMonth={handlePickerSelectMonth}
-            onPickerApply={() => {
-              setRangeStartIdx(pickerDraftStart);
-              setRangeEndIdx(pickerDraftEnd);
-              setStartIdx(clampStart(pickerDraftStart));
-              setDatePickerOpen(false);
-            }}
-            onPickerCancel={() => {
-              setPickerDraftStart(rangeStartIdx);
-              setPickerDraftEnd(rangeEndIdx);
-              setDatePickerOpen(false);
-            }}
-            onDatePickerClose={() => setDatePickerOpen(false)}
-          />
-          <CalendarLegend />
-          <div
-            className={`cal-months-grid${heatmap.enabled ? ' hm-view' : ''}`}
-            style={hmVars}
-          >
-            {visibleMonths.map((m) => (
-              <CalendarMonth
-                key={m.month}
-                month={m}
-                selectedMetrics={appliedMetrics}
-                selectMode={selectMode}
-                selectedDays={selectedDays}
-                onSelectDay={handleSelectDay}
-                onOpenDay={handleOpenDay}
-              />
-            ))}
-          </div>
-        </>
-      )}
+        <CalendarTabBar value={viewMode} onChange={handleTabChange} trailing={dateShuffler} />
 
-      {viewMode === 'weekly' && (
-        <WeeklyView
+        {viewMode === 'monthly' ? (
+          <Box
+            role="tabpanel"
+            id="cal-tabpanel-monthly"
+            aria-labelledby="cal-tab-monthly"
+          >
+            <CalendarLegend />
+            <Box ref={gridRef} className={gridClass} style={gridStyle}>
+              {visibleMonths.map((m) => (
+                <CalendarMonth
+                  key={m.month}
+                  month={m}
+                  selectedMetrics={appliedMetrics}
+                  selectMode={selectMode}
+                  selectedDays={selectedDays}
+                  compact={isCompact}
+                  compare={compare}
+                  onSelectDay={handleSelectDay}
+                  onOpenDay={handleOpenDay}
+                />
+              ))}
+            </Box>
+          </Box>
+        ) : (
+          <WeeklyView selectedMetrics={appliedMetrics} />
+        )}
+      </Paper>
+
+      <SelectDatesFooter
+        visible={selectMode}
+        selectedCount={selectedDays.size}
+        onCancel={exitSelectMode}
+        onConfirm={() => {
+          setCloseOutOpen(true);
+          exitSelectMode();
+        }}
+      />
+
+      {dayModal && modalMetrics && (
+        <DayDetailModal
+          open={Boolean(dayModal)}
+          dateLabel={dayModal.label}
+          metrics={modalMetrics}
           selectedMetrics={appliedMetrics}
-          onBack={() => setViewMode('monthly')}
-          onMetricsChange={setAppliedMetrics}
+          onClose={() => setDayModal(null)}
         />
       )}
-    </article>
 
-    {dayModal && modalMetrics && (
-      <DayDetailModal
-        dateLabel={dayModal.label}
-        metrics={modalMetrics}
-        selectedMetrics={appliedMetrics}
-        onClose={() => setDayModal(null)}
+      <CloseOutModal
+        open={closeOutOpen}
+        selectedDays={selectedDays}
+        onClose={() => setCloseOutOpen(false)}
       />
-    )}
 
-    {closeOutOpen && (
-      <CloseOutModal selectedDays={selectedDays} onClose={() => setCloseOutOpen(false)} />
-    )}
-
-    <HeatmapModal
-      open={heatmapModalOpen}
-      draft={heatmapDraft}
-      onChange={setHeatmapDraft}
-      onClose={() => setHeatmapModalOpen(false)}
-      onReset={() => {
-        resetHeatmap();
-        setHeatmapModalOpen(false);
-      }}
-      onApply={() => {
-        applyHeatmap();
-        setHeatmapModalOpen(false);
-      }}
-    />
-  </>
+      <HeatmapModal
+        open={heatmapModalOpen}
+        draft={heatmapDraft}
+        onChange={setHeatmapDraft}
+        onClose={() => setHeatmapModalOpen(false)}
+        onReset={() => {
+          resetHeatmap();
+          setHeatmapModalOpen(false);
+        }}
+        onApply={() => {
+          applyHeatmap();
+          setHeatmapModalOpen(false);
+        }}
+      />
+    </>
   );
 }

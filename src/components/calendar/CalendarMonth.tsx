@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { DOW_LABELS, EVENT_DAYS, type MonthMeta } from '@/data/calendarData';
 import type { MetricKey } from '@/data/calendarData';
 import { useCalendar } from '@/context/CalendarContext';
-import { dayKey } from '@/lib/calendar/metrics';
+import { dayKey, type CompareMode } from '@/lib/calendar/metrics';
 import { CalendarDay } from './CalendarDay';
 
 const DOW_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -12,6 +12,8 @@ type Props = {
   selectedMetrics: MetricKey[];
   selectMode: boolean;
   selectedDays: Set<string>;
+  compact: boolean;
+  compare: CompareMode;
   onSelectDay: (iso: string) => void;
   onOpenDay: (month: number, day: number, label: string) => void;
 };
@@ -21,6 +23,8 @@ export function CalendarMonth({
   selectedMetrics,
   selectMode,
   selectedDays,
+  compact,
+  compare,
   onSelectDay,
   onOpenDay,
 }: Props) {
@@ -49,6 +53,8 @@ export function CalendarMonth({
         hasEvent={EVENT_DAYS.has(key)}
         selectedMetrics={selectedMetrics}
         selectMode={selectMode}
+        compact={compact}
+        compare={compare}
         isSelected={selectedDays.has(iso)}
         onSelectDay={onSelectDay}
         onOpenDay={onOpenDay}

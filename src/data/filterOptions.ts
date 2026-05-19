@@ -1,13 +1,13 @@
 export type FilterGroupId = 'operator' | 'room' | 'board' | 'market' | 'pickup';
 
-export type FilterState = Record<FilterGroupId, string>;
+export type FilterState = Record<FilterGroupId, string[]>;
 
 export const DEFAULT_FILTERS: FilterState = {
-  operator: 'all',
-  room: 'all',
-  board: 'all',
-  market: 'all',
-  pickup: 'all',
+  operator: ['all'],
+  room: ['all'],
+  board: ['all'],
+  market: ['all'],
+  pickup: ['all'],
 };
 
 export const TO_FILTER_MULT: Record<string, number> = {
@@ -18,6 +18,27 @@ export const TO_FILTER_MULT: Record<string, number> = {
   'club-med': 1.08,
   jet2: 0.95,
 };
+
+export function toggleFilterValue(current: string[], value: string): string[] {
+  if (value === 'all') return ['all'];
+  const selected = current.filter((v) => v !== 'all');
+  if (selected.includes(value)) {
+    const next = selected.filter((v) => v !== value);
+    return next.length ? next : ['all'];
+  }
+  return [...selected, value];
+}
+
+export function countActiveFilters(f: FilterState) {
+  return (Object.keys(f) as FilterGroupId[]).reduce((n, k) => {
+    return n + f[k].filter((v) => v !== 'all').length;
+  }, 0);
+}
+
+export function primaryFilterValue(values: string[]) {
+  const picked = values.filter((v) => v !== 'all');
+  return picked.length ? picked[0] : 'all';
+}
 
 export const FILTER_SECTIONS: {
   id: FilterGroupId;

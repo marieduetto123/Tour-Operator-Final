@@ -12,5 +12,5 @@ git push
 vercel --prod --yes
 
 echo ""
-echo "✅ Pushed to GitHub: https://github.com/marieduetto123/travelcore-rm-hub"
-echo "✅ Deployed to Vercel: https://travelcore-rm-hub.vercel.app"
+echo "✅ Pushed to GitHub: https://github.com/marieduetto123/Tour-Operator-Final"
+echo "✅ Deployed to Vercel (see project dashboard for URL)"

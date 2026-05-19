@@ -1,5 +1,20 @@
 import { useState } from 'react';
-import { Icon } from '@/components/ui/Icon';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { useCalendar } from '@/context/CalendarContext';
 import { dayKey } from '@/lib/calendar/metrics';
 
@@ -35,11 +50,12 @@ function isoToKey(iso: string) {
 }
 
 type Props = {
+  open: boolean;
   selectedDays: Set<string>;
   onClose: () => void;
 };
 
-export function CloseOutModal({ selectedDays, onClose }: Props) {
+export function CloseOutModal({ open, selectedDays, onClose }: Props) {
   const { lockDay, unlockDay, setPartial, setCloseOutOpen } = useCalendar();
   const [closeType, setCloseType] = useState<CloseType>('full');
   const [minNights, setMinNights] = useState(3);
@@ -85,177 +101,162 @@ export function CloseOutModal({ selectedDays, onClose }: Props) {
     onClose();
   };
 
+  const closeOptions = [
+    { type: 'full' as const, label: 'Close all Day', icon: LockIcon },
+    { type: 'los' as const, label: 'Min Length of Stay', icon: LockIcon },
+    { type: 'reopen' as const, label: 'Re-Open', icon: LockOpenIcon },
+  ];
+
   return (
-    <div
-      className="fixed inset-0 z-[450] flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="close-out-title"
-        className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-          <h3 id="close-out-title" className="text-base font-semibold text-slate-900">
-            Close out sales
-          </h3>
-          <button type="button" onClick={onClose} className="rounded p-1 text-slate-500 hover:bg-slate-100">
-            <Icon name="close" />
-          </button>
-        </div>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
+        Close out sales
+        <IconButton aria-label="Close" onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3 text-sm">
-          <section>
-            <p className="mb-2 text-slate-600">Please select</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {(
-                [
-                  { type: 'full' as const, label: 'Close all Day', icon: 'lock' },
-                  { type: 'los' as const, label: 'Min Length of Stay', icon: 'lock' },
-                  { type: 'reopen' as const, label: 'Re-Open', icon: 'lock_open' },
-                ] as const
-              ).map((opt) => (
-                <button
+      <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Please select
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1 }}>
+            {closeOptions.map((opt) => {
+              const Icon = opt.icon;
+              const selected = closeType === opt.type;
+              return (
+                <Button
                   key={opt.type}
-                  type="button"
+                  variant="outlined"
+                  color={selected ? 'primary' : 'inherit'}
                   onClick={() => setCloseType(opt.type)}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-3 ${
-                    closeType === opt.type
-                      ? 'border-teal-800 bg-teal-50'
-                      : 'border-slate-200 hover:bg-slate-50'
-                  }`}
+                  sx={{
+                    flexDirection: 'column',
+                    gap: 0.5,
+                    py: 1.5,
+                    borderColor: selected ? 'primary.main' : 'divider',
+                    bgcolor: selected ? 'action.selected' : 'transparent',
+                  }}
                 >
-                  <Icon name={opt.icon} className="text-teal-800" />
-                  <span className="text-center text-xs font-medium">{opt.label}</span>
-                </button>
-              ))}
-            </div>
-          </section>
+                  <Icon color="primary" />
+                  <Typography variant="caption" sx={{ fontWeight: 500, textAlign: 'center' }}>
+                    {opt.label}
+                  </Typography>
+                </Button>
+              );
+            })}
+          </Box>
+        </Box>
 
-          {closeType === 'los' && (
-            <section>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Minimum Nights</label>
-              <input
-                type="number"
-                min={1}
-                max={30}
-                value={minNights}
-                onChange={(e) => setMinNights(Number(e.target.value))}
-                className="w-24 rounded border border-slate-300 px-2 py-1"
+        {closeType === 'los' && (
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Minimum Nights
+            </Typography>
+            <TextField
+              type="number"
+              size="small"
+              slotProps={{ htmlInput: { min: 1, max: 30 } }}
+              value={minNights}
+              onChange={(e) => setMinNights(Number(e.target.value))}
+              sx={{ width: 96 }}
+            />
+          </Box>
+        )}
+
+        <Box>
+          <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
+            Date ranges
+          </Typography>
+          {ranges.map((r) => (
+            <Box key={r.id} sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1 }}>
+              <TextField
+                type="date"
+                size="small"
+                value={r.from}
+                onChange={(e) => updateRange(r.id, 'from', e.target.value)}
+                slotProps={{ inputLabel: { shrink: true } }}
               />
-            </section>
+              <Typography color="text.disabled">–</Typography>
+              <TextField
+                type="date"
+                size="small"
+                value={r.to}
+                onChange={(e) => updateRange(r.id, 'to', e.target.value)}
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+              {ranges.length > 1 && (
+                <IconButton size="small" onClick={() => removeRange(r.id)} aria-label="Remove range">
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+          ))}
+          <Button size="small" color="primary" startIcon={<AddIcon />} onClick={addRange}>
+            Add Date Range
+          </Button>
+          {selectedDays.size > 0 && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              Also applies to {selectedDays.size} selected day(s) from the calendar
+            </Typography>
           )}
+        </Box>
 
-          <section>
-            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Date ranges</p>
-            {ranges.map((r) => (
-              <div key={r.id} className="mb-2 flex flex-wrap items-center gap-2">
-                <input
-                  type="date"
-                  value={r.from}
-                  onChange={(e) => updateRange(r.id, 'from', e.target.value)}
-                  className="rounded border border-slate-300 px-2 py-1 text-sm"
-                />
-                <span className="text-slate-400">–</span>
-                <input
-                  type="date"
-                  value={r.to}
-                  onChange={(e) => updateRange(r.id, 'to', e.target.value)}
-                  className="rounded border border-slate-300 px-2 py-1 text-sm"
-                />
-                {ranges.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeRange(r.id)}
-                    className="text-slate-400 hover:text-red-600"
-                  >
-                    <Icon name="close" className="text-base" />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addRange}
-              className="inline-flex items-center gap-1 text-sm text-teal-800 hover:underline"
-            >
-              <Icon name="add" className="text-base" />
-              Add Date Range
-            </button>
-            {selectedDays.size > 0 && (
-              <p className="mt-2 text-xs text-slate-500">
-                Also applies to {selectedDays.size} selected day(s) from the calendar
-              </p>
-            )}
-          </section>
+        <Box>
+          <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 600, textTransform: 'uppercase' }}>
+            What to close
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Operators: {OPERATORS.slice(0, 3).join(', ')}… · Rooms: {ROOM_TYPES[0]}… · Board:{' '}
+            {BOARD_TYPES[0]}…
+          </Typography>
+        </Box>
 
-          <section>
-            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">What to close</p>
-            <p className="text-xs text-slate-500">
-              Operators: {OPERATORS.slice(0, 3).join(', ')}… · Rooms: {ROOM_TYPES[0]}… · Board:{' '}
-              {BOARD_TYPES[0]}…
-            </p>
-          </section>
+        <Box>
+          <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
+            Contact sales team
+          </Typography>
+          <TextField
+            fullWidth
+            size="small"
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{ mb: 1 }}
+          />
+          <TextField
+            fullWidth
+            size="small"
+            multiline
+            rows={3}
+            placeholder="Sales message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </Box>
 
-          <section>
-            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Contact sales team</p>
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mb-2 w-full rounded border border-slate-300 px-3 py-2 text-sm"
-            />
-            <textarea
-              placeholder="Sales message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={3}
-              className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
-            />
-          </section>
+        <Box>
+          <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
+            Send Action
+          </Typography>
+          <RadioGroup value={sendAction} onChange={(_, v) => setSendAction(v as typeof sendAction)}>
+            <FormControlLabel value="email" control={<Radio size="small" />} label="Email Operators" />
+            <FormControlLabel value="internal" control={<Radio size="small" />} label="Internal Note" />
+            <FormControlLabel value="both" control={<Radio size="small" />} label="Both" />
+          </RadioGroup>
+        </Box>
+      </DialogContent>
 
-          <section>
-            <p className="mb-2 text-xs font-semibold text-slate-700">Send Action</p>
-            {(
-              [
-                { v: 'email' as const, l: 'Email Operators' },
-                { v: 'internal' as const, l: 'Internal Note' },
-                { v: 'both' as const, l: 'Both' },
-              ] as const
-            ).map((opt) => (
-              <label key={opt.v} className="mb-1 flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="sendAction"
-                  checked={sendAction === opt.v}
-                  onChange={() => setSendAction(opt.v)}
-                />
-                {opt.l}
-              </label>
-            ))}
-          </section>
-        </div>
-
-        <div className="flex gap-2 border-t border-slate-200 px-4 py-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded border border-slate-300 py-2 text-sm hover:bg-slate-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="flex-1 rounded bg-teal-800 py-2 text-sm text-white hover:bg-teal-900"
-          >
-            {closeType === 'reopen' ? 'Re-Open' : 'Close Out'}
-          </button>
-        </div>
-      </div>
-    </div>
+      <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
+        <Button variant="outlined" color="inherit" fullWidth onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="contained" color="primary" fullWidth onClick={handleConfirm}>
+          {closeType === 'reopen' ? 'Re-Open' : 'Close Out'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
