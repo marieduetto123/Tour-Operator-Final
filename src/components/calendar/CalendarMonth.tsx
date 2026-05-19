@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import LockIcon from '@mui/icons-material/Lock';
 import { DOW_LABELS, EVENT_DAYS, type MonthMeta } from '@/data/calendarData';
 import type { MetricKey } from '@/data/calendarData';
 import { useCalendar } from '@/context/CalendarContext';
@@ -6,6 +7,7 @@ import { dayKey, type CompareMode } from '@/lib/calendar/metrics';
 import { CalendarDay } from './CalendarDay';
 
 const DOW_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DOW_COMPACT = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 type Props = {
   month: MonthMeta;
@@ -28,18 +30,24 @@ export function CalendarMonth({
   onSelectDay,
   onOpenDay,
 }: Props) {
-  const { isLocked } = useCalendar();
+  const { isLocked, isPartial } = useCalendar();
   const pad = (month.firstDay + 6) % 7;
+  const dowLabels = compact ? DOW_COMPACT : DOW_SHORT;
   const closedCount = useMemo(() => {
     let n = 0;
     for (let d = 1; d <= month.days; d++) {
-      if (isLocked(dayKey(month.month, d))) n++;
+      const k = dayKey(month.month, d);
+      if (isLocked(k) || isPartial(k)) n++;
     }
     return n;
-  }, [month, isLocked]);
+  }, [month, isLocked, isPartial]);
 
   const blanks = Array.from({ length: pad }, (_, i) => (
-    <div key={`blank-${i}`} className="cal-day-empty" />
+    <div
+      key={`blank-${i}`}
+      className={compact ? 'cal-day empty' : 'cal-day-empty'}
+      aria-hidden
+    />
   ));
   const days = Array.from({ length: month.days }, (_, i) => {
     const d = i + 1;
@@ -67,12 +75,15 @@ export function CalendarMonth({
       <header className="cal-month-hdr">
         <h3 className="cal-month-name">{month.name}</h3>
         {closedCount > 0 && (
-          <span className="cal-lock-badge">{closedCount} closed</span>
+          <span className="cal-lock-badge">
+            <LockIcon sx={{ fontSize: 12 }} />
+            {closedCount}
+          </span>
         )}
       </header>
       <div className="cal-dow">
         {DOW_LABELS.map((label, i) => (
-          <span key={label}>{DOW_SHORT[i]}</span>
+          <span key={label}>{dowLabels[i]}</span>
         ))}
       </div>
       <div className="cal-days">

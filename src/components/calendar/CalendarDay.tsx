@@ -70,9 +70,9 @@ export function CalendarDay({
 
   const dayClasses = [
     'cal-day',
-    locked ? 'locked cal-day-locked' : '',
-    partial ? 'cal-partial-close cal-day-partial' : '',
-    today ? 'cal-day-today' : '',
+    locked ? 'locked' : '',
+    partial ? 'cal-partial-close' : '',
+    today ? 'today cal-day-today' : '',
     hmClass,
   ]
     .filter(Boolean)
@@ -124,17 +124,19 @@ export function CalendarDay({
             <span />
           )}
           <span className="day-num">{day}</span>
-          <IconButton
-            size="small"
-            className="cell-eye-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDay(month, day, dateLabel);
-            }}
-            aria-label="Quick view"
-          >
-            <VisibilityIcon sx={{ fontSize: 14 }} />
-          </IconButton>
+          <span className="cell-hdr-spacer">
+            <IconButton
+              size="small"
+              className={`cell-eye-btn${compact ? ' cell-eye' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenDay(month, day, dateLabel);
+              }}
+              aria-label="Quick view"
+            >
+              <VisibilityIcon sx={{ fontSize: 14 }} />
+            </IconButton>
+          </span>
         </div>
 
         {!compact && (

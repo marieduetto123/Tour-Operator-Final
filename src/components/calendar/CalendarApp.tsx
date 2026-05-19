@@ -204,13 +204,15 @@ export function CalendarApp() {
     .filter(Boolean)
     .join(' ');
 
+  const gridCols = isSingleMonth
+    ? 1
+    : isCompact
+      ? Math.min(displayView, 3)
+      : displayView;
+
   const gridStyle = {
     ...hmVars,
-    ...(isSingleMonth
-      ? { gridTemplateColumns: '1fr' }
-      : isCompact
-        ? { gridTemplateColumns: `repeat(${Math.min(displayView, 3)}, 1fr)` }
-        : {}),
+    gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
   };
 
   const weekRangeLabel = `${MONTH_NAMES[weekAnchor.month]} ${weekAnchor.day}–${weekAnchor.day + 6}, 2026`;

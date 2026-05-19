@@ -9,9 +9,10 @@ import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { ALL_MONTHS } from '@/data/calendarData';
 
-const DOW = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-type DayPoint = { year: number; month: number; day: number };
+const MONTH_ABBR = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
 
 type Props = {
   open: boolean;
@@ -23,96 +24,77 @@ type Props = {
   onCancel: () => void;
 };
 
-function dayTimestamp(p: DayPoint) {
-  return new Date(p.year, p.month - 1, p.day).getTime();
+/** 0 = none, 1 = picking end, 2 = range complete */
+type PickPhase = 0 | 1 | 2;
+
+function monthIndexForYear(year: number, month1Based: number) {
+  return ALL_MONTHS.findIndex((m) => m.year === year && m.month === month1Based);
 }
 
-function sameDay(a: DayPoint, b: DayPoint) {
-  return a.year === b.year && a.month === b.month && a.day === b.day;
-}
-
-function monthIndexFor(p: DayPoint) {
-  return ALL_MONTHS.findIndex((m) => m.year === p.year && m.month === p.month);
-}
-
-function formatDay(p: DayPoint) {
-  return `${p.month}/${p.day}/${p.year}`;
-}
-
-function dayFromMonthMeta(m: (typeof ALL_MONTHS)[number], day: number): DayPoint {
-  return { year: m.year, month: m.month, day };
-}
-
-function MonthDayGrid({
-  meta,
-  from,
-  to,
-  hover,
-  pickingEnd,
-  onDayClick,
-  onDayHover,
-  onDayHoverOut,
+function YearMonthGrid({
+  year,
+  bounds,
+  onMonthClick,
+  onMonthHover,
+  onMonthHoverOut,
 }: {
-  meta: (typeof ALL_MONTHS)[number];
-  from: DayPoint | null;
-  to: DayPoint | null;
-  hover: DayPoint | null;
-  pickingEnd: boolean;
-  onDayClick: (p: DayPoint) => void;
-  onDayHover: (p: DayPoint) => void;
-  onDayHoverOut: () => void;
+  year: number;
+  bounds: { lo: number; hi: number } | null;
+  onMonthClick: (idx: number) => void;
+  onMonthHover: (idx: number) => void;
+  onMonthHoverOut: () => void;
 }) {
-  const pad = (meta.firstDay + 6) % 7;
-  const rangeEnd = pickingEnd ? hover : to;
-
-  const dayClass = (day: number) => {
-    const p = dayFromMonthMeta(meta, day);
-    const classes = ['caldr-day'];
-
-    if (from) {
-      if (sameDay(p, from)) classes.push('caldr-start');
-      if (rangeEnd && sameDay(p, rangeEnd)) classes.push('caldr-end');
-
-      if (rangeEnd && !sameDay(from, rangeEnd)) {
-        const lo = Math.min(dayTimestamp(from), dayTimestamp(rangeEnd));
-        const hi = Math.max(dayTimestamp(from), dayTimestamp(rangeEnd));
-        const ts = dayTimestamp(p);
-        if (ts >= lo && ts <= hi) classes.push('caldr-in-range');
-      }
-    }
-
-    return classes.join(' ');
-  };
-
   return (
-    <Box className="drp-month drp-month--days">
-      <Box className="caldr-dow-row">
-        {DOW.map((label, i) => (
-          <span key={`${meta.month}-dow-${i}`} className="caldr-dow">
-            {label}
-          </span>
-        ))}
-      </Box>
-      <Box className="drp-days" onMouseLeave={onDayHoverOut}>
-        {Array.from({ length: pad }, (_, i) => (
-          <span key={`pad-${i}`} className="caldr-day caldr-empty" />
-        ))}
-        {Array.from({ length: meta.days }, (_, i) => {
-          const day = i + 1;
-          const p = dayFromMonthMeta(meta, day);
+    <Box className="caldr-mgrid">
+      {MONTH_ABBR.map((abbr, mi) => {
+        const idx = monthIndexForYear(year, mi + 1);
+        const inData = idx >= 0;
+        const lo = bounds?.lo ?? -1;
+        const hi = bounds?.hi ?? -1;
+        const inRange = inData && bounds && idx >= lo && idx <= hi;
+        const isStart = inRange && idx === lo;
+        const isEnd = inRange && idx === hi;
+        const isMid = inRange && !isStart && !isEnd;
+        const prevInRange = inData && bounds && idx > lo && idx - 1 >= lo;
+        const nextInRange = inData && bounds && idx < hi && idx + 1 <= hi;
+
+        const classes = [
+          'caldr-cell',
+          `col-${mi % 4}`,
+          !inData ? 'empty' : '',
+          isStart && isEnd ? 'range-start range-end' : '',
+          isStart && !isEnd ? 'range-start' : '',
+          isEnd && !isStart ? 'range-end' : '',
+          isMid ? 'in-range' : '',
+          inRange && !prevInRange ? 'edge-left' : '',
+          inRange && !nextInRange ? 'edge-right' : '',
+        ]
+          .filter(Boolean)
+          .join(' ');
+
+        if (!inData) {
           return (
-            <button
-              key={day}
-              type="button"
-              className={dayClass(day)}
-              onClick={() => onDayClick(p)}
-              onMouseEnter={() => onDayHover(p)}
-            >
-              {day}
-            </button>
+            <div key={`${year}-${abbr}`} className={classes} aria-hidden>
+              <span className="caldr-cell-bg" />
+              <span className="caldr-cell-lbl">{abbr}</span>
+            </div>
           );
-        })}
-      </Box>
+        }
+
+        return (
+          <button
+            key={`${year}-${abbr}`}
+            type="button"
+            className={classes}
+            onClick={() => onMonthClick(idx)}
+            onMouseEnter={() => onMonthHover(idx)}
+            onMouseLeave={onMonthHoverOut}
+          >
+            <span className="caldr-cell-bg" aria-hidden />
+            <span className="caldr-cell-lbl">{abbr}</span>
+          </button>
+        );
+      })}
     </Box>
   );
 }
@@ -126,25 +108,20 @@ export function MonthRangePicker({
   onApply,
   onCancel,
 }: Props) {
-  const [viewIdx, setViewIdx] = useState(appliedStartIdx);
-  const [from, setFrom] = useState<DayPoint | null>(null);
-  const [to, setTo] = useState<DayPoint | null>(null);
-  const [hover, setHover] = useState<DayPoint | null>(null);
-  const [pickingEnd, setPickingEnd] = useState(false);
+  const [leftYear, setLeftYear] = useState(ALL_MONTHS[appliedStartIdx]?.year ?? 2026);
+  const [startIdx, setStartIdx] = useState<number | null>(appliedStartIdx);
+  const [endIdx, setEndIdx] = useState<number | null>(appliedEndIdx);
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [phase, setPhase] = useState<PickPhase>(2);
 
   const resetFromApplied = useCallback(() => {
-    const startM = ALL_MONTHS[appliedStartIdx];
-    const endM = ALL_MONTHS[appliedEndIdx];
-    if (startM && endM) {
-      setFrom(dayFromMonthMeta(startM, 1));
-      setTo(dayFromMonthMeta(endM, endM.days));
-    } else {
-      setFrom(null);
-      setTo(null);
-    }
-    setHover(null);
-    setPickingEnd(false);
-    setViewIdx(appliedStartIdx);
+    const lo = Math.min(appliedStartIdx, appliedEndIdx);
+    const hi = Math.max(appliedStartIdx, appliedEndIdx);
+    setStartIdx(lo);
+    setEndIdx(hi);
+    setHoverIdx(null);
+    setPhase(2);
+    setLeftYear(ALL_MONTHS[lo]?.year ?? 2026);
   }, [appliedStartIdx, appliedEndIdx]);
 
   useEffect(() => {
@@ -152,43 +129,51 @@ export function MonthRangePicker({
     resetFromApplied();
   }, [open, resetFromApplied]);
 
-  const leftMonth = ALL_MONTHS[viewIdx];
-  const rightMonth = ALL_MONTHS[viewIdx + 1];
+  const bounds = useMemo(() => {
+    if (startIdx === null) return null;
+    if (phase === 2 && endIdx !== null) {
+      return { lo: Math.min(startIdx, endIdx), hi: Math.max(startIdx, endIdx) };
+    }
+    if (phase === 1) {
+      const hover = hoverIdx ?? startIdx;
+      return { lo: Math.min(startIdx, hover), hi: Math.max(startIdx, hover) };
+    }
+    return { lo: startIdx, hi: startIdx };
+  }, [startIdx, endIdx, hoverIdx, phase]);
 
-  const handleDayClick = (p: DayPoint) => {
-    if (!pickingEnd || !from) {
-      setFrom(p);
-      setTo(null);
-      setHover(null);
-      setPickingEnd(true);
+  const handleMonthClick = (idx: number) => {
+    if (phase === 1 && startIdx !== null) {
+      let end = idx;
+      let start = startIdx;
+      if (end < start) [start, end] = [end, start];
+      setStartIdx(start);
+      setEndIdx(end);
+      setHoverIdx(null);
+      setPhase(2);
       return;
     }
-
-    let start = from;
-    let end = p;
-    if (dayTimestamp(end) < dayTimestamp(start)) {
-      [start, end] = [end, start];
-    }
-    setFrom(start);
-    setTo(end);
-    setHover(null);
-    setPickingEnd(false);
+    setStartIdx(idx);
+    setEndIdx(null);
+    setHoverIdx(null);
+    setPhase(1);
   };
-
-  const shiftView = (delta: number) => {
-    setViewIdx((i) => Math.max(0, Math.min(i + delta, ALL_MONTHS.length - 2)));
-  };
-
-  const ready = Boolean(from && to && !pickingEnd);
 
   const footerLabel = useMemo(() => {
-    if (!from) return 'Select start date';
-    const rangeEnd = pickingEnd ? hover : to;
-    if (!rangeEnd) return `${formatDay(from)} – … (select end date)`;
-    return `${formatDay(from)} – ${formatDay(rangeEnd)}`;
-  }, [from, to, hover, pickingEnd]);
+    if (phase === 0 || startIdx === null) return 'Select a start month';
+    const lo = bounds?.lo ?? startIdx;
+    const hi = bounds?.hi ?? startIdx;
+    const startM = ALL_MONTHS[lo];
+    const endM = ALL_MONTHS[hi];
+    if (phase === 1) {
+      if (startM && endM && lo !== hi) {
+        return `${startM.name} – ${endM.name}`;
+      }
+      return `${startM?.name ?? ''} – ? (select end month)`;
+    }
+    return `${startM?.name ?? ''} – ${endM?.name ?? ''}`;
+  }, [bounds, phase, startIdx]);
 
-  if (!leftMonth) return null;
+  const ready = phase === 2 && startIdx !== null && endIdx !== null;
 
   return (
     <Popover
@@ -199,7 +184,7 @@ export function MonthRangePicker({
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       slotProps={{
         paper: {
-          className: 'caldr-panel drp-dropdown drp-dropdown--day-range',
+          className: 'caldr-panel drp-dropdown',
           sx: { mt: 0.5, maxWidth: '95vw' },
         },
       }}
@@ -209,52 +194,62 @@ export function MonthRangePicker({
         className="caldr-panel-inner"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <Box className="drp-day-nav-row">
-          <IconButton size="small" onClick={() => shiftView(-1)} aria-label="Previous month">
-            <ChevronLeftIcon fontSize="small" />
-          </IconButton>
-          <Typography component="span" className="drp-day-nav-title">
-            {leftMonth.name}
-          </Typography>
-          {rightMonth ? (
-            <Typography component="span" className="drp-day-nav-title">
-              {rightMonth.name}
-            </Typography>
-          ) : (
-            <span className="drp-day-nav-title drp-day-nav-title--spacer" aria-hidden />
-          )}
-          <IconButton size="small" onClick={() => shiftView(1)} aria-label="Next month">
-            <ChevronRightIcon fontSize="small" />
-          </IconButton>
-        </Box>
-
-        <Box className="drp-calendars drp-calendars--days">
-          <MonthDayGrid
-            meta={leftMonth}
-            from={from}
-            to={to}
-            hover={hover}
-            pickingEnd={pickingEnd}
-            onDayClick={handleDayClick}
-            onDayHover={(p) => {
-              if (pickingEnd) setHover(p);
-            }}
-            onDayHoverOut={() => setHover(null)}
-          />
-          {rightMonth ? (
-            <MonthDayGrid
-              meta={rightMonth}
-              from={from}
-              to={to}
-              hover={hover}
-              pickingEnd={pickingEnd}
-              onDayClick={handleDayClick}
-              onDayHover={(p) => {
-                if (pickingEnd) setHover(p);
+        <Box className="drp-calendars">
+          <Box className="drp-month">
+            <Box className="drp-month-hdr caldr-year-hdr">
+              <IconButton
+                size="small"
+                className="drp-nav"
+                onClick={() => setLeftYear((y) => y - 1)}
+                aria-label="Previous year"
+              >
+                <ChevronLeftIcon fontSize="small" />
+              </IconButton>
+              <Typography component="span" className="drp-month-title caldr-year-title">
+                {leftYear}
+              </Typography>
+              <span className="caldr-nav-spacer" aria-hidden />
+            </Box>
+            <YearMonthGrid
+              year={leftYear}
+              bounds={bounds}
+              onMonthClick={handleMonthClick}
+              onMonthHover={(idx) => {
+                if (phase === 1) setHoverIdx(idx);
               }}
-              onDayHoverOut={() => setHover(null)}
+              onMonthHoverOut={() => {
+                if (phase === 1) setHoverIdx(null);
+              }}
             />
-          ) : null}
+          </Box>
+
+          <Box className="drp-month">
+            <Box className="drp-month-hdr caldr-year-hdr">
+              <span className="caldr-nav-spacer" aria-hidden />
+              <Typography component="span" className="drp-month-title caldr-year-title">
+                {leftYear + 1}
+              </Typography>
+              <IconButton
+                size="small"
+                className="drp-nav"
+                onClick={() => setLeftYear((y) => y + 1)}
+                aria-label="Next year"
+              >
+                <ChevronRightIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <YearMonthGrid
+              year={leftYear + 1}
+              bounds={bounds}
+              onMonthClick={handleMonthClick}
+              onMonthHover={(idx) => {
+                if (phase === 1) setHoverIdx(idx);
+              }}
+              onMonthHoverOut={() => {
+                if (phase === 1) setHoverIdx(null);
+              }}
+            />
+          </Box>
         </Box>
 
         <Box className="drp-footer">
@@ -266,16 +261,13 @@ export function MonthRangePicker({
               Cancel
             </Button>
             <Button
-              className="drp-apply"
+              className={`drp-apply${ready ? '' : ' is-disabled'}`}
               variant="contained"
               color="primary"
               disabled={!ready}
               onClick={() => {
-                if (!ready || !from || !to) return;
-                const lo = monthIndexFor(from);
-                const hi = monthIndexFor(to);
-                if (lo < 0 || hi < 0) return;
-                onApply(Math.min(lo, hi), Math.max(lo, hi));
+                if (!ready || startIdx === null || endIdx === null) return;
+                onApply(Math.min(startIdx, endIdx), Math.max(startIdx, endIdx));
               }}
             >
               Apply
