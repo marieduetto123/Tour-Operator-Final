@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.0/styles/ag-grid.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.0/styles/ag-theme-quartz.css"/>
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@33.3.0/dist/ag-grid-community.min.js"></script>
-  <link rel="stylesheet" href="travelcore-rm-hub.css?v=177">
+  <link rel="stylesheet" href="travelcore-rm-hub.css?v=231">
 </head>
 <body>
 
@@ -480,7 +480,6 @@
           <div class="cal-header-right">
             <!-- Select Dates toggle -->
             <button class="mo-select-dates-btn" id="moSelectDatesBtn" onclick="moToggleSelectMode()" style="order:0">
-              <span class="material-icons" style="font-size:16px">check_box_outline_blank</span>
               <span id="moSelectDatesLabel">Select Dates</span>
             </button>
             <!-- Single smart Close/Re-Open button -->
@@ -488,41 +487,36 @@
               <span class="material-icons" style="font-size:16px">lock</span> Close/Re-Open
             </button>
             <!-- Date Range selector -->
-            <div style="position:relative;order:8" id="calDRWrap">
-              <button id="calDRTrigger" onclick="calDRToggle()" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;font-size:14px;color:#1c1c1c;cursor:pointer;white-space:nowrap;font-family:inherit;height:36px">
+            <div class="drp-wrap caldr-wrap" style="order:8" id="calDRWrap">
+              <button type="button" id="calDRTrigger" class="drp-trigger" onclick="calDRToggle()">
+                <span class="material-icons" style="font-size:16px">date_range</span>
                 <span id="calDRLabel">Jan 2026 – Dec 2026</span>
-                <span class="material-icons" style="font-size:16px">calendar_today</span>
               </button>
-              <!-- Month range picker — two-panel -->
-              <div id="calDRPanel" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);user-select:none">
-                <div style="display:flex">
-                  <!-- Left panel -->
-                  <div class="caldr-half">
-                    <div class="caldr-hdr">
-                      <button class="caldr-nav-btn" onclick="calDRNav(-1)">&#8249;</button>
-                      <span id="calDRLeftYear" class="caldr-yr"></span>
-                      <div style="width:32px"></div>
+              <!-- Month range picker — DS v4, two-year ranged mode -->
+              <div id="calDRPanel" class="drp-dropdown caldr-panel" style="display:none">
+                <div class="drp-calendars">
+                  <div class="drp-month">
+                    <div class="drp-month-hdr caldr-year-hdr">
+                      <button type="button" class="drp-nav" onclick="calDRNav(-1)" aria-label="Previous year">&#8249;</button>
+                      <span id="calDRLeftYear" class="drp-month-title caldr-year-title"></span>
+                      <span class="caldr-nav-spacer" aria-hidden="true"></span>
                     </div>
                     <div id="calDRLeftGrid" class="caldr-mgrid"></div>
                   </div>
-                  <!-- Separator -->
-                  <div style="width:1px;background:#e5e7eb"></div>
-                  <!-- Right panel -->
-                  <div class="caldr-half">
-                    <div class="caldr-hdr">
-                      <div style="width:32px"></div>
-                      <span id="calDRRightYear" class="caldr-yr"></span>
-                      <button class="caldr-nav-btn" onclick="calDRNav(1)">&#8250;</button>
+                  <div class="drp-month">
+                    <div class="drp-month-hdr caldr-year-hdr">
+                      <span class="caldr-nav-spacer" aria-hidden="true"></span>
+                      <span id="calDRRightYear" class="drp-month-title caldr-year-title"></span>
+                      <button type="button" class="drp-nav" onclick="calDRNav(1)" aria-label="Next year">&#8250;</button>
                     </div>
                     <div id="calDRRightGrid" class="caldr-mgrid"></div>
                   </div>
                 </div>
-                <!-- Footer -->
-                <div class="caldr-foot">
-                  <span id="calDRFooterLabel" class="caldr-foot-lbl"></span>
-                  <div style="display:flex;gap:8px">
-                    <button onclick="calDRCancel()" class="caldr-btn-cancel">Cancel</button>
-                    <button onclick="calDRApply()" class="caldr-btn-apply">Apply</button>
+                <div class="drp-footer">
+                  <span id="calDRFooterLabel" class="drp-range-text"></span>
+                  <div class="drp-footer-btns">
+                    <button type="button" class="drp-cancel" onclick="calDRCancel()">Cancel</button>
+                    <button type="button" class="drp-apply" onclick="calDRApply()">Apply</button>
                   </div>
                 </div>
               </div>
@@ -549,156 +543,188 @@
               </div>
 
               <div class="cal-metrics-dropdown" id="calMetricsDropdown" style="display:none">
-  <!-- ── Header ─────────────────────────────────────────────────── -->
-  <div class="cal-md-hdr" style="flex-direction:column;align-items:flex-start;gap:0">
-    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-      <span class="cal-md-title">CELL METRICS</span>
-      <span class="cal-md-hint" id="calCmHint">Max 4 rows</span>
-    </div>
-  </div>
+                <div class="cal-md-scroll">
+                <div class="cal-md-segments" id="cmSegSection">
+                  <p class="cal-md-section-title">Segments to show</p>
+                  <label class="cal-md-seg-row">
+                    <span class="cal-md-cb checked" id="cmSegAllCb" onclick="cmToggleAllSegs(this)"></span>
+                    <span class="cal-md-seg-label cal-md-seg-label--strong">All</span>
+                  </label>
+                  <label class="cal-md-seg-row">
+                    <span class="cal-md-cb checked" data-seg-key="fit" onclick="cmToggleSeg('fit',this)"></span>
+                    <span class="cal-md-swatch" style="background:#47c5bc"></span>
+                    <span class="cal-md-seg-label">Static FIT Rates</span>
+                  </label>
+                  <label class="cal-md-seg-row">
+                    <span class="cal-md-cb checked" data-seg-key="dynamic" onclick="cmToggleSeg('dynamic',this)"></span>
+                    <span class="cal-md-swatch" style="background:#7459ee"></span>
+                    <span class="cal-md-seg-label">Operator Dynamic</span>
+                  </label>
+                  <label class="cal-md-seg-row">
+                    <span class="cal-md-cb checked" data-seg-key="series" onclick="cmToggleSeg('series',this)"></span>
+                    <span class="cal-md-swatch" style="background:#ffb90f"></span>
+                    <span class="cal-md-seg-label">Tour Series</span>
+                  </label>
+                </div>
 
-  <!-- ── Segments to show ───────────────────────────────────────── -->
-  <div id="cmSegSection" style="padding:8px 12px 8px;border-bottom:1px solid var(--border-sub)">
-    <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Segments to show</div>
-    <label class="cal-md-item" style="padding:3px 0">
-      <span class="cal-md-cb checked" id="cmSegAllCb" onclick="cmToggleAllSegs(this)"></span>
-      <span class="cal-md-label" style="font-weight:600;color:#1c1c1c">All</span>
-    </label>
-    <label class="cal-md-item" style="padding:3px 0">
-      <span class="cal-md-cb checked" data-seg-key="fit" onclick="cmToggleSeg('fit',this)"></span>
-      <span class="cal-md-swatch" style="background:#0891b2"></span>
-      <span class="cal-md-label">Static FIT Rates</span>
-    </label>
-    <label class="cal-md-item" style="padding:3px 0">
-      <span class="cal-md-cb checked" data-seg-key="dynamic" onclick="cmToggleSeg('dynamic',this)"></span>
-      <span class="cal-md-swatch" style="background:#7c3aed"></span>
-      <span class="cal-md-label">Operator Dynamic</span>
-    </label>
-    <label class="cal-md-item" style="padding:3px 0">
-      <span class="cal-md-cb checked" data-seg-key="series" onclick="cmToggleSeg('series',this)"></span>
-      <span class="cal-md-swatch" style="background:#f59e0b"></span>
-      <span class="cal-md-label">Tour Series</span>
-    </label>
-    <!-- ── Info box: visible when 4 metrics selected ── -->
-    <div id="cmInfoBox" style="display:flex;margin-top:8px;padding:10px 8px;background:#fff;border:1px solid #00298c;border-radius:4px;align-items:flex-start;gap:8px">
-      <span class="material-icons" style="color:#1b4dc0;font-size:20px;flex-shrink:0;line-height:1.3">info</span>
-      <span style="font-size:14px;color:#1b4dc0;line-height:1.4">Only select up to 4 metrics</span>
-    </div>
-  </div>
+                <div class="cal-md-metrics">
+                  <div class="cal-md-metrics-head">
+                    <p class="cal-md-section-title">Select 4 metrics</p>
+                    <span class="cal-md-hint" id="calCmHint">3 / 4 rows</span>
+                  </div>
+                  <div class="cal-md-search">
+                    <span class="material-icons cal-md-search-icon">search</span>
+                    <input type="text" id="cmSearchInput" class="cal-md-search-input" placeholder="Search..." autocomplete="off" oninput="cmSearchFilter(this.value)">
+                  </div>
+                  <div class="cal-md-menu-scroll" id="cmMetricsMenu">
 
-  <!-- ── Metrics selection (expandable sections) ──────────────── -->
-  <div style="border-top:1px solid var(--border-sub);width:100%;max-height:400px;overflow-y:auto">
-    <!-- Daily Metrics Section -->
-    <div class="cm-section">
-      <div class="cm-section-header" onclick="cmToggleSection('daily', this)">
-        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
-        <span class="cm-section-title">Daily Metrics</span>
-      </div>
-      <div class="cm-section-content" id="cmSection-daily" style="display:block">
-        <div class="cm-metric-group">
-          <div class="cm-group-label">Occupancy</div>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hocc" onclick="cmToggleMetric('hocc',this)"></span><span class="cmv4-dot" style="background:#5883ed;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tocc" onclick="cmToggleMetric('tocc',this)"></span><span class="cmv4-dot" style="background:#006461;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
-        </div>
-        <div class="cm-metric-group">
-          <div class="cm-group-label">ADR</div>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hadr" onclick="cmToggleMetric('hadr',this)"></span><span class="cmv4-dot" style="background:#7c3aed;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tadr" onclick="cmToggleMetric('tadr',this)"></span><span class="cmv4-dot" style="background:#4f46e5;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
-        </div>
-        <div class="cm-metric-group">
-          <div class="cm-group-label">Revenue</div>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hrev" onclick="cmToggleMetric('hrev',this)"></span><span class="cmv4-dot" style="background:#ea580c;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="trev" onclick="cmToggleMetric('trev',this)"></span><span class="cmv4-dot" style="background:#b45309;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
-        </div>
-        <div class="cm-metric-group">
-          <div class="cm-group-label">RN Sold</div>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hrn" onclick="cmToggleMetric('hrn',this)"></span><span class="cmv4-dot" style="background:#2e65e8;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="trn" onclick="cmToggleMetric('trn',this)"></span><span class="cmv4-dot" style="background:#0284c7;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
-        </div>
-        <div class="cm-metric-group">
-          <div class="cm-group-label">RevPAR</div>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hrevpar" onclick="cmToggleMetric('hrevpar',this)"></span><span class="cmv4-dot" style="background:#9333ea;margin-right:6px"></span><span class="cm-hotel-label">Hotel</span></label>
-          <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="trevpar" onclick="cmToggleMetric('trevpar',this)"></span><span class="cmv4-dot" style="background:#7c3aed;margin-right:6px"></span><span class="cm-operator-label">Tour Operator</span></label>
-        </div>
-      </div>
-    </div>
+                    <div class="cm-menu-group" data-cm-search="occupancy">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                        <span class="cm-menu-label">Occupancy</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="occupancy hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="hocc" onclick="cmToggleMetric('hocc',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="occupancy tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="tocc" onclick="cmToggleMetric('tocc',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                      </div>
+                    </div>
 
-    <!-- Other Metrics Section -->
-    <div class="cm-section">
-      <div class="cm-section-header" onclick="cmToggleSection('other', this)">
-        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
-        <span class="cm-section-title">Other Metrics</span>
-      </div>
-      <div class="cm-section-content" id="cmSection-other" style="display:none">
-        <div class="cm-subsection-label">Hotel</div>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cmv4-dot" style="background:#16a34a;margin-right:6px"></span><span>Pickup</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cmv4-dot" style="background:#0891b2;margin-right:6px"></span><span>Avg LOS</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cmv4-dot" style="background:#6366f1;margin-right:6px"></span><span>Average Lead Time</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cmv4-dot" style="background:#2e65e8;margin-right:6px"></span><span>Avg Adults</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cmv4-dot" style="background:#d33030;margin-right:6px"></span><span>Avg Children</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cmv4-dot" style="background:#0369a1;margin-right:6px"></span><span>Total Guests</span></label>
-        <div class="cm-subsection-label" style="margin-top:8px">Tour Operator</div>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cmv4-dot" style="background:#0d9488;margin-right:6px"></span><span>Pickup</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cmv4-dot" style="background:#22d3ee;margin-right:6px"></span><span>Avg LOS</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cmv4-dot" style="background:#a5b4fc;margin-right:6px"></span><span>Average Lead Time</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cmv4-dot" style="background:#60a5fa;margin-right:6px"></span><span>Avg Adults</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cmv4-dot" style="background:#f87171;margin-right:6px"></span><span>Avg Children</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cmv4-dot" style="background:#0ea5e9;margin-right:6px"></span><span>Total Guests</span></label>
-      </div>
-    </div>
+                    <div class="cm-menu-group" data-cm-search="adr">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                        <span class="cm-menu-label">ADR</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="adr hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hadr" onclick="cmToggleMetric('hadr',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="adr tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tadr" onclick="cmToggleMetric('tadr',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                      </div>
+                    </div>
 
-    <!-- Availability Section -->
-    <div class="cm-section">
-      <div class="cm-section-header" onclick="cmToggleSection('availability', this)">
-        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
-        <span class="cm-section-title">Availability</span>
-      </div>
-      <div class="cm-section-content" id="cmSection-availability" style="display:none">
-        <div class="cm-subsection-label">Hotel</div>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cmv4-dot" style="background:#16a34a;margin-right:6px"></span><span>Avail Rooms</span></label>
-        <div class="cm-subsection-label" style="margin-top:8px">Tour Operator</div>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cmv4-dot" style="background:#ea580c;margin-right:6px"></span><span>Avail Guaranteed</span></label>
-      </div>
-    </div>
+                    <div class="cm-menu-group" data-cm-search="revenue">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                        <span class="cm-menu-label">Revenue</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revenue hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hrev" onclick="cmToggleMetric('hrev',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revenue tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trev" onclick="cmToggleMetric('trev',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                      </div>
+                    </div>
 
-    <!-- Business Mix Section -->
-    <div class="cm-section">
-      <div class="cm-section-header" onclick="cmToggleSection('business', this)">
-        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
-        <span class="cm-section-title">Business Mix</span>
-      </div>
-      <div class="cm-section-content" id="cmSection-business" style="display:none">
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cmv4-dot" style="background:#006461;margin-right:6px"></span><span>TO Mix %</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cmv4-dot" style="background:#0284c7;margin-right:6px"></span><span>Direct Mix %</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cmv4-dot" style="background:#7c3aed;margin-right:6px"></span><span>OTA Mix %</span></label>
-      </div>
-    </div>
+                    <div class="cm-menu-group" data-cm-search="rn sold">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                        <span class="cm-menu-label">RN Sold</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="rn sold hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="hrn" onclick="cmToggleMetric('hrn',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="rn sold tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trn" onclick="cmToggleMetric('trn',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                      </div>
+                    </div>
 
-    <!-- Selling Rates Section -->
-    <div class="cm-section">
-      <div class="cm-section-header" onclick="cmToggleSection('rates', this)">
-        <span class="cm-expand-icon" style="transform:rotate(0deg)">▸</span>
-        <span class="cm-section-title">Selling Rates</span>
-      </div>
-      <div class="cm-section-content" id="cmSection-rates" style="display:none">
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cmv4-dot" style="background:#0f766e;margin-right:6px"></span><span>TO Contract Rate</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cmv4-dot" style="background:#d97706;margin-right:6px"></span><span>Promotion %</span></label>
-        <label class="cm-metric-row"><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cmv4-dot" style="background:#9333ea;margin-right:6px"></span><span>Base Segment Rate</span></label>
-      </div>
-    </div>
-  </div>
+                    <div class="cm-menu-group" data-cm-search="revpar">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                        <span class="cm-menu-label">RevPAR</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revpar hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hrevpar" onclick="cmToggleMetric('hrevpar',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revpar tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trevpar" onclick="cmToggleMetric('trevpar',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                      </div>
+                    </div>
 
-<!-- ── Modal snackbar: shown when 5th metric click attempted ── -->
-<div id="cmModalSnackbar" style="display:none;margin:0 12px 8px;padding:12px 8px;background:#ffebee;border-radius:4px;align-items:center;gap:8px;box-shadow:0px 1px 0.5px rgba(0,0,0,0.14),0px 2px 0.5px rgba(0,0,0,0.12),0px 1px 1.5px rgba(0,0,0,0.2)">
-  <span class="material-icons" style="color:#991f1f;font-size:24px;flex-shrink:0">error_outline</span>
-  <span style="font-size:14px;color:#991f1f;flex:1;font-family:Lato,sans-serif">Only select up to 4 metrics</span>
-  <span class="material-icons" onclick="cmModalSnackbarHide()" style="color:#991f1f;cursor:pointer;font-size:20px;flex-shrink:0">close</span>
-</div>
-<div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;padding:10px 12px;display:flex;align-items:center;justify-content:flex-end;gap:8px">
-  <button onclick="cmResetMetrics()" style="height:32px;padding:0 12px;background:transparent;border:none;border-radius:4px;font-size:12px;color:#006461;cursor:pointer;font-family:inherit">Reset</button>
-  <button id="cmApplyBtn" onclick="cmApplyMetrics()" style="height:32px;padding:0 12px;background:#006461;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-family:inherit">Apply</button>
-</div>
-</div>
+                    <div class="cm-menu-group" data-cm-search="other metrics">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="cm-menu-label">Other Metrics</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:none">
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
+                        <div class="cm-menu-children" style="display:none">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
+                        </div>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
+                        <div class="cm-menu-children" style="display:none">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="cm-menu-group" data-cm-search="availability">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="cm-menu-label">Availability</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:none">
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
+                        <div class="cm-menu-children" style="display:none">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail rooms"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cm-menu-label">Avail Rooms</span></label>
+                        </div>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
+                        <div class="cm-menu-children" style="display:none">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail guaranteed"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cm-menu-label">Avail Guaranteed</span></label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="cm-menu-group" data-cm-search="business mix">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="cm-menu-label">Business Mix</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:none">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cm-menu-label">Tour Operator Mix %</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="direct mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cm-menu-label">Direct Mix %</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="ota mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cm-menu-label">OTA Mix %</span></label>
+                      </div>
+                    </div>
+
+                    <div class="cm-menu-group" data-cm-search="selling rates">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                        <span class="cm-menu-spacer"></span>
+                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="cm-menu-label">Selling Rates</span>
+                      </button>
+                      <div class="cm-menu-children" style="display:none">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator contract rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cm-menu-label">Tour Operator Contract Rate</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="promotion"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cm-menu-label">Promotion %</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="base segment rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cm-menu-label">Base Segment Rate</span></label>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                </div>
+
+                <div id="cmModalSnackbar" class="cal-md-snackbar" style="display:none">
+                  <span class="material-icons">error_outline</span>
+                  <span>Only select up to 4 metrics</span>
+                  <span class="material-icons cal-md-snackbar-close" onclick="cmModalSnackbarHide()">close</span>
+                </div>
+
+                <div class="cal-md-foot">
+                  <button type="button" class="cal-md-reset" onclick="cmResetMetrics()">Reset</button>
+                  <button type="button" class="cal-md-apply" id="cmApplyBtn" onclick="cmApplyMetrics()">Apply</button>
+                </div>
+              </div>
 
                 </div>
             <!-- Compare dropdown -->
@@ -1180,8 +1206,8 @@
         <div class="cal-legend">
           <div class="leg-item"><span class="leg-dot-blue"></span><span>Online | Offline</span></div>
           <div class="leg-item"><span class="material-icons" style="font-size:14px">visibility</span><span>Quick view (hover)</span></div>
-          <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#dc2626">lock</span><span>Full close out</span></div>
-          <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#ea580c">lock</span><span>Partial close out</span></div>
+          <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#D32F2F">lock</span><span>Full close out</span></div>
+          <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#FFB90F">lock</span><span>Partial close out</span></div>
           <div class="leg-item leg-item-event"><span class="material-icons" style="font-size:18px;color:#006461">today</span><span>Event</span></div>
         </div>
         <div class="wv-cal-scroll-area">
@@ -3481,7 +3507,7 @@
 
 
   <script src="travelcore-rm-hub.js?v=176"></script>
-<div id="calCapTip" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #e0e0e0;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.2),0 2px 1px -1px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.14);padding:10px;pointer-events:none;width:245px"></div>
+<div id="calCapTip" class="cal-cap-tip" style="display:none"></div>
 
 <!-- Add Meal Plan Modal -->
 <div id="addMealPlanOverlay" class="modal-overlay" onclick="if(event.target===this)btModalClose()">
@@ -3519,20 +3545,13 @@
   </button>
 </div>
 
-<!-- ── Monthly calendar: fixed selection footer ───────────────────────── -->
+<!-- ── Monthly calendar: fixed selection footer (DS v4 FormActions 14351-20066) -->
 <div id="moSelFooter" class="mo-sel-footer">
   <div class="mo-sel-footer-inner">
-    <div class="mo-sel-footer-info">
-      <span class="material-icons" style="font-size:18px;color:#006461">event</span>
-      <span id="moSelCount" class="mo-sel-count">0 dates selected</span>
-    </div>
+    <span id="moSelCount" class="mo-sel-count">0 dates selected</span>
     <div class="mo-sel-footer-actions">
-      <button class="mo-sel-footer-cancel" onclick="moToggleSelectMode()">
-        <span class="material-icons" style="font-size:15px">close</span> Cancel
-      </button>
-      <button class="mo-sel-footer-action" onclick="moOpenCloseOut()">
-        <span class="material-icons" style="font-size:15px">lock</span> Close / Re-Open
-      </button>
+      <button type="button" class="mo-sel-footer-cancel" onclick="moToggleSelectMode()">Cancel</button>
+      <button type="button" class="mo-sel-footer-action" onclick="moOpenCloseOut()">Close / Re-Open</button>
     </div>
   </div>
 </div>

@@ -1265,6 +1265,45 @@ const ALL_MONTHS = [
 let calStartIdx = 0; // start at January
 let calView = 2;        // default 2 months on load
 let calDisplayView = 2; // default 2 months on load
+const CAL_DAY_HEIGHT = '180px';
+
+/** Compact $ for monthly day cells — keeps full values readable in narrow cells */
+function calFmtCellMoney(n) {
+  var neg = n < 0;
+  var v = Math.round(Math.abs(n));
+  var s;
+  if (v >= 1000000) s = '$' + (v / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  else if (v >= 10000) s = '$' + Math.round(v / 1000) + 'k';
+  else if (v >= 1000) s = '$' + (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  else s = '$' + v;
+  return neg ? '-' + s : s;
+}
+function calFmtCellMoneyFull(n) {
+  return (n < 0 ? '-' : '') + '$' + Math.round(Math.abs(n)).toLocaleString('en-US');
+}
+
+function calApplyDayCellHeights() {
+  const grid = document.getElementById('calMonths');
+  if (!grid) return;
+  const isCompact = calDisplayView >= 3;
+  const h = isCompact ? '36px' : CAL_DAY_HEIGHT;
+  document.documentElement.style.setProperty('--cal-day-height', h);
+  var styleEl = document.getElementById('cal-day-height-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'cal-day-height-style';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = isCompact
+    ? '#calMonths.cal-compact .cal-day,#calMonths.cal-compact .cal-day.empty{height:36px!important;min-height:36px!important;max-height:36px!important}'
+    : '#calMonths:not(.cal-compact) .cal-day,#calMonths:not(.cal-compact) .cal-day.empty{height:' + h + '!important;min-height:' + h + '!important;max-height:' + h + '!important}#calMonths:not(.cal-compact) .cal-days{grid-auto-rows:' + h + '}';
+  grid.setAttribute('data-cal-day-height', h);
+  grid.querySelectorAll('.cal-day').forEach(function (el) {
+    el.style.setProperty('height', h, 'important');
+    el.style.setProperty('min-height', h, 'important');
+    el.style.setProperty('max-height', h, 'important');
+  });
+}
 let calRangeFrom   = new Date(2026, 0, 1);  // active date-range start (global)
 let calRangeTo     = new Date(2026, 11, 31); // active date-range end   (global)
 let calDateRangeStart = null; // start of selected date range (for navigation)
@@ -1277,31 +1316,108 @@ const TO_FILTER_MULT = { all:1.0, sunwing:0.82, tui:1.18, 'thomas-cook':0.71, 'c
 let calFiltTO = 'all';
 let calCompareMode = 'none'; // 'ly', 'stly', 'fcst', 'budget', 'none'
 function calSetCompare(val) {
-  calCompareMode = val || 'ly';
+  calCompareMode = val || 'none';
+  var sel = document.getElementById('calCompare');
+  if (sel) sel.value = calCompareMode;
   renderCalendar();
 }
-// Disable compare dropdown when viewport is too narrow for the current view
-function _calUpdateCompareState() {
-  var sel = document.getElementById('calCompare');
-  var wrap = document.getElementById('calCompareWrap');
-  if (!sel || !wrap) return;
-  var w = window.innerWidth;
-  var v = calDisplayView;
-  // 3-month under 2100px or 2-month under 1537px → disable
-  var hide = (v === 3 && w < 2100) || (v === 2 && w < 1537);
-  sel.disabled = hide;
-  wrap.classList.toggle('cmp-disabled', hide);
-  if (hide && calCompareMode !== 'none') {
-    calCompareMode = 'none';
-    sel.value = 'none';
+var CAL_CMP_MIN_CELL_W = 108;
+var CAL_FULL_UNITS_MIN_CELL_W = 112;
+
+function calMetricUseFull() {
+  if (calDisplayView >= 3) return false;
+  return _calMeasureDayCellWidth() >= CAL_FULL_UNITS_MIN_CELL_W;
+}
+
+function calCmpRowSeed(month, day, rowIdx, label) {
+  var s = String(label || '');
+  var h = 0;
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs((month * 37 + day * 19 + rowIdx * 11 + (h % 997)) % 997);
+}
+
+// Per-metric compare multiplier so day cells mix up/down arrows (not one direction for all rows)
+function calCmpRefMult(baseMult, rowIdx, month, day, label) {
+  if (!baseMult) return baseMult;
+  var h = calCmpRowSeed(month, day, rowIdx, label);
+  var wantUp = (rowIdx + Math.floor(h / 31)) % 2 === 0;
+  var jitter = 0.90 + (h % 11) * 0.008;
+  if (wantUp) {
+    if (baseMult < 1) return baseMult * jitter;
+    return 0.86 + (h % 13) * 0.006;
   }
+  if (baseMult < 1) return 1.03 + (h % 9) * 0.005;
+  return baseMult * (1.05 + (h % 7) * 0.006);
+}
+
+function calCmpRefValue(current, baseMult, rowIdx, month, day, label) {
+  if (current == null || isNaN(current) || !baseMult) return current;
+  return parseFloat(current) * calCmpRefMult(baseMult, rowIdx, month, day, label);
+}
+
+function calCmpRefAdditive(current, baseDelta, rowIdx, month, day, label) {
+  if (current == null || isNaN(current)) return null;
+  var cur = parseFloat(current);
+  var base = cur + (baseDelta || 0);
+  var h = calCmpRowSeed(month, day, rowIdx, label);
+  var wantUp = (rowIdx + Math.floor(h / 31)) % 2 === 0;
+  var extra = 2 + (h % 6);
+  if (wantUp) return base < cur ? base : cur - extra;
+  return base > cur ? base : cur + extra;
+}
+
+function _calMeasureDayCellWidth() {
+  var grid = document.getElementById('calMonths');
+  if (!grid || grid.classList.contains('cal-compact')) return 0;
+  var cell = grid.querySelector('.cal-day:not(.empty)');
+  return cell ? cell.getBoundingClientRect().width : 0;
+}
+
+function _calSyncCellCompareVisibility() {
+  var grid = document.getElementById('calMonths');
+  if (!grid) return;
+  // Inline arrows in day cells only when there is room; compare still applies to eye popup + accordions
+  var cellW = _calMeasureDayCellWidth();
+  var hasInlineSpace = calDisplayView < 3 && cellW >= CAL_CMP_MIN_CELL_W;
+  var showInlineCmp = hasInlineSpace && calCompareMode !== 'none';
+  grid.classList.toggle('cal-cmp-visible', showInlineCmp);
+  var wrap = document.getElementById('calCompareWrap');
+  if (wrap) wrap.classList.remove('cmp-disabled');
+  var sel = document.getElementById('calCompare');
+  if (sel) sel.disabled = false;
+}
+
+function _calUpdateCompareState() {
+  _calSyncCellCompareVisibility();
 }
 window.addEventListener('resize', _calUpdateCompareState);
+
+var _calCompareResizeObs = null;
+function _calBindCompareResizeObserver() {
+  var grid = document.getElementById('calMonths');
+  if (!grid || _calCompareResizeObs) return;
+  _calCompareResizeObs = new ResizeObserver(function () {
+    _calSyncCellCompareVisibility();
+  });
+  _calCompareResizeObs.observe(grid);
+}
 const ALLOTMENTS = {
   sunwing:       { total: 42, pct: 0.88 },
   tui:           { total: 55, pct: 0.72 },
   'thomas-cook': { total: 30, pct: 0.58 },
   'club-med':    { total: 25, pct: 0.94 },
+};
+
+// Heatmap + close-out colour tokens (shared across calendar, week view, reports)
+const HM_METRIC_COLORS = { grey: '#D33030', blue: '#FDF6F6', green: '#2E65E8' };
+const HM_STOP_SALES_COLORS = { closed: '#D32F2F', partial: '#FFB90F', open: '#388C3F' };
+const CLOSE_OUT_COLORS = {
+  full: HM_STOP_SALES_COLORS.closed,
+  fullBg: '#FFEBEE',
+  partial: HM_STOP_SALES_COLORS.partial,
+  partialBg: '#FFF8E6',
+  open: HM_STOP_SALES_COLORS.open,
+  openBg: '#E8F5E9'
 };
 
 // Closed-out days
@@ -1490,6 +1606,43 @@ function getHotelClass(pct) { return ''; }
 /* Heatmap removed */
 function getSegClass(pct) { return ''; }
 
+/* Pick white vs black label text from computed background (heatmap + occ fills) */
+function calLuminanceFromColor(css) {
+  if (!css || css === 'transparent') return 1;
+  var m = css.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/);
+  if (!m) return 1;
+  var r = +m[1], g = +m[2], b = +m[3], a = m[4] !== undefined ? +m[4] : 1;
+  r = Math.round(r * a + 255 * (1 - a));
+  g = Math.round(g * a + 255 * (1 - a));
+  b = Math.round(b * a + 255 * (1 - a));
+  var lin = function(c) {
+    c /= 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+function calApplyCellContrast() {
+  document.querySelectorAll('#calMonths .cal-day:not(.empty)').forEach(function(day) {
+    var lum = calLuminanceFromColor(getComputedStyle(day).backgroundColor);
+    var onDark = lum <= 0.45;
+    day.classList.toggle('cal-on-dark', onDark);
+    day.classList.toggle('cal-on-light', !onDark);
+    var content = day.querySelector('.cell-content');
+    if (content) {
+      if (day.classList.contains('locked') || day.classList.contains('cal-partial-close')) {
+        var lumC = calLuminanceFromColor(getComputedStyle(content).backgroundColor);
+        var cDark = lumC <= 0.45;
+        content.classList.toggle('cal-on-dark', cDark);
+        content.classList.toggle('cal-on-light', !cDark);
+      } else {
+        content.classList.remove('cal-on-dark', 'cal-on-light');
+      }
+    }
+  });
+}
+window.calApplyCellContrast = calApplyCellContrast;
+
 // Legacy alias
 function getCellClass(hotel) { return getHotelClass(hotel); }
 
@@ -1573,7 +1726,7 @@ function renderCalendar() {
 
   // Grid columns — max 4 per row
   var gridCols = calView;
-  if (calDisplayView >= 3) gridCols = Math.min(calView, 4);
+  if (calDisplayView >= 3) gridCols = Math.min(calView, 3);
   container.style.gridTemplateColumns = 'repeat(' + gridCols + ', 1fr)';
 
   const _isCompactView = (calDisplayView >= 3);
@@ -1659,8 +1812,9 @@ function renderCalendar() {
       const metricRows = (function() {
         if (isCompact) return '';
         // Use cmBuildRows to get what user selected in Cell Metrics panel
+        var _useFullMetrics = calMetricUseFull();
         var rows = (typeof window.cmBuildRows === 'function')
-          ? window.cmBuildRows(cellMetricVals, calDisplayView === 1)
+          ? window.cmBuildRows(cellMetricVals, _useFullMetrics)
           : [
               { label: 'H-Occ', value: hotel + '%', raw: hotel, color: '#5883ed' },
               { label: 'TO-Occ', value: to + '%',    raw: to,    color: '#006461' },
@@ -1675,8 +1829,6 @@ function renderCalendar() {
           : calCompareMode === 'fcst' ? _fcstF
           : calCompareMode === 'budget' ? _budgF : 0;
 
-        var _cmpLblShort = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Bgt'}[calCompareMode] || '';
-
         var _hasCmp = !!_cmpMult;
         return rows.map(function(r, _ri, _ra) {
           // Determine if this is a Hotel (H-) or TO (TO-) metric by label prefix
@@ -1684,10 +1836,6 @@ function renderCalendar() {
           var isTO = lbl.substring(0, 3) === 'TO-';
           var isH  = lbl.charAt(0) === 'H' && lbl.charAt(1) === '-';
           var metricColorClass = isTO ? 'cell-m-to' : 'cell-m-hotel';
-          // Border: default = all except last; compare = Hotel rows only
-          var isLast = (_ri === _ra.length - 1);
-          var hasBorder = _hasCmp ? (isH || (!isTO && !isLast)) : !isLast;
-          var borderClass = hasBorder ? ' cell-m-border' : '';
           // Short label: strip H-/TO- prefix, then strip LY-/STLY-/Fcst- for cleanliness
           var shortLabel = isTO ? lbl.substring(3) : (isH ? lbl.substring(2) : lbl);
           shortLabel = shortLabel.replace(/^LY-|^STLY-|^Fcst-/, '');
@@ -1700,42 +1848,50 @@ function renderCalendar() {
           var _isDollarK = _v.indexOf('$') >= 0 && _v.indexOf('k') >= 0;
           var _isDollar = !_isDollarK && (_v.indexOf('$') >= 0 || (!_hasUnit && (_sl.indexOf('adr') >= 0 || (_sl.indexOf('rev') >= 0 && _sl.indexOf('revpar') < 0) || _sl.indexOf('revpar') >= 0 || _sl.indexOf('rate') >= 0 || _sl === 'base')));
 
-          // Build inline compare delta (arrow + difference)
+          // Inline compare: difference vs LY / STLY / Fcst / Budget + arrow
           var cmpHtml = '';
-          if (_cmpMult && r.raw != null && !isNaN(r.raw)) {
-            var cmpRaw = Math.round(r.raw * _cmpMult);
+          if (_hasCmp && _cmpMult && r.raw != null && !isNaN(r.raw)) {
+            var cmpRaw = calCmpRefValue(r.raw, _cmpMult, _ri, m.month, d, shortLabel);
             var diff = r.raw - cmpRaw;
             var absDiff = Math.abs(diff);
             var diffStr;
-            if (_isDollarK) {
-              diffStr = absDiff >= 1000 ? '$' + Math.round(absDiff / 1000) + 'k' : '$' + Math.round(absDiff);
-            } else if (_isDollar) {
-              diffStr = '$' + Math.round(absDiff);
+            if (_isDollarK || _isDollar) {
+              diffStr = calFmtCellMoney(absDiff);
             } else if (_isPercent) {
               diffStr = Math.round(absDiff) + '%';
+            } else if (_v.indexOf('RN') >= 0 || _sl.indexOf('rn') >= 0) {
+              diffStr = Math.round(absDiff) + ' RN';
+            } else if (_v.indexOf('n') >= 0 && _sl.indexOf('los') >= 0) {
+              diffStr = (Math.round(absDiff * 10) / 10).toFixed(1) + (_useFullMetrics ? ' nights' : 'n');
+            } else if (_v.indexOf('d') >= 0 && _sl.indexOf('lead') >= 0) {
+              diffStr = Math.round(absDiff) + (_useFullMetrics ? ' days' : 'd');
             } else {
               diffStr = String(Math.round(absDiff));
             }
             if (diff !== 0) {
               var cmpClr = diff > 0 ? '#388C3F' : '#D32F2F';
               var arrow = diff > 0 ? 'arrow_upward' : 'arrow_downward';
-              cmpHtml = '<span class="cell-m-cmp" style="color:'+cmpClr+'">'
-                + '<span class="material-icons">'+arrow+'</span>'
-                + diffStr + '</span>';
+              cmpHtml = '<span class="cell-m-cmp" style="color:' + cmpClr + '">'
+                + '<span class="material-icons cell-m-cmp-arrow">' + arrow + '</span>'
+                + '<span class="cell-m-cmp-amt">' + diffStr + '</span></span>';
             }
           }
 
           // Ensure primary value has unit when missing
           var displayVal = r.value;
+          var valTitle = '';
           if (_isPercent && _v.indexOf('%') < 0) displayVal = Math.round(r.raw) + '%';
-          else if (_isDollar && _v.indexOf('$') < 0) displayVal = '$' + Math.round(r.raw);
+          else if (_isDollarK || _isDollar) {
+            displayVal = calFmtCellMoney(r.raw);
+            valTitle = calFmtCellMoneyFull(r.raw);
+          }
 
-          if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + borderClass + '">'
+          if (r._html) return '<div class="cell-m-row cell-m-row-stacked ' + metricColorClass + '">'
             + '<span class="cell-m-label">' + shortLabel + '</span>'
             + r._html + '</div>';
-          return '<div class="cell-m-row ' + metricColorClass + borderClass + '">'
-            + '<span class="cell-m-label">' + shortLabel + '</span>'
-            + '<span class="cell-m-val">' + displayVal + '</span>'
+          return '<div class="cell-m-row ' + metricColorClass + '">'
+            + '<span class="cell-m-label" title="' + shortLabel + '">' + shortLabel + '</span>'
+            + '<span class="cell-m-val"' + (valTitle ? ' title="' + valTitle + '"' : '') + '>' + displayVal + '</span>'
             + cmpHtml
             + '</div>';
         }).join('');
@@ -1764,7 +1920,7 @@ function renderCalendar() {
         toFcst: to * 1.6 + Math.abs((m.month * 7 + d * 11) % 15)
       };
       const hmClass = (typeof window.hmGetCellClass === 'function') ? window.hmGetCellClass(hmDayData) : '';
-      const classes = ['cal-day', cellClass, hmClass, isLocked ? 'locked' : '', isToday ? 'today' : '', isActionNeeded ? 'action-needed' : '', bulkSelectMode && isLocked ? 'bulk-selectable' : '', isBulkSel ? 'bulk-sel' : '', isInRange ? 'in-range' : '', hasCalEvents ? 'has-events' : ''].filter(Boolean).join(' ');
+      const classes = ['cal-day', cellClass, hmClass, isLocked ? 'locked' : '', hasCalCl ? 'cal-partial-close' : '', isToday ? 'today' : '', isActionNeeded ? 'action-needed' : '', bulkSelectMode && isLocked ? 'bulk-selectable' : '', isBulkSel ? 'bulk-sel' : '', isInRange ? 'in-range' : '', hasCalEvents ? 'has-events' : ''].filter(Boolean).join(' ');
 
       const hotelRooms = toRooms(hotel);
       const toRoomsSold = toRooms(to);
@@ -1777,8 +1933,10 @@ function renderCalendar() {
           <span class="day-num">${d}</span>
           <span class="cell-hdr-spacer">${eyeSvg}</span>
         </div>
-        ${isLocked && !isCompact ? '<span class="cell-closed-label">Closed' + _lockFilled + '</span>' : ''}
-        ${hasCalCl && !isCompact ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partial' + _lockOutlined + '</span>' : ''}
+        ${!isCompact ? '<div class="cell-close-slot">'
+          + (isLocked ? '<span class="cell-closed-label">Closed' + _lockFilled + '</span>' : '')
+          + (hasCalCl ? '<span class="cell-partial-close-label" style="cursor:pointer" onmouseenter="calShowEventTip(event,\'' + m.month + '-' + d + '\')" onmouseleave="calHideEventTip()">Partial' + _lockFilled + '</span>' : '')
+          + '</div>' : ''}
         ${!isCompact ? `<div class="cell-content${calCompareMode !== 'none' ? ' cmp-active' : ''}">${metricRows}</div>` : ''}
         ${!isCompact && hasCalEvents ? '<span class="cell-event-ico" onmouseenter="calShowEventTip(event,\''+m.month+'-'+d+'\')" onmouseleave="calHideEventTip()"><span class="material-icons" style="font-size:16px;color:#006461">today</span></span>' : ''}
       </div>`;
@@ -1842,8 +2000,15 @@ function renderCalendar() {
 
   // Re-apply any active range selection
   applyCalSelection();
+  calApplyDayCellHeights();
+  _calSyncCellCompareVisibility();
+  _calBindCompareResizeObserver();
   // Monthly summary (1M/2M/3M)
   renderCalMonthlySummary();
+  requestAnimationFrame(function() {
+    requestAnimationFrame(calApplyCellContrast);
+  });
+  if (typeof window.hmSyncCalViewClass === 'function') window.hmSyncCalViewClass();
 }
 
 // Keep old name for legacy call at bottom
@@ -2359,11 +2524,11 @@ function renderCalMonthlySummary() {
           case 'mos_co_full':
             if (mo.fullCoCount > 0) {
               cc = '<div class="wb-sect-val">'
-                + '<span class="material-icons" style="font-size:13px;color:#fca5a5;vertical-align:middle;margin-right:3px">lock</span>'
-                + '<span class="wv-occ-total" style="color:#ef4444">' + mo.fullCoCount + ' day' + (mo.fullCoCount!==1?'s':'') + '</span>'
+                + '<span class="material-icons" style="font-size:13px;color:' + CLOSE_OUT_COLORS.full + ';vertical-align:middle;margin-right:3px">lock</span>'
+                + '<span class="wv-occ-total" style="color:' + CLOSE_OUT_COLORS.full + '">' + mo.fullCoCount + ' day' + (mo.fullCoCount!==1?'s':'') + '</span>'
                 + '<span style="font-size:10px;color:#9ca3af;margin-left:6px">/ ' + mo.nd + '</span>'
                 + '</div>'
-                + moBar(Math.min(90, Math.round(mo.fullCoCount/mo.nd*100)), '#ef4444');
+                + moBar(Math.min(90, Math.round(mo.fullCoCount/mo.nd*100)), CLOSE_OUT_COLORS.full);
             } else {
               cc = '<div class="wb-sect-val" style="color:#9ca3af;font-size:12px">None</div>';
             }
@@ -2371,11 +2536,11 @@ function renderCalMonthlySummary() {
           case 'mos_co_part':
             if (mo.partCoCount > 0) {
               cc = '<div class="wb-sect-val">'
-                + '<span class="material-icons" style="font-size:13px;color:#fde68a;vertical-align:middle;margin-right:3px">lock_open</span>'
-                + '<span class="wv-occ-total" style="color:#d97706">' + mo.partCoCount + ' day' + (mo.partCoCount!==1?'s':'') + '</span>'
+                + '<span class="material-icons" style="font-size:13px;color:' + CLOSE_OUT_COLORS.partial + ';vertical-align:middle;margin-right:3px">lock_open</span>'
+                + '<span class="wv-occ-total" style="color:' + CLOSE_OUT_COLORS.partial + '">' + mo.partCoCount + ' day' + (mo.partCoCount!==1?'s':'') + '</span>'
                 + '<span style="font-size:10px;color:#9ca3af;margin-left:6px">/ ' + mo.nd + '</span>'
                 + '</div>'
-                + moBar(Math.min(90, Math.round(mo.partCoCount/mo.nd*100)), '#f59e0b');
+                + moBar(Math.min(90, Math.round(mo.partCoCount/mo.nd*100)), CLOSE_OUT_COLORS.partial);
             } else {
               cc = '<div class="wb-sect-val" style="color:#9ca3af;font-size:12px">None</div>';
             }
@@ -2593,6 +2758,8 @@ window.calSetDisplayView = function(n) {
       g.className = g.className.replace(/\bcal-view-\d+\b/g, '');
       g.classList.add('cal-view-' + n);
     }
+    calApplyDayCellHeights();
+    _calSyncCellCompareVisibility();
     if (typeof applyOutOfRange === 'function') applyOutOfRange();
   }, 80);
 };
@@ -2702,8 +2869,14 @@ function clearCalSelection() {
   function renderAndRestoreCompact() {
     renderCalendar();
     var g = document.getElementById('calMonths');
-    if (g && calDisplayView >= 3) g.classList.add('cal-compact');
-    if (calDisplayView === 12) g && g.classList.add('cal-12m');
+    if (g) {
+      if (calDisplayView >= 3) g.classList.add('cal-compact');
+      else g.classList.remove('cal-compact');
+      if (calDisplayView === 12) g.classList.add('cal-12m');
+      else g.classList.remove('cal-12m');
+    }
+    calApplyDayCellHeights();
+    _calSyncCellCompareVisibility();
     if (typeof applyOutOfRange === 'function') applyOutOfRange();
   }
 
@@ -3094,20 +3267,18 @@ function clearCalSelection() {
         const rtPart = rule.roomTypes.length ? rule.roomTypes.map(function(n){ return popupClChip(n, RT_NAME_COLORS[n]||'#b45309'); }).join('') : popupClChip('All Room Types','#9ca3af');
         const bdPart = rule.boards.length ? rule.boards.map(function(b){ return popupClChip(BMAP_P[b]||b,'#7c3aed'); }).join('') : popupClChip('All Meal Plans','#9ca3af');
         return '<div style="margin-bottom:4px;padding:4px 0;border-bottom:1px solid #f3f4f6">'
-          +'<span style="font-size:12px;font-weight:700;color:#dc2626">Strategy</span>'
+          +'<span style="font-size:12px;font-weight:700;color:#D32F2F">Strategy</span>'
           +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">'+toPart+rtPart+bdPart+'</div>'
           +'</div>';
       }).join('');
       return '<div class="popup-metrics-section popup-closures-section">'
-        +'<div class="popup-metrics-title" style="color:#dc2626">CLOSED OUT</div>'
+        +'<div class="popup-metrics-title" style="color:#D32F2F">CLOSED OUT</div>'
         +ruleCards+'</div>';
     })();
 
     // ── Figma two-column popup builders (200px left | ~148px right) ──
     var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
     var _hasCmp = calCompareMode !== 'none';
-    var _cmpLbl = {stly:'STLY', ly:'LY', fcst:'Fcst', budget:'Locked Budget'}[calCompareMode] || '';
-    var _cmpDot = {stly:'#C4FF45', ly:'#facc15', fcst:'#fb923c', budget:'#a78bfa'}[calCompareMode] || '#C4FF45';
     var _cm = (function(){
       switch(calCompareMode) {
         case 'stly':   return {occD:-(3+v%5), adrD:-8, rev:0.90, rn:0.88, revpar:0.92, pu:0.88, avgA:0.92, avgC:0.90, tot:0.90};
@@ -3117,6 +3288,22 @@ function clearCalSelection() {
         default:       return null;
       }
     })();
+    // Inline compare: difference amount + arrow (monthly eye popup)
+    function _pCmpSfx(curr, comp, fmtFn) {
+      if (!_hasCmp || curr == null || comp == null) return '';
+      var c = parseFloat(curr), p = parseFloat(comp);
+      if (isNaN(c) || isNaN(p)) return '';
+      var diff = c - p;
+      if (diff === 0) return '';
+      var absDiff = Math.abs(diff);
+      var fmt = fmtFn || function(d) { return String(Math.round(d)); };
+      var diffStr = fmt(absDiff);
+      var clr = diff > 0 ? '#388C3F' : '#D32F2F';
+      var arrow = diff > 0 ? 'arrow_upward' : 'arrow_downward';
+      return '<span class="pb-cmp-delta" style="color:' + clr + '">'
+        + '<span class="material-icons pb-cmp-arrow">' + arrow + '</span>'
+        + '<span class="pb-cmp-amt">' + diffStr + '</span></span>';
+    }
     var _sectIdx=0;
     // Progress bars — rendered inside right column
     function _pBar(pct,c){return'<div class="pb-bar"><div class="pb-bar-fill" style="width:'+Math.max(2,pct)+'%;background:'+c+'"></div></div>';}
@@ -3137,16 +3324,18 @@ function clearCalSelection() {
     }
     function _pGrpEnd(){return'</div>';}
     // Primary metric row (53px, collapsible, with value + bar in right col)
-    function _pSectS(label,val,barHtml){
+    function _pSectS(label,val,barHtml,curr,comp,fmtFn){
       var sid='ps'+(_sectIdx++);
+      var valDisp = '<div class="pb-val-col"><span class="pb-m-val" style="font-size:13px;font-weight:700;color:#111827;line-height:1.2">'+val+'</span>'
+        + _pCmpSfx(curr, comp, fmtFn) + '</div>';
       return '<div>'
         +'<div class="pb-2col pb-sect-hdr" data-sectid="'+sid+'">'
         +'<div class="pb-col-l" style="padding-left:0">'
         +'<span class="pb-chev pb-sect-chevron" style="margin-left:19px"></span>'
         +'<span style="font-size:13px;font-weight:500;color:#374151;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+label+'</span>'
         +'</div>'
-        +'<div class="pb-col-r" style="justify-content:flex-start;padding-top:10px;padding-bottom:6px">'
-        +'<div style="font-size:13px;font-weight:700;color:#111827;line-height:1.2">'+val+'</div>'
+        +'<div class="pb-col-r">'
+        + valDisp
         +(barHtml||'')
         +'</div>'
         +'</div>'
@@ -3159,14 +3348,14 @@ function clearCalSelection() {
         +'<div class="pb-col-l" style="padding-left:33px">'
         +'<span style="font-size:13px;font-weight:500;color:#374151">'+label+'</span>'
         +'</div>'
-        +'<div class="pb-col-r" style="justify-content:flex-start;padding-top:8px;padding-bottom:6px">'
-        +'<div style="font-size:13px;font-weight:700;color:#111827">'+val+'</div>'
+        +'<div class="pb-col-r pb-val-col-wrap">'
+        +'<div class="pb-val-col"><span class="pb-m-val" style="font-size:13px;font-weight:700;color:#111827">'+val+'</span></div>'
         +(barHtml||'')
         +'</div>'
         +'</div>';
     }
-    // Sub-row (32px, bullet dot on left, value right-aligned)
-    function _pSub(label,val,dot,isRem){
+    // Sub-row (32px, bullet dot on left, value left-aligned + compare inline)
+    function _pSub(label,val,dot,isRem,curr,comp,fmtFn){
       var lclr=isRem?'#16a34a':'#6b7280';
       var vclr=isRem?'#16a34a':'#111827';
       var dotHtml=dot
@@ -3177,9 +3366,11 @@ function clearCalSelection() {
         +dotHtml
         +'<span style="font-size:12px;color:'+lclr+';overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+label+'</span>'
         +'</div>'
-        +'<div class="pb-col-r" style="justify-content:center">'
-        +'<span style="font-size:12px;font-weight:600;color:'+vclr+'">'+val+'</span>'
-        +'</div>'
+        +'<div class="pb-col-r pb-val-col-wrap">'
+        +'<div class="pb-val-col">'
+        +'<span class="pb-m-val" style="font-size:12px;font-weight:600;color:'+vclr+'">'+val+'</span>'
+        + _pCmpSfx(curr,comp,fmtFn)
+        +'</div></div>'
         +'</div>';
     }
     function _pRef(stlyVal,delta){
@@ -3196,7 +3387,7 @@ function clearCalSelection() {
     _pb += _filtLabel;
 
     // ── Close Outs ──
-    _pb += _pGrpStart('Close Outs', '#dc2626', 'co');
+    _pb += _pGrpStart('Close Outs', '#D32F2F', 'co');
     if (hasPopupCl || LOCKED_DAYS.has(dm+'-'+dd)) {
       _pb += popupClHtml;
     } else {
@@ -3221,96 +3412,114 @@ function clearCalSelection() {
     var _hLos     = (2.8+v%5*0.3+0.4).toFixed(1)+'n';
     var _hLead    = (18+v%60+12)+'d';
 
-    // ── Daily Metrics ── (matches weekly: Occupancy, Online/Offline, ADR, Revenue with Hotel/TO/STLY sub-rows)
+    // ── Daily Metrics ── (compare = delta + arrow, inline on values)
+    var _fmtPct = function(d) { return Math.round(d) + '%'; };
+    var _fmtUsd = function(d) { return '$' + Math.round(d); };
+    var _fmtUsdK = function(d) { return calFmtCellMoney(d); };
+    var _fmtPu = function(d) { return '+' + Math.round(d); };
+    var _fmtDec1 = function(d) { return (Math.round(d * 10) / 10).toFixed(1); };
+    var _fmtLos = function(d) { return (Math.round(d * 10) / 10).toFixed(1) + 'n'; };
+    var _fmtLead = function(d) { return Math.round(d) + 'd'; };
+    var _pCmpRow = 0;
+    function _popCmpMul(cur, mult, lbl) {
+      if (!_hasCmp || !_cm || cur == null) return null;
+      return calCmpRefValue(cur, mult, _pCmpRow++, dm, dd, lbl);
+    }
+    function _popCmpAdd(cur, delta, lbl) {
+      if (!_hasCmp || !_cm || cur == null) return null;
+      var v = calCmpRefAdditive(cur, delta, _pCmpRow++, dm, dd, lbl);
+      return v == null ? null : v;
+    }
     _pb += _pGrpStart('Daily Metrics', _C1, 'dm');
-    _pb += _pSectS('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]));
+    var _cmpHotelOcc = _hasCmp && _cm ? Math.max(5, _popCmpAdd(hotel, _cm.occD, 'Occ')) : null;
+    _pb += _pSectS('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]), hotel, _cmpHotelOcc, _fmtPct);
     _pb += _pSub('Travel Distribution Hubs', toRms+' RN  '+to+'%', _C1);
     _pb += _pSub('Other Segments', otherRms+' RN  '+otherPct+'%', _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, Math.max(5,hotel+_cm.occD)+'%', _cmpDot);
     _pb += _pSub('Total Hotel Occupancy', freeRms+' RN  '+freePct+'%', _CREM, true);
     _pb += _pSectE();
+    var _cmpOnl = _hasCmp && _cm ? Math.min(100, Math.max(10, Math.round(_popCmpMul(onlinePct, _cm.rev, 'Online')))) : null;
     _pb += _pSectS('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
-    _pb += _pSub('Online', onlinePct+'%', _C1);
+    _pb += _pSub('Online', onlinePct+'%', _C1, false, onlinePct, _cmpOnl, _fmtPct);
     _pb += _pSub('Offline', offlinePct+'%', _C2);
-    if (_hasCmp) { var _cOnl=Math.min(100,Math.max(10,Math.round(onlinePct*_cm.rev))); _pb += _pSub(_cmpLbl, _cOnl+'%', _cmpDot); }
     _pb += _pSectE();
-    _pb += _pSectS('ADR', '$'+adr, _pBar(adrBar, _C1));
-    _pb += _pSub('TO', '$'+_toAdr, _C1);
-    _pb += _pSub('Hotel', '$'+adr, _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, '$'+(adr+_cm.adrD), _cmpDot);
+    var _cmpToAdr = _hasCmp && _cm ? _popCmpAdd(_toAdr, _cm.adrD, 'TO-ADR') : null;
+    var _cmpHtlAdr = _hasCmp && _cm ? _popCmpAdd(adr, _cm.adrD, 'H-ADR') : null;
+    _pb += _pSectS('ADR', '$'+adr, _pBar(adrBar, _C1), adr, _cmpHtlAdr, _fmtUsd);
+    _pb += _pSub('TO', '$'+_toAdr, _C1, false, _toAdr, _cmpToAdr, _fmtUsd);
+    _pb += _pSub('Hotel', '$'+adr, _C2, false, adr, _cmpHtlAdr, _fmtUsd);
     _pb += _pSectE();
-    _pb += _pSectS('Revenue', '$'+Math.floor(rev/1000)+'k', _pBar(revBar, _C1));
-    _pb += _pSub('TO', _toRevS, _C1);
-    _pb += _pSub('Hotel', '$'+Math.floor(rev/1000)+'k', _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, '$'+Math.floor(rev*_cm.rev/1000)+'k', _cmpDot);
+    var _cmpToRev = _hasCmp && _cm ? Math.floor(_popCmpMul(_toRev, _cm.rev, 'TO-Rev')) : null;
+    var _cmpHtlRev = _hasCmp && _cm ? _popCmpMul(rev, _cm.rev, 'H-Rev') : null;
+    _pb += _pSectS('Revenue', '$'+Math.floor(rev/1000)+'k', _pBar(revBar, _C1), rev, _cmpHtlRev, _fmtUsdK);
+    _pb += _pSub('TO', _toRevS, _C1, false, _toRev, _cmpToRev, _fmtUsdK);
+    _pb += _pSub('Hotel', '$'+Math.floor(rev/1000)+'k', _C2, false, rev, _cmpHtlRev, _fmtUsdK);
     _pb += _pSectE();
     _pb += _pGrpEnd();
 
-    // ── More Metrics ── (matches weekly: each metric shows TO value + Hotel sub-rows + compare)
+    // ── More Metrics ── (compare = delta + arrow on TO / Hotel)
     _pb += _pGrpStart('More Metrics', _C1, 'mm');
-    // RN Sold (TO + Hotel + compare)
-    _pb += _pSectS('RN Sold', toRms, _pBar(Math.min(92, 55+(v%37)), _C1));
-    _pb += _pSub('TO', String(toRms), _C1);
-    _pb += _pSub('Hotel', String(rnSold), _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.floor(rnSold*_cm.rn)), _cmpDot);
+    var _cmpRnTo = _hasCmp && _cm ? Math.floor(_popCmpMul(toRms, _cm.rn, 'TO-RN')) : null;
+    var _cmpRnHtl = _hasCmp && _cm ? Math.floor(_popCmpMul(rnSold, _cm.rn, 'H-RN')) : null;
+    _pb += _pSectS('RN Sold', toRms, _pBar(Math.min(92, 55+(v%37)), _C1), toRms, _cmpRnTo);
+    _pb += _pSub('TO', String(toRms), _C1, false, toRms, _cmpRnTo);
+    _pb += _pSub('Hotel', String(rnSold), _C2, false, rnSold, _cmpRnHtl);
     _pb += _pSectE();
-    // RevPAR (TO + Hotel + compare)
+    var _cmpRevparH = _hasCmp && _cm ? Math.floor(_popCmpMul(_hRevpar, _cm.revpar, 'H-RevPAR')) : null;
     _pb += _pSectS('RevPAR', '$'+_toRevpar, _pBar(Math.min(92, 65+v%25), _C1));
     _pb += _pSub('TO', '$'+_toRevpar, _C1);
-    _pb += _pSub('Hotel', '$'+_hRevpar, _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, '$'+Math.floor(adr*_cm.revpar), _cmpDot);
+    _pb += _pSub('Hotel', '$'+_hRevpar, _C2, false, _hRevpar, _cmpRevparH, _fmtUsd);
     _pb += _pSectE();
-    // Pickup (single window)
     var _puDvP = pickupDayValues[0] || 1;
     var _puScP = _puDvP<=1?0.3:_puDvP<=3?0.6:_puDvP<=7?1:Math.min(2,_puDvP/7);
     var _puToP = Math.max(0, Math.round(_basePickup * _puScP));
     var _puHP  = Math.max(0, Math.round(_hPickup * _puScP));
+    var _cmpPuTo = _hasCmp && _cm ? Math.max(0, Math.round(_popCmpMul(_puToP, _cm.pu, 'TO-Pu'))) : null;
+    var _cmpPuHtl = _hasCmp && _cm ? Math.max(0, Math.round(_popCmpMul(_puHP, _cm.pu, 'H-Pu'))) : null;
     _pb += _pSectS('Pickup', '+'+_puToP, _pBar(Math.min(92, 30+v%50), _C1));
-    _pb += _pSub('TO', '+'+_puToP, _C1);
-    _pb += _pSub('Hotel', '+'+_puHP, _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, '+'+Math.max(0,Math.round(_puHP*_cm.pu)), _cmpDot);
+    _pb += _pSub('TO', '+'+_puToP, _C1, false, _puToP, _cmpPuTo, _fmtPu);
+    _pb += _pSub('Hotel', '+'+_puHP, _C2, false, _puHP, _cmpPuHtl, _fmtPu);
     _pb += _pSectE();
-    // Average Adults (TO + Hotel + compare)
+    var _cmpAvgAT = _hasCmp && _cm ? _popCmpMul(_dmAvgA, _cm.avgA, 'TO-AvgA') : null;
+    var _cmpAvgAH = _hasCmp && _cm ? _popCmpMul(parseFloat(_hAvgA), _cm.avgA, 'H-AvgA') : null;
     _pb += _pSectS('Average Adults', _dmAvgA.toFixed(1), _pBar(Math.min(92, 55+v%30), _C1));
-    _pb += _pSub('TO', _dmAvgA.toFixed(1), _C1);
-    _pb += _pSub('Hotel', _hAvgA, _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, (_dmAvgA*_cm.avgA).toFixed(1), _cmpDot);
+    _pb += _pSub('TO', _dmAvgA.toFixed(1), _C1, false, _dmAvgA, _cmpAvgAT, _fmtDec1);
+    _pb += _pSub('Hotel', _hAvgA, _C2, false, parseFloat(_hAvgA), _cmpAvgAH, _fmtDec1);
     _pb += _pSectE();
-    // Average Children (TO + Hotel + compare)
+    var _cmpAvgCT = _hasCmp && _cm ? _popCmpMul(_dmAvgC, _cm.avgC, 'TO-AvgC') : null;
+    var _cmpAvgCH = _hasCmp && _cm ? _popCmpMul(parseFloat(_hAvgC), _cm.avgC, 'H-AvgC') : null;
     _pb += _pSectS('Average Children', _dmAvgC.toFixed(1), _pBar(Math.min(92, 20+v%40), _C1));
-    _pb += _pSub('TO', _dmAvgC.toFixed(1), _C1);
-    _pb += _pSub('Hotel', _hAvgC, _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, (_dmAvgC*_cm.avgC).toFixed(1), _cmpDot);
+    _pb += _pSub('TO', _dmAvgC.toFixed(1), _C1, false, _dmAvgC, _cmpAvgCT, _fmtDec1);
+    _pb += _pSub('Hotel', _hAvgC, _C2, false, parseFloat(_hAvgC), _cmpAvgCH, _fmtDec1);
     _pb += _pSectE();
-    // Total Adults (TO + Hotel + compare)
+    var _cmpTotAT = _hasCmp && _cm ? Math.round(_popCmpMul(_totAdultsTO, _cm.tot, 'TO-TotA')) : null;
+    var _cmpTotAH = _hasCmp && _cm ? Math.round(_popCmpMul(_hTotA, _cm.tot, 'H-TotA')) : null;
     _pb += _pSectS('Total Adults', _totAdultsTO, _pBar(Math.min(92, 60+v%28), _C1));
-    _pb += _pSub('TO', String(_totAdultsTO), _C1);
-    _pb += _pSub('Hotel', String(_hTotA), _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totAdultsTO*_cm.tot)), _cmpDot);
+    _pb += _pSub('TO', String(_totAdultsTO), _C1, false, _totAdultsTO, _cmpTotAT);
+    _pb += _pSub('Hotel', String(_hTotA), _C2, false, _hTotA, _cmpTotAH);
     _pb += _pSectE();
-    // Total Children (TO + Hotel + compare)
+    var _cmpTotCT = _hasCmp && _cm ? Math.round(_popCmpMul(_totChildrenTO, _cm.tot, 'TO-TotC')) : null;
+    var _cmpTotCH = _hasCmp && _cm ? Math.round(_popCmpMul(_hTotC, _cm.tot, 'H-TotC')) : null;
     _pb += _pSectS('Total Children', _totChildrenTO, _pBar(Math.min(92, 15+v%35), _C1));
-    _pb += _pSub('TO', String(_totChildrenTO), _C1);
-    _pb += _pSub('Hotel', String(_hTotC), _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totChildrenTO*_cm.tot)), _cmpDot);
+    _pb += _pSub('TO', String(_totChildrenTO), _C1, false, _totChildrenTO, _cmpTotCT);
+    _pb += _pSub('Hotel', String(_hTotC), _C2, false, _hTotC, _cmpTotCH);
     _pb += _pSectE();
-    // Total Guests (TO + Hotel + compare)
+    var _cmpTotGT = _hasCmp && _cm ? Math.round(_popCmpMul(_totGuestsTO, _cm.tot, 'TO-TotG')) : null;
+    var _cmpTotGH = _hasCmp && _cm ? Math.round(_popCmpMul(_hTotG, _cm.tot, 'H-TotG')) : null;
     _pb += _pSectS('Total Guests', _totGuestsTO, _pBar(Math.min(92, 55+v%35), _C1));
-    _pb += _pSub('TO', String(_totGuestsTO), _C1);
-    _pb += _pSub('Hotel', String(_hTotG), _C2);
-    if (_hasCmp) _pb += _pSub(_cmpLbl, String(Math.round(_totGuestsTO*_cm.tot)), _cmpDot);
+    _pb += _pSub('TO', String(_totGuestsTO), _C1, false, _totGuestsTO, _cmpTotGT);
+    _pb += _pSub('Hotel', String(_hTotG), _C2, false, _hTotG, _cmpTotGH);
     _pb += _pSectE();
-    // Average LOS (TO + Hotel + compare)
+    var _cmpLosT = _hasCmp && _cm ? _popCmpMul(parseFloat(_avgLos), _cm.rev, 'TO-LOS') : null;
+    var _cmpLosH = _hasCmp && _cm ? _popCmpMul(parseFloat(_hLos), _cm.rev, 'H-LOS') : null;
     _pb += _pSectS('Average LOS', _avgLos, _pBar(Math.min(92, 40+v%40), _C1));
-    _pb += _pSub('TO', _avgLos, _C1);
-    _pb += _pSub('Hotel', _hLos, _C2);
-    if (_hasCmp) { var _cLos=parseFloat(_avgLos)*_cm.rev; _pb += _pSub(_cmpLbl, _cLos.toFixed(1)+'n', _cmpDot); }
+    _pb += _pSub('TO', _avgLos, _C1, false, parseFloat(_avgLos), _cmpLosT, _fmtLos);
+    _pb += _pSub('Hotel', _hLos, _C2, false, parseFloat(_hLos), _cmpLosH, _fmtLos);
     _pb += _pSectE();
-    // Lead Time (TO + Hotel + compare)
+    var _cmpLeadT = _hasCmp && _cm ? Math.round(_popCmpMul(parseInt(_avgLead, 10), _cm.rev, 'TO-Lead')) : null;
+    var _cmpLeadH = _hasCmp && _cm ? Math.round(_popCmpMul(parseInt(_hLead, 10), _cm.rev, 'H-Lead')) : null;
     _pb += _pSectS('Lead Time', _avgLead, _pBar(Math.min(92, 25+v%55), _C1));
-    _pb += _pSub('TO', _avgLead, _C1);
-    _pb += _pSub('Hotel', _hLead, _C2);
-    if (_hasCmp) { var _cLead=Math.round(parseInt(_avgLead)*_cm.rev); _pb += _pSub(_cmpLbl, _cLead+'d', _cmpDot); }
+    _pb += _pSub('TO', _avgLead, _C1, false, parseInt(_avgLead, 10), _cmpLeadT, _fmtLead);
+    _pb += _pSub('Hotel', _hLead, _C2, false, parseInt(_hLead, 10), _cmpLeadH, _fmtLead);
     _pb += _pSectE();
     // Avail Rooms (hotel-only)
     _pb += _pSect('Avail Rooms', availRooms+' RN', _pBar(Math.min(92, Math.max(5, hotel*0.8)), _C1));
@@ -3450,7 +3659,7 @@ function clearCalSelection() {
         +'<div style="width:'+avPct+'%;background:#d1fae5;height:100%"></div>'
         +'</div>';
       var closedBadge = d.avail === 0
-        ? ' <span style="font-size:9px;font-weight:700;color:#dc2626;background:#fee2e2;padding:1px 4px;border-radius:3px">CLOSED</span>' : '';
+        ? ' <span style="font-size:9px;font-weight:700;color:'+CLOSE_OUT_COLORS.full+';background:'+CLOSE_OUT_COLORS.fullBg+';padding:1px 4px;border-radius:3px">CLOSED</span>' : '';
       var valHtml = '<span style="color:'+availClr+';font-size:13px;font-weight:700">'+d.avail+' avail</span>'
         +'<span style="font-size:10px;color:#9ca3af;font-weight:400;margin-left:3px">/ '+d.inv+'</span>';
       var sid = 'ps'+(_sectIdx++);
@@ -3682,7 +3891,7 @@ const RT_NAME_COLORS = {
 function buildClosuresHtml(dm, dd) {
   const cl = PARTIAL_CLOSURES[dm + '-' + dd];
   if (!cl || !Array.isArray(cl) || cl.length === 0) return '';
-  const lockIcon = '<svg viewBox="0 0 10 12" fill="none" stroke="#dc2626" stroke-width="1.5" width="8" height="10" style="flex-shrink:0"><rect x="1" y="5" width="8" height="7" rx="1"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5"/></svg>';
+  const lockIcon = '<svg viewBox="0 0 10 12" fill="none" stroke="#D32F2F" stroke-width="1.5" width="8" height="10" style="flex-shrink:0"><rect x="1" y="5" width="8" height="7" rx="1"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5"/></svg>';
   const BMAP={ai:'All Inclusive',bb:'Bed & Breakfast',hb:'Half Board',ro:'Room Only',fb:'Full Board'};
   function chip(label, color) {
     return '<span class="wv-cl-chip" style="color:'+color+';background:'+color+'18;border-color:'+color+'3a">'+label+'</span>';
@@ -4225,24 +4434,34 @@ function buildCoHeatmap(days) {
 var _moSelectedDays = new Set(); // ISO date strings selected for close-out in monthly view
 var _moSelectMode   = false;     // true when "Select Dates" mode is active
 
-window.moToggleSelectMode = function() {
-  _moSelectMode = !_moSelectMode;
+function moExitSelectMode() {
+  if (!_moSelectMode) return;
+  _moSelectMode = false;
   var btn       = document.getElementById('moSelectDatesBtn');
   var lbl       = document.getElementById('moSelectDatesLabel');
   var container = document.getElementById('calMonths') || document.querySelector('.cal-months-grid') || document.querySelector('.wv-months-wrap');
+  if (btn) btn.classList.remove('active');
+  if (lbl) lbl.textContent = 'Select Dates';
+  if (container) container.classList.remove('mo-select-active');
+  _moSelectedDays.clear();
+  document.querySelectorAll('.mo-day-chk').forEach(function(c){ c.checked = false; });
+  _updateMoFooter();
+  _syncCloseOutBtn();
+}
+window.moExitSelectMode = moExitSelectMode;
+
+window.moToggleSelectMode = function() {
   if (_moSelectMode) {
-    if (btn) btn.classList.add('active');
-    if (lbl) lbl.textContent = 'Cancel';
-    if (container) container.classList.add('mo-select-active');
-  } else {
-    if (btn) btn.classList.remove('active');
-    if (lbl) lbl.textContent = 'Select Dates';
-    if (container) container.classList.remove('mo-select-active');
-    _moSelectedDays.clear();
-    // uncheck all visible checkboxes
-    document.querySelectorAll('.mo-day-chk').forEach(function(c){ c.checked = false; });
-    _updateMoFooter();
+    moExitSelectMode();
+    return;
   }
+  _moSelectMode = true;
+  var btn       = document.getElementById('moSelectDatesBtn');
+  var lbl       = document.getElementById('moSelectDatesLabel');
+  var container = document.getElementById('calMonths') || document.querySelector('.cal-months-grid') || document.querySelector('.wv-months-wrap');
+  if (btn) btn.classList.add('active');
+  if (lbl) lbl.textContent = 'Cancel';
+  if (container) container.classList.add('mo-select-active');
 };
 
 function _updateMoFooter() {
@@ -4317,12 +4536,11 @@ window.wvOpenCloseOut = function() {
   }
 };
 
-// Show Close/Re-Open button whenever there are selected monthly dates
+// Keep Close/Re-Open button always visible (opens modal with or without selected dates)
 function _syncCloseOutBtn() {
   var btn = document.getElementById('moCloseOutBtn');
   if (!btn) return;
-  var count = _moSelectedDays.size;
-  btn.style.display = (_moSelectMode && count > 0) ? '' : 'none';
+  btn.style.display = '';
 }
 
 // ── Daily B View ─────────────────────────────────────────────────────────────
@@ -4332,7 +4550,7 @@ var _wbSelectedDays = new Set(); // ISO date strings selected for close-out in D
 var _wbGroupOrder   = null; // null = default; array of group keys for custom Daily B order
 
 var WB_GROUPS_DEF = [
-  { key: 'g_closeouts', lbl: 'Close Outs',      clr: '#dc2626' },
+  { key: 'g_closeouts', lbl: 'Close Outs',      clr: '#D32F2F' },
   { key: 'g_daily',   lbl: 'Daily Metrics',    clr: '#006461' },
   { key: 'g_more',    lbl: 'More Metrics',     clr: '#2e65e8' },
   { key: 'g_meals',   lbl: 'Meal Plans',       clr: '#f59e0b' },
@@ -5303,7 +5521,7 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   function sub(lbl,dot,isRem,fn){ _dbAllRows.push({type:'sub',lbl:lbl,dot:dot,isRem:isRem||false,fn:fn,grpKey:_curGK,sectKey:_curSK}); }
 
   // ── Close Outs ─────────────────────────────────────────────────────────────
-  grp('Close Outs', '#dc2626');
+  grp('Close Outs', '#D32F2F');
   var bdMap = {ai:'AI',bb:'B&B',hb:'HB',ro:'RO'};
   sub('Room Types', '#6b7280', false, function(d){
     var k=d.dm+'-'+d.dd;
@@ -5548,7 +5766,7 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   function makeDayHeader(dv, isActive, isToday, isLocked, dba, evts) {
     var dm=dv.month, dd=dv.day;
     var bg=isLocked?'#374151':isActive?'#006461':isToday?'#125756':'#1a5e5b';
-    var tb=isActive?'3px solid rgba(255,255,255,0.5)':isToday?'3px solid rgba(255,255,255,0.3)':isLocked?'3px solid #dc2626':'3px solid transparent';
+    var tb=isActive?'3px solid rgba(255,255,255,0.5)':isToday?'3px solid rgba(255,255,255,0.3)':isLocked?'3px solid #D32F2F':'3px solid transparent';
     var dc=isLocked?'#fca5a5':'#fff', sc=isLocked?'rgba(252,165,165,0.85)':'rgba(255,255,255,0.75)';
     var dbaStr=dba===0?'Today':dba>0?dba+' DBA':'';
     function H(){}
@@ -5946,7 +6164,7 @@ function buildDailyHView(days, activeMonth, activeDay) {
     var dba=Math.round((dt-TODAY_WV)/86400000);
     var dbaStr=dba===0?'Today':dba>0?dba+' DBA':'';
     var evts=(typeof CAL_EVENTS!=='undefined'&&CAL_EVENTS[dm+'-'+dd])?CAL_EVENTS[dm+'-'+dd]:null;
-    var bg=isLocked?'#dc2626':isActive?'#006461':isToday?'#0d8a87':'#1a5e5b';
+    var bg=isLocked?'#D32F2F':isActive?'#006461':isToday?'#0d8a87':'#1a5e5b';
     var bl=isActive?'2px solid #C4FF45':isToday?'2px solid rgba(255,255,255,.5)':'1px solid rgba(255,255,255,.15)';
     hdrRow+='<th style="'+thBase+';background:'+bg+';border-left:'+bl+';min-width:130px;color:#fff;vertical-align:top">'
       +'<div style="font-weight:800;font-size:11px">'+(isLocked?'🔒 ':'')+MNAMES_S[dm]+' '+dd+'</div>'
@@ -6118,12 +6336,12 @@ window._buildWv7dSummaryHtml = function(d) {
       switch(row.id){
         case 'mos_co_full':
           cc = d.fullCoCount7>0
-            ? '<div class="wb-sect-val"><span class="material-icons" style="font-size:13px;color:#fca5a5;vertical-align:middle;margin-right:3px">lock</span><span class="wv-occ-total" style="color:#ef4444">'+d.fullCoCount7+' day'+(d.fullCoCount7!==1?'s':'')+'</span><span style="font-size:10px;color:#9ca3af;margin-left:6px">/ '+d.n7+'</span></div>'+bar(Math.min(90,Math.round(d.fullCoCount7/d.n7*100)),'#ef4444')
+            ? '<div class="wb-sect-val"><span class="material-icons" style="font-size:13px;color:'+CLOSE_OUT_COLORS.full+';vertical-align:middle;margin-right:3px">lock</span><span class="wv-occ-total" style="color:'+CLOSE_OUT_COLORS.full+'">'+d.fullCoCount7+' day'+(d.fullCoCount7!==1?'s':'')+'</span><span style="font-size:10px;color:#9ca3af;margin-left:6px">/ '+d.n7+'</span></div>'+bar(Math.min(90,Math.round(d.fullCoCount7/d.n7*100)),CLOSE_OUT_COLORS.full)
             : '<div class="wb-sect-val" style="color:#9ca3af;font-size:12px">None</div>';
           break;
         case 'mos_co_part':
           cc = d.partCoCount7>0
-            ? '<div class="wb-sect-val"><span class="material-icons" style="font-size:13px;color:#fde68a;vertical-align:middle;margin-right:3px">lock_open</span><span class="wv-occ-total" style="color:#d97706">'+d.partCoCount7+' day'+(d.partCoCount7!==1?'s':'')+'</span><span style="font-size:10px;color:#9ca3af;margin-left:6px">/ '+d.n7+'</span></div>'+bar(Math.min(90,Math.round(d.partCoCount7/d.n7*100)),'#f59e0b')
+            ? '<div class="wb-sect-val"><span class="material-icons" style="font-size:13px;color:'+CLOSE_OUT_COLORS.partial+';vertical-align:middle;margin-right:3px">lock_open</span><span class="wv-occ-total" style="color:'+CLOSE_OUT_COLORS.partial+'">'+d.partCoCount7+' day'+(d.partCoCount7!==1?'s':'')+'</span><span style="font-size:10px;color:#9ca3af;margin-left:6px">/ '+d.n7+'</span></div>'+bar(Math.min(90,Math.round(d.partCoCount7/d.n7*100)),CLOSE_OUT_COLORS.partial)
             : '<div class="wb-sect-val" style="color:#9ca3af;font-size:12px">None</div>';
           break;
         case 'mos_occ':
@@ -8206,7 +8424,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
           </div>
           <span class="wv-col-hdr-dba" style="font-size:9px;font-weight:600;color:#fff;opacity:.75;letter-spacing:.2px">${dbaStr}</span>
         </div>
-        ${isLocked ? `<svg class="wv-lock-icon" viewBox="0 0 10 12" fill="none" stroke="#dc2626" stroke-width="1.6" width="11" height="13"><rect x="1" y="5" width="8" height="7" rx="1"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5"/></svg>` : ''}
+        ${isLocked ? `<svg class="wv-lock-icon" viewBox="0 0 10 12" fill="none" stroke="#D32F2F" stroke-width="1.6" width="11" height="13"><rect x="1" y="5" width="8" height="7" rx="1"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5"/></svg>` : ''}
         ${hasColCl ? `<button class="wv-partial-lock-btn" data-restrict-id="${restrictPanelId}" title="View closed out"><svg viewBox="0 0 10 12" fill="none" stroke="currentColor" stroke-width="1.6" width="10" height="12"><rect x="1" y="5" width="8" height="7" rx="1"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5"/></svg></button>` : ''}
         ${isToday ? `<span class="wv-today-badge">TODAY</span>` : ''}
       </div>
@@ -10138,7 +10356,7 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
       : selectedSet.size + ' selected';
     var ddItems = items.map(function(item) {
       var isOn = selectedSet.has(item);
-      return '<label class="co2-ms-item"><input type="checkbox" value="' + item + '"'
+      return '<label class="co2-ms-item"><input type="checkbox" class="ds-checkbox" value="' + item + '"'
         + (isOn ? ' checked' : '')
         + ' data-rid="' + ruleId + '" data-fld="' + field + '"'
         + ' onchange="coMSChange(this)">' + item + '</label>';
@@ -10351,10 +10569,11 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
       console.log('[Close Out] Internal note recorded — message:', message || '(none)');
     }
 
-    // Clear selected days after close-out
+    // Clear selected days and exit monthly Select Dates mode after close-out
     _moSelectedDays.clear();
     _wbSelectedDays.clear();
     _wvSelectedDays.clear();
+    if (typeof moExitSelectMode === 'function') moExitSelectMode();
     _syncCloseOutBtn();
 
     renderCalendar();
@@ -10652,14 +10871,18 @@ document.addEventListener('click', function(e) {
 
     // ── Normal calendar mode ──────────────────────────────────
     var dd  = document.getElementById('calMetricsDropdown');
-    var isOpen = dd.style.display !== 'none';
-    if (isOpen) { dd.style.display = 'none'; e.stopPropagation(); return; }
-    var maxH  = Math.min(window.innerHeight - rect.bottom - 12, window.innerHeight * 0.75);
-    dd.style.top     = (rect.bottom + 4) + 'px';
-    dd.style.left    = rect.left + 'px';
-    dd.style.width = '368px';
-    dd.style.maxHeight = maxH + 'px';
-    dd.style.display = 'block';
+    var wrap = document.getElementById('calMetricsWrap');
+    var calCard = document.getElementById('demand-calendar');
+    var isOpen = dd && dd.style.display !== 'none';
+    if (isOpen) {
+      dd.style.display = 'none';
+      if (wrap) wrap.classList.remove('cal-metrics-open');
+      if (calCard) calCard.classList.remove('cal-metrics-panel-open');
+      e.stopPropagation(); return;
+    }
+    dd.style.display = 'flex';
+    if (wrap) wrap.classList.add('cal-metrics-open');
+    if (calCard) calCard.classList.add('cal-metrics-panel-open');
     if (window.cmSyncOnOpen) window.cmSyncOnOpen();
     e.stopPropagation(); return;
   }
@@ -10669,7 +10892,11 @@ document.addEventListener('click', function(e) {
   }
   if (!e.target.closest('#calMetricsWrap') && !e.target.closest('#dailyRevColPanel')) {
     var dd2 = document.getElementById('calMetricsDropdown');
+    var wrap2 = document.getElementById('calMetricsWrap');
+    var calCard2 = document.getElementById('demand-calendar');
     if (dd2) dd2.style.display = 'none';
+    if (wrap2) wrap2.classList.remove('cal-metrics-open');
+    if (calCard2) calCard2.classList.remove('cal-metrics-panel-open');
     var drp2 = document.getElementById('dailyRevColPanel');
     if (drp2) drp2.style.display = 'none';
   }
@@ -14491,6 +14718,7 @@ setTimeout(function() {
    */
   var drSelStartIdx = null; // null = no selection
   var drSelEndIdx   = null;
+  var drHoverIdx    = null; // preview end while selecting
   var drPhase       = 0;
 
   /* End fallback: if no explicit end, auto = start + 11 (capped) */
@@ -14498,39 +14726,62 @@ setTimeout(function() {
     return Math.min(startIdx + 11, ALL_MONTHS.length - 1);
   }
 
+  /* Active range bounds (includes hover preview while picking end) */
+  function getRangeBounds() {
+    if (drSelStartIdx === null) return null;
+    var lo = drSelStartIdx;
+    var hi = drSelStartIdx;
+    if (drPhase === 2 && drSelEndIdx !== null) {
+      lo = Math.min(drSelStartIdx, drSelEndIdx);
+      hi = Math.max(drSelStartIdx, drSelEndIdx);
+    } else if (drPhase === 1) {
+      var hover = drHoverIdx !== null ? drHoverIdx : drSelStartIdx;
+      lo = Math.min(drSelStartIdx, hover);
+      hi = Math.max(drSelStartIdx, hover);
+    }
+    return { lo: lo, hi: hi };
+  }
+
   /* Build the 4×3 month grid for a given year into containerId */
   function renderGrid(containerId, year) {
     var el = document.getElementById(containerId);
     if (!el) return;
-    /* Determine effective range for highlights */
-    var startIdx = drSelStartIdx;
-    var endIdx   = (drPhase === 2 && drSelEndIdx !== null) ? drSelEndIdx
-                 : (drPhase === 1 && startIdx !== null)    ? startIdx   // start only, no strip
-                 : null;
+    var bounds = getRangeBounds();
 
     el.innerHTML = MONTH_ABBR.map(function(name, mi) {
       var col = mi % 4;
-      /* Find index in ALL_MONTHS for (year, month) */
       var idx = -1;
       for (var i = 0; i < ALL_MONTHS.length; i++) {
         if (ALL_MONTHS[i].year === year && ALL_MONTHS[i].month === (mi + 1)) { idx = i; break; }
       }
-      var inData  = idx >= 0;
-      var isStart = inData && startIdx !== null && idx === startIdx;
-      /* In phase 1 no range strip — only the start circle */
-      var isEnd   = drPhase === 2 && inData && endIdx !== null && idx === endIdx;
-      var isMid   = drPhase === 2 && inData && startIdx !== null && endIdx !== null
-                    && idx > startIdx && idx < endIdx;
+      var inData = idx >= 0;
+      var lo = bounds ? bounds.lo : -1;
+      var hi = bounds ? bounds.hi : -1;
+      var inRange = inData && bounds && idx >= lo && idx <= hi;
+      var isStart = inRange && idx === lo;
+      var isEnd   = inRange && idx === hi;
+      var isMid   = inRange && !isStart && !isEnd;
+      var prevInRange = inData && bounds && idx > lo && (idx - 1) >= lo;
+      var nextInRange = inData && bounds && idx < hi && (idx + 1) <= hi;
+      var edgeLeft  = inRange && !prevInRange;
+      var edgeRight = inRange && !nextInRange;
 
-      var cls = 'caldr-cell c-col' + col;
-      if (!inData)           cls += ' c-disabled';
-      if (isStart && isEnd)  cls += ' c-start c-end';
-      else if (isStart)      cls += ' c-start';
-      else if (isEnd)        cls += ' c-end';
-      else if (isMid)        cls += ' c-mid';
+      var cls = 'caldr-cell col-' + col;
+      if (!inData) cls += ' empty';
+      else if (isStart && isEnd) cls += ' range-start range-end';
+      else if (isStart) cls += ' range-start';
+      else if (isEnd) cls += ' range-end';
+      else if (isMid) cls += ' in-range';
+      if (edgeLeft)  cls += ' edge-left';
+      if (edgeRight) cls += ' edge-right';
 
-      var onclick = inData ? ' onclick="calDRMonthClick(' + idx + ')"' : '';
-      return '<div class="' + cls + '"' + onclick + '>'
+      var handlers = '';
+      if (inData) {
+        handlers = ' onclick="calDRMonthClick(' + idx + ')"'
+          + ' onmouseenter="calDRMonthHover(' + idx + ')"'
+          + ' onmouseleave="calDRMonthHoverOut()"';
+      }
+      return '<div class="' + cls + '"' + handlers + '>'
            + '<span class="caldr-cell-bg"></span>'
            + '<span class="caldr-cell-lbl">' + name + '</span>'
            + '</div>';
@@ -14550,18 +14801,40 @@ setTimeout(function() {
       if (drPhase === 0 || drSelStartIdx === null) {
         foot.textContent = 'Select a start month';
       } else if (drPhase === 1) {
-        var startM = ALL_MONTHS[drSelStartIdx];
-        foot.textContent = (startM ? startM.name : '') + ' \u2013 ?  (select end month)';
+        var b = getRangeBounds();
+        var startM = b ? ALL_MONTHS[b.lo] : null;
+        var endM   = b ? ALL_MONTHS[b.hi] : null;
+        if (startM && endM && b.lo !== b.hi) {
+          foot.textContent = startM.name + ' \u2013 ' + endM.name;
+        } else {
+          foot.textContent = (startM ? startM.name : '') + ' \u2013 ?  (select end month)';
+        }
       } else {
-        var startM = ALL_MONTHS[drSelStartIdx];
-        var endM   = drSelEndIdx !== null ? ALL_MONTHS[drSelEndIdx] : null;
+        var b2 = getRangeBounds();
+        var startM = b2 ? ALL_MONTHS[b2.lo] : null;
+        var endM   = b2 ? ALL_MONTHS[b2.hi] : null;
         foot.textContent = (startM ? startM.name : '') + ' \u2013 ' + (endM ? endM.name : '');
       }
     }
     /* Dim Apply when range not complete */
-    var applyBtn = document.querySelector('#calDRPanel .caldr-btn-apply');
-    if (applyBtn) applyBtn.style.opacity = drPhase === 2 ? '1' : '0.4';
+    var applyBtn = document.querySelector('#calDRPanel .drp-apply');
+    if (applyBtn) {
+      var ready = drPhase === 2;
+      applyBtn.classList.toggle('is-disabled', !ready);
+      applyBtn.disabled = !ready;
+    }
   }
+
+  window.calDRMonthHover = function(idx) {
+    if (drPhase !== 1 || drHoverIdx === idx) return;
+    drHoverIdx = idx;
+    renderBothGrids();
+  };
+  window.calDRMonthHoverOut = function() {
+    if (drPhase !== 1 || drHoverIdx === null) return;
+    drHoverIdx = null;
+    renderBothGrids();
+  };
 
   /* ── Month click ── */
   window.calDRMonthClick = function(idx) {
@@ -14571,11 +14844,13 @@ setTimeout(function() {
       if (drSelEndIdx < drSelStartIdx) {
         var tmp = drSelStartIdx; drSelStartIdx = drSelEndIdx; drSelEndIdx = tmp;
       }
+      drHoverIdx = null;
       drPhase = 2;
     } else {
       /* Phase 0 or 2: any click starts a fresh selection */
       drSelStartIdx = idx;
       drSelEndIdx   = null;
+      drHoverIdx    = null;
       drPhase       = 1;
     }
     renderBothGrids();
@@ -14592,30 +14867,37 @@ setTimeout(function() {
     var panel   = document.getElementById('calDRPanel');
     var trigger = document.getElementById('calDRTrigger');
     if (!panel) return;
-    if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+    if (panel.style.display !== 'none') {
+      panel.style.display = 'none';
+      if (trigger) trigger.classList.remove('active');
+      return;
+    }
     /* Sync to current calendar state — open with a confirmed range showing */
     drSelStartIdx = calStartIdx;
     drSelEndIdx   = Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1);
     drPhase       = 2;
+    drHoverIdx    = null;
     drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
-    /* Position below trigger, keep in viewport */
-    var rect     = trigger.getBoundingClientRect();
-    var panelW   = 443; /* ~210+210+1+padding */
-    var left     = rect.left;
-    if (left + panelW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - panelW - 8);
-    panel.style.left    = left + 'px';
-    panel.style.top     = (rect.bottom + 6) + 'px';
+    panel.style.left = '';
+    panel.style.top  = '';
     panel.style.display = 'block';
+    if (trigger) trigger.classList.add('active');
     renderBothGrids();
   };
 
   window.calDRCancel = function() {
-    document.getElementById('calDRPanel').style.display = 'none';
+    var panel = document.getElementById('calDRPanel');
+    var trigger = document.getElementById('calDRTrigger');
+    if (panel) panel.style.display = 'none';
+    if (trigger) trigger.classList.remove('active');
   };
 
   window.calDRApply = function() {
     if (drPhase !== 2 || drSelStartIdx === null || drSelEndIdx === null) return; // range not complete
-    document.getElementById('calDRPanel').style.display = 'none';
+    var panel = document.getElementById('calDRPanel');
+    var trigger = document.getElementById('calDRTrigger');
+    if (panel) panel.style.display = 'none';
+    if (trigger) trigger.classList.remove('active');
     var startM = ALL_MONTHS[drSelStartIdx];
     var endM   = ALL_MONTHS[drSelEndIdx];
     var lbl = document.getElementById('calDRLabel');
@@ -14633,9 +14915,11 @@ setTimeout(function() {
   document.addEventListener('click', function(e) {
     var panel = document.getElementById('calDRPanel');
     var wrap  = document.getElementById('calDRWrap');
+    var trigger = document.getElementById('calDRTrigger');
     if (!panel || panel.style.display === 'none') return;
     if (wrap && wrap.contains(e.target)) return;
     panel.style.display = 'none';
+    if (trigger) trigger.classList.remove('active');
   }, true);
 
   /* ── Sync picker state to current nav position (called after arrow nav) ── */
@@ -14665,6 +14949,7 @@ setTimeout(function() {
     if (typeof calSetDisplayView === 'function') calSetDisplayView(2);
     else { calView = 2; calDisplayView = 2; renderCalendar(); }
     renderCalMonthlySummary();
+    calApplyDayCellHeights();
   }, 400);
 
 })();
@@ -14787,14 +15072,15 @@ window.calShowCapTip = function(e, hotel, hotelRooms, to, toRooms, avail, month,
   var infoIco = '<span class="material-icons" style="font-size:20px;color:#00298C;flex-shrink:0">info</span>';
   var html = '';
   if (isFiltered) {
-    html += '<div style="display:flex;align-items:center;gap:4px;border:1px solid #00298C;border-radius:4px;padding:6px 4px;margin-bottom:8px">'
+    html += '<div class="cal-cap-tip-filter">'
       + infoIco
-      + '<span style="font-size:14px;font-family:Lato,sans-serif;color:#00298C;line-height:1.2">Filtered: ' + rtLabel + ' (' + filteredCap + ' rooms)</span>'
+      + '<span class="cal-cap-tip-filter-text">Filtered: ' + rtLabel + ' (' + filteredCap + ' rooms)</span>'
       + '</div>';
   }
-  html += '<div style="font-size:14px;font-weight:700;color:#1c1c1c;margin-bottom:3px;font-family:Lato,sans-serif">Hotel: ' + hotel + '% (' + filtHotelRooms + ' rooms)</div>'
-    + '<div style="font-size:14px;color:#8C7843;margin-bottom:3px;font-family:Lato,sans-serif">&nbsp;&nbsp;TO: ' + to + '% (' + filtToRooms + ' rooms)</div>'
-    + '<div style="font-size:14px;font-weight:700;color:' + (filtAvail < 10 ? '#dc2626' : '#16a34a') + ';font-family:Lato,sans-serif">'
+  var availCls = 'cal-cap-tip-line cal-cap-tip-line--avail ' + (filtAvail < 10 ? 'cal-cap-tip-line--low' : 'cal-cap-tip-line--ok');
+  html += '<div class="cal-cap-tip-line cal-cap-tip-line--hotel">Hotel: ' + hotel + '% (' + filtHotelRooms + ' rooms)</div>'
+    + '<div class="cal-cap-tip-line">TO: ' + to + '% (' + filtToRooms + ' rooms)</div>'
+    + '<div class="' + availCls + '">'
     + filtAvail + ' rooms available' + (isFiltered ? ' (' + rtLabel + ')' : '') + '</div>';
 
   tip.innerHTML = html;
@@ -14959,7 +15245,7 @@ window.calHideCapTip = function() {
   // ── State ──────────────────────────────────────────────────────
   var cmMode      = 'individual'; // always individual (segments always shown)
   var cmSegs      = ['fit','dynamic','series']; // all selected by default
-  var cmMetrics   = ['hocc','tocc','availRooms'];  // selected metric keys (Hotel Occ + T Occ + Avail Rooms by default)
+  var cmMetrics   = ['hocc','tocc','hrn','availRooms'];  // default: 4 metrics on monthly calendar
   var cmHotel     = true;         // include Hotel row
 
   var SEG_COLORS = { fit: '#0891b2', dynamic: '#7c3aed', series: '#f59e0b' };
@@ -15008,25 +15294,15 @@ window.calHideCapTip = function() {
   function syncDisabled() {
     var checked = countCheckedMetrics();
     var atLimit = checked >= 4;
-    var processedTrs = new Set();
     document.querySelectorAll('#calMetricsDropdown .cal-md-cb[onclick*="cmToggleMetric"]').forEach(function(cb) {
       var isChecked = cb.classList.contains('checked');
-      var tr = cb.closest('tr');
       if (atLimit && !isChecked) {
         cb.classList.add('cm-disabled');
-        cb.style.pointerEvents = '';
-        cb.style.cursor = 'not-allowed';
       } else {
         cb.classList.remove('cm-disabled');
-        cb.style.pointerEvents = '';
-        cb.style.cursor = '';
       }
-      if (tr && !processedTrs.has(tr)) {
-        processedTrs.add(tr);
-        var hasChecked = Array.from(tr.querySelectorAll('.cal-md-cb[onclick*="cmToggleMetric"]')).some(function(c) { return c.classList.contains('checked'); });
-        tr.style.opacity = (atLimit && !hasChecked) ? '0.38' : '';
-        tr.style.pointerEvents = '';
-      }
+      var row = cb.closest('.cm-menu-row');
+      if (row) row.style.opacity = (atLimit && !isChecked) ? '0.38' : '';
     });
   }
 
@@ -15035,7 +15311,7 @@ window.calHideCapTip = function() {
     var hint = document.getElementById('calCmHint');
     if (hint) {
       hint.textContent = checked + ' / 4 rows';
-      hint.style.color = checked >= 4 ? '#d32f2f' : '#9ca3af';
+      hint.style.color = checked >= 4 ? '#D33030' : '#AEB4BA';
     }
     var applyBtn = document.getElementById('cmApplyBtn');
     if (applyBtn) { applyBtn.disabled = false; applyBtn.style.background = '#006461'; applyBtn.style.cursor = 'pointer'; applyBtn.style.opacity = '1'; }
@@ -15080,14 +15356,39 @@ window.calHideCapTip = function() {
   }
 
   // ── Metric toggle (updates pending state only — Apply to commit) ─
-  // ── Toggle section expand/collapse ──────────────────────────────
+  // ── Tree menu expand/collapse (MELIA menu items) ─────────────────
+  window.cmToggleMenuGroup = function(btn) {
+    var children = btn.nextElementSibling;
+    if (!children || !children.classList.contains('cm-menu-children')) return;
+    var open = children.style.display === 'none';
+    children.style.display = open ? 'block' : 'none';
+    var chev = btn.querySelector('.cm-menu-chevron');
+    if (chev) chev.style.transform = open ? 'rotate(90deg)' : '';
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
   window.cmToggleSection = function(sectionId, headerEl) {
-    var content = document.getElementById('cmSection-' + sectionId);
-    var icon = headerEl.querySelector('.cm-expand-icon');
-    if (!content || !icon) return;
-    var isHidden = content.style.display === 'none';
-    content.style.display = isHidden ? 'block' : 'none';
-    icon.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+    if (headerEl) cmToggleMenuGroup(headerEl);
+  };
+
+  window.cmSearchFilter = function(query) {
+    var q = (query || '').trim().toLowerCase();
+    var menu = document.getElementById('cmMetricsMenu');
+    if (!menu) return;
+    menu.querySelectorAll('.cm-menu-group').forEach(function(group) {
+      var groupKey = (group.getAttribute('data-cm-search') || '').toLowerCase();
+      var anyVisible = false;
+      group.querySelectorAll('.cm-menu-row--leaf').forEach(function(row) {
+        var key = (row.getAttribute('data-cm-search') || row.textContent || '').toLowerCase();
+        var show = !q || key.indexOf(q) >= 0 || groupKey.indexOf(q) >= 0;
+        row.classList.toggle('cm-search-hidden', !show);
+        if (show) anyVisible = true;
+      });
+      group.classList.toggle('cm-search-hidden', q.length > 0 && !anyVisible && groupKey.indexOf(q) < 0);
+      if (q && anyVisible) {
+        group.querySelectorAll('.cm-menu-children').forEach(function(ch) { ch.style.display = 'block'; });
+        group.querySelectorAll('.cm-menu-row--group .cm-menu-chevron').forEach(function(c) { c.style.transform = 'rotate(90deg)'; });
+      }
+    });
   };
 
   // Keys starting with 't' = Combined column; 'h' = Individual (Hotel) column.
@@ -15131,12 +15432,18 @@ window.calHideCapTip = function() {
     document.querySelectorAll('#calMetricsDropdown .cal-md-cb[data-cm-key]').forEach(function(cb) {
       cb.classList.toggle('checked', cmMetrics.indexOf(cb.dataset.cmKey) >= 0);
     });
+    var search = document.getElementById('cmSearchInput');
+    if (search) { search.value = ''; cmSearchFilter(''); }
     updateHint();
   };
 
   window.cmApplyMetrics = function() {
     var dd = document.getElementById('calMetricsDropdown');
+    var wrap = document.getElementById('calMetricsWrap');
+    var calCard = document.getElementById('demand-calendar');
     if (dd) dd.style.display = 'none';
+    if (wrap) wrap.classList.remove('cal-metrics-open');
+    if (calCard) calCard.classList.remove('cal-metrics-panel-open');
     renderCalendar();
   };
 
@@ -15164,6 +15471,16 @@ window.calHideCapTip = function() {
   }
 
   window.cmUpdateHint = function() { updateHint(); };
+
+  var cmMenu = document.getElementById('cmMetricsMenu');
+  if (cmMenu) {
+    cmMenu.addEventListener('click', function(e) {
+      var row = e.target.closest('label.cm-menu-row--leaf');
+      if (!row || e.target.closest('.cal-md-cb')) return;
+      var cb = row.querySelector('.cal-md-cb[data-cm-key]');
+      if (cb) cmToggleMetric(cb.dataset.cmKey, cb);
+    });
+  }
 
 
   // ── Build metric rows for a cell ──────────────────────────────
@@ -15260,7 +15577,7 @@ window.calHideCapTip = function() {
     var KEY_LABELS_FULL = {
       hocc:'H-Occupancy', tocc:'TO-Occupancy', hadr:'H-ADR', tadr:'TO-ADR',
       hrev:'H-Revenue', trev:'TO-Revenue', hpickup:'H-Pickup', tpickup:'TO-Pickup',
-      hrn:'H-Room Nights', trn:'TO-Room Nights', hrevpar:'H-RevPAR', trevpar:'TO-RevPAR',
+      hrn:'H-RN', trn:'TO-RN', hrevpar:'H-RevPAR', trevpar:'TO-RevPAR',
       havgAdults:'H-Average Adults', tavgAdults:'TO-Average Adults',
       havgChildren:'H-Average Children', tavgChildren:'TO-Average Children',
       havgLos:'H-LOS', tavgLos:'TO-LOS',
@@ -15269,19 +15586,19 @@ window.calHideCapTip = function() {
       hlyOcc:'H-LY-Occupancy', tlyOcc:'TO-LY-Occupancy',
       hlyAdr:'H-LY-ADR', tlyAdr:'TO-LY-ADR',
       hlyRev:'H-LY-Revenue', tlyRev:'TO-LY-Revenue',
-      hlyRn:'H-LY-Room Nights', tlyRn:'TO-LY-Room Nights',
+      hlyRn:'H-LY-RN', tlyRn:'TO-LY-RN',
       hlyRevpar:'H-LY-RevPAR', tlyRevpar:'TO-LY-RevPAR',
       hlyLos:'H-LY-LOS', tlyLos:'TO-LY-LOS',
       hstlyOcc:'H-STLY-Occupancy', tstlyOcc:'TO-STLY-Occupancy',
       hstlyAdr:'H-STLY-ADR', tstlyAdr:'TO-STLY-ADR',
       hstlyRev:'H-STLY-Revenue', tstlyRev:'TO-STLY-Revenue',
-      hstlyRn:'H-STLY-Room Nights', tstlyRn:'TO-STLY-Room Nights',
+      hstlyRn:'H-STLY-RN', tstlyRn:'TO-STLY-RN',
       hstlyRevpar:'H-STLY-RevPAR', tstlyRevpar:'TO-STLY-RevPAR',
       hstlyLos:'H-STLY-LOS', tstlyLos:'TO-STLY-LOS',
       hfcstOcc:'H-Fcst-Occupancy', tfcstOcc:'TO-Fcst-Occupancy',
       hfcstAdr:'H-Fcst-ADR', tfcstAdr:'TO-Fcst-ADR',
       hfcstRev:'H-Fcst-Revenue', tfcstRev:'TO-Fcst-Revenue',
-      hfcstRn:'H-Fcst-Room Nights', tfcstRn:'TO-Fcst-Room Nights',
+      hfcstRn:'H-Fcst-RN', tfcstRn:'TO-Fcst-RN',
       hfcstRevpar:'H-Fcst-RevPAR', tfcstRevpar:'TO-Fcst-RevPAR',
       hfcstLos:'H-Fcst-LOS', tfcstLos:'TO-Fcst-LOS',
       hly:'H-LY', tly:'TO-LY', hstly:'H-STLY', tstly:'TO-STLY', hfcst:'H-Fcst', tfcst:'TO-Fcst',
@@ -15422,9 +15739,9 @@ window.calHideCapTip = function() {
         } else if (k.indexOf('rn') >= 0) {
           formatted = Math.round(v) + ' RN';
         } else if (k.indexOf('avglos') >= 0 || k.indexOf('los') >= 0) {
-          formatted = (parseFloat(v)||0).toFixed(1) + 'n';
+          formatted = (parseFloat(v)||0).toFixed(1) + (useFull ? ' nights' : 'n');
         } else if (k.indexOf('lead') >= 0) {
-          formatted = Math.round(v) + 'd';
+          formatted = Math.round(v) + (useFull ? ' days' : 'd');
         } else if (k.indexOf('adults') >= 0 || k.indexOf('children') >= 0 || k.indexOf('guests') >= 0) {
           formatted = String(Math.round(v));
         } else {
@@ -15480,7 +15797,7 @@ window.calHideCapTip = function() {
     enabled: false,
     condition: { enabled: false, metric: 'hotel', op: '>', value: 50 },
     stopSalesRoomTypes: [],  // [] = all room types, or array of selected room type names
-    colors: {}  // custom color overrides, e.g. { grey: '#D33030', blue: '#FDCF61', green: '#CEF2D1' }
+    colors: {}  // custom color overrides, e.g. { grey: '#D32F2F', blue: '#FFB90F', green: '#388C3F' }
   };
 
   // ── Type definitions ───────────────────────────────────────────
@@ -15546,6 +15863,7 @@ window.calHideCapTip = function() {
   // ── Select heatmap type ────────────────────────────────────────
   window.hmSelectType = function(type) {
     hmState.type = type;
+    hmState.colors = {};
     // Update card active state
     document.querySelectorAll('.hm-type-option').forEach(function(c) {
       c.classList.toggle('active', c.dataset.hmtype === type);
@@ -15582,9 +15900,9 @@ window.calHideCapTip = function() {
     var isStopSales  = type === 'stopsales';
     var isToForecast = type === 'toforecast';
     var colours = [
-      { key: 'grey',  swatch: isStopSales ? '#D33030' : '#D33030', label: isStopSales ? 'Closed'  : isToForecast ? 'Above Forecast' : 'Grey',  cfg: def.grey  },
-      { key: 'blue',  swatch: isStopSales ? '#FDCF61' : '#FDF6F6', label: isStopSales ? 'Partial' : isToForecast ? 'Within Range'   : 'Blue',  cfg: def.blue  },
-      { key: 'green', swatch: isStopSales ? '#CEF2D1' : '#2E65E8', label: isStopSales ? 'Open'    : isToForecast ? 'Below Forecast'  : 'Green', cfg: def.green }
+      { key: 'grey',  swatch: isStopSales ? HM_STOP_SALES_COLORS.closed  : HM_METRIC_COLORS.grey,  label: isStopSales ? 'Closed'  : isToForecast ? 'Above Forecast' : 'Grey',  cfg: def.grey  },
+      { key: 'blue',  swatch: isStopSales ? HM_STOP_SALES_COLORS.partial : HM_METRIC_COLORS.blue,  label: isStopSales ? 'Partial' : isToForecast ? 'Within Range'   : 'Blue',  cfg: def.blue  },
+      { key: 'green', swatch: isStopSales ? HM_STOP_SALES_COLORS.open    : HM_METRIC_COLORS.green, label: isStopSales ? 'Open'    : isToForecast ? 'Below Forecast'  : 'Green', cfg: def.green }
     ];
 
     rows.innerHTML = colours.map(function(c) {
@@ -15645,7 +15963,7 @@ window.calHideCapTip = function() {
           var sel = hmState.stopSalesRoomTypes || [];
           ddList.innerHTML = rtOpts.map(function(rt) {
             var isOn = sel.indexOf(rt) >= 0;
-            return '<label class="hm-rt-dd-item"><input type="checkbox" value="' + rt + '"' + (isOn ? ' checked' : '') + ' onchange="hmRtItemChange()">' + rt + '</label>';
+            return '<label class="hm-rt-dd-item"><input type="checkbox" class="ds-checkbox" value="' + rt + '"' + (isOn ? ' checked' : '') + ' onchange="hmRtItemChange()">' + rt + '</label>';
           }).join('');
         }
         hmRtUpdateTrigger();
@@ -15787,8 +16105,8 @@ window.calHideCapTip = function() {
     if (!grid) return;
     var isStopSales = hmState.type === 'stopsales';
     var defaults = isStopSales
-      ? { grey: '#D33030', blue: '#FDCF61', green: '#CEF2D1' }
-      : { grey: '#D33030', blue: '#FDF6F6', green: '#2E65E8' };
+      ? { grey: HM_STOP_SALES_COLORS.closed, blue: HM_STOP_SALES_COLORS.partial, green: HM_STOP_SALES_COLORS.open }
+      : { grey: HM_METRIC_COLORS.grey, blue: HM_METRIC_COLORS.blue, green: HM_METRIC_COLORS.green };
     var gc = hmState.colors.grey  || defaults.grey;
     var bc = hmState.colors.blue  || defaults.blue;
     var gnc = hmState.colors.green || defaults.green;
@@ -15805,7 +16123,15 @@ window.calHideCapTip = function() {
     grid.style.setProperty('--hm-partial-bdr',bc);
     grid.style.setProperty('--hm-open-bg',    gnc + '30');
     grid.style.setProperty('--hm-open-bdr',   gnc);
+    hmSyncCalViewClass();
   }
+
+  function hmSyncCalViewClass() {
+    var grid = document.getElementById('calMonths');
+    if (!grid) return;
+    grid.classList.toggle('hm-view', !!(hmState.enabled && hmState.type));
+  }
+  window.hmSyncCalViewClass = hmSyncCalViewClass;
 
   function hmUpdateBtn() {
     var iconEl   = document.getElementById('hmBtnIcon');
@@ -15841,6 +16167,7 @@ window.calHideCapTip = function() {
     if (grid) ['--hm-grey-bg','--hm-grey-bdr','--hm-blue-bg','--hm-blue-bdr','--hm-green-bg','--hm-green-bdr',
                '--hm-closed-bg','--hm-closed-bdr','--hm-partial-bg','--hm-partial-bdr','--hm-open-bg','--hm-open-bdr']
       .forEach(function(v){ grid.style.removeProperty(v); });
+    hmSyncCalViewClass();
     document.querySelectorAll('.hm-type-option').forEach(function(c) { c.classList.remove('active'); });
     var section = document.getElementById('hmColourSection');
     if (section) section.style.display = 'none';
