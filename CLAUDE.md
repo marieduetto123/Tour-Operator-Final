@@ -1,4 +1,4 @@
-# TravelCore RM Hub — Claude Working Notes
+# Travel Distribution Calendar — Claude Working Notes
 
 ## Workflow
 After **every set of code changes**, always:
@@ -12,17 +12,42 @@ Or run `./deploy.sh "commit message"` which does all four steps.
 ## Repo
 - GitHub: https://github.com/marieduetto123/travelcore-rm-hub
 - Vercel: https://travelcore-rm-hub.vercel.app
-- Working dir: /Users/marie/Melia
+- Working dir: /Users/marie/Tour-Operator-Final-1
 
-## Files
-- `travelcore-rm-hub.html` — markup / tab structure
-- `travelcore-rm-hub.css`  — all styles
-- `travelcore-rm-hub.js`   — all logic (AG Grid, charts, data)
+## Project structure (Vite + React + Tailwind)
 
-## Key implementation notes
-- AG Grid Community v33.3.0 (`_realAgGrid`)
-- Daily H: flat-row accordion (fullWidthRow for sections, custom cellRenderer for parents)
-  - `_dhCollapsed` persists state between grid rebuilds
-  - `dhSetAll(collapse)` — Open All / Close All
-  - `autoHeight: true` on defaultColDef — rows auto-size to content
-- Vercel project ID: prj_NsOYsSZ4pDONmV2BgnB6DrJPhlGR
+```
+src/
+  app/                    # Root application shell
+    App.tsx
+  components/
+    ui/                   # Shared UI primitives
+      Icon.tsx
+    calendar/             # Calendar feature components
+      CalendarApp.tsx
+      index.ts            # Public exports
+  context/
+    CalendarContext.tsx   # Calendar state provider
+  data/                   # Static data & config
+    calendarData.ts
+    filterOptions.ts
+    heatmapTypes.ts
+  lib/calendar/           # Calendar business logic
+    metrics.ts
+    heatmap.ts
+  styles/                 # Global & feature CSS
+    index.css             # Tailwind entry
+    calendar.css          # Calendar-specific styles
+  main.tsx
+  vite-env.d.ts
+legacy/                   # Original vanilla HTML/CSS/JS app
+```
+
+Import alias: `@/` → `src/` (configured in `vite.config.ts` and `tsconfig.json`).
+
+## Commands
+- `npm run dev` — http://localhost:3000
+- `npm run build` — outputs `dist/`
+
+## Vercel project ID
+`prj_NsOYsSZ4pDONmV2BgnB6DrJPhlGR`
