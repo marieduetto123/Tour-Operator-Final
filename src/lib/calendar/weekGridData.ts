@@ -342,10 +342,22 @@ export function buildWbRows(): WbRow[] {
   return WB_GROUP_ORDER.flatMap((key) => grp[key] ?? []);
 }
 
+const WB_EXPANDED_SECTS = new Set([
+  'occ',
+  'onoff',
+  'adr',
+  'rev',
+  'rn',
+  'revpar_s',
+  'pickup_0',
+]);
+
 export function defaultWbCollapsed(rows: WbRow[]): Record<string, boolean> {
   const out: Record<string, boolean> = {};
   for (const r of rows) {
-    if (r.type === 'sect') out[r.id] = true;
+    if (r.type === 'top' || r.type === 'sect') {
+      out[r.id] = r.type === 'sect' ? !WB_EXPANDED_SECTS.has(r.id) : true;
+    }
   }
   return out;
 }

@@ -3,10 +3,30 @@ import { HOTEL_CAPACITY } from '@/data/calendarData';
 import type { CompareMode } from '@/lib/calendar/metrics';
 import type { WeekDayData, WbRow } from '@/lib/calendar/weekGridData';
 import { RT_CAPS } from '@/lib/calendar/weekGridData';
+import { ComparePills, SubCompareChip } from '@/lib/calendar/weekGridCompare';
+
+const WB_TO = '#004948';
+const WB_OTHER = '#52d9ce';
 
 function mealPct(d: WeekDayData, key: string) {
   const map: Record<string, number> = { ai: d.aiPct, bb: d.bbPct, hb: d.hbPct, ro: d.roPct };
   return map[key] ?? 0;
+}
+
+/** Stacked progress bar: TO share + Other segments (occupancy-scale %). */
+function toOtherBar(d: WeekDayData) {
+  return [
+    { pct: d.to, color: WB_TO },
+    { pct: d.otherPct, color: WB_OTHER },
+  ];
+}
+
+/** TO vs Hotel RN as % of capacity (meal plans, room-type sold). */
+function toHotelRnBar(toRn: number, hotelRn: number) {
+  return [
+    { pct: Math.min(100, (toRn / HOTEL_CAPACITY) * 100), color: WB_TO },
+    { pct: Math.min(100, (hotelRn / HOTEL_CAPACITY) * 100), color: WB_OTHER },
+  ];
 }
 
 function wbGrad(clr: string) {
@@ -20,46 +40,90 @@ function wbGrad(clr: string) {
   return clr;
 }
 
-function barTrack(segments: { pct: number; color: string }[]) {
+function barTrack(segments: { pct: number; color: string }[], markerPct?: number | null) {
   return (
-    <div className="wv-occ-bar-track">
-      {segments.map((s, i) => (
-        <div
-          key={i}
-          style={{ width: `${s.pct}%`, background: wbGrad(s.color), height: 6 }}
-        />
-      ))}
+    <div className="wb-bar-wrap">
+      <div className="wv-occ-bar-track">
+        {segments.map((s, i) => (
+          <div
+            key={i}
+            className="wv-occ-seg"
+            style={{ width: `${Math.max(0, Math.min(100, s.pct))}%`, background: wbGrad(s.color) }}
+          />
+        ))}
+      </div>
+      {markerPct != null && !Number.isNaN(markerPct) ? (
+        <span className="wb-bar-marker" style={{ left: `${Math.max(0, Math.min(100, markerPct))}%` }} />
+      ) : null}
     </div>
   );
 }
 
-function CmpSuffix({
-  curr,
-  comp,
+function SectionCell({
+  primary,
+  pills,
+  compare,
+  segments,
+  markerPct,
+  footer,
 }: {
-  curr: number;
-  comp: number | null;
+  primary: ReactNode;
+  pills: { key: string; label: string; curr: number; ref: number; isPercent?: boolean }[];
+  compare: CompareMode;
+  segments: { pct: number; color: string }[];
+  markerPct?: number | null;
+  footer?: ReactNode;
 }) {
-  if (comp == null || Number.isNaN(comp)) return null;
-  const cls = curr > comp ? 'wv-cmp-up' : curr < comp ? 'wv-cmp-dn' : 'wv-cmp-neutral';
   return (
-    <>
-      <span className="wv-cmp-sep"> / </span>
-      <span className={`wv-cmp-val-txt ${cls}`}>{comp}</span>
-    </>
+    <div
+      className={`wb-acc-cell${primary != null && primary !== '' ? '' : ' wb-acc-cell--no-metric'}`}
+    >
+      <div className="wb-acc-head">
+        <span
+          className={`wb-metric-primary${primary != null && primary !== '' ? '' : ' wb-metric-primary--empty'}`}
+        >
+          {primary != null && primary !== '' ? primary : '\u00a0'}
+        </span>
+        <div className="wb-pills-slot">
+          <ComparePills pills={pills} compare={compare} />
+        </div>
+      </div>
+      {segments.length > 0 ? (
+        <div className="wb-acc-bar-slot">{barTrack(segments, markerPct)}</div>
+      ) : null}
+      {footer ? <div className="wb-acc-footer">{footer}</div> : null}
+    </div>
   );
 }
 
-function trendBadge(_d: WeekDayData, curr: number, stly: number, ly: number, fcst: number, compare: CompareMode) {
-  if (compare === 'none') return null;
-  const comp =
-    compare === 'stly' ? stly : compare === 'ly' ? ly : compare === 'fcst' ? fcst : compare === 'budget' ? fcst : null;
-  if (comp == null) return null;
-  return <CmpSuffix curr={curr} comp={comp} />;
-}
-
-function sectVal(children: ReactNode) {
-  return <div className="wb-sect-val">{children}</div>;
+function SubCell({
+  primary,
+  secondary,
+  chips,
+  compare,
+  isRem,
+}: {
+  primary: string;
+  secondary?: string;
+  chips: { label: string; ref: number | string }[];
+  compare: CompareMode;
+  isRem?: boolean;
+}) {
+  return (
+    <div className={`wb-sub-cell-inner${isRem ? ' wb-sub-cell-inner--rem' : ''}`}>
+      <div className="wb-sub-value-line">
+        <span className="wb-sub-primary">{primary}</span>
+        {secondary ? <span className="wb-sub-secondary">{secondary}</span> : null}
+      </div>
+      {chips.length > 0 ? (
+        <div className="wb-sub-chips-line">
+          {chips.map((c) => (
+            <SubCompareChip key={c.label} label={c.label} refVal={c.ref} compare={compare} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export function renderTopCell(
@@ -71,353 +135,402 @@ export function renderTopCell(
 ) {
   if (row.id !== 'g_closeouts' || !collapsed) return null;
   if (isLocked) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', fontSize: 12, fontWeight: 600 }}>
-        Full Close Out
-      </div>
-    );
+    return <span className="wb-top-summary wb-top-summary--closed">Full Close Out</span>;
   }
   if (isPartial) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', fontSize: 12, fontWeight: 600 }}>
-        Partial
-      </div>
-    );
+    return <span className="wb-top-summary wb-top-summary--partial">Partial</span>;
   }
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 0', fontSize: 12, color: '#059669' }}>
-      Open
-    </div>
-  );
+  return <span className="wb-top-summary wb-top-summary--open">Open</span>;
 }
 
 export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode) {
+  const stly = { key: 'stly', label: 'STLY' };
+  const ly = { key: 'ly', label: 'LY' };
+  const fc = { key: 'fcst', label: 'Fc' };
+
   switch (row.id) {
     case 'occ':
       return (
-        <>
-          {sectVal(
-            <>
-              <span className="wv-occ-total">{d.hotel}%</span>
-              {trendBadge(d, d.hotel, d.sdlyH, d.lyH, d.fcstH, compare)}
-            </>,
-          )}
-          {barTrack([
-            { pct: d.to, color: '#004948' },
-            { pct: d.otherPct, color: '#52d9ce' },
-          ])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`${d.hotel}%`}
+          pills={[
+            { ...stly, curr: d.hotel, ref: d.sdlyH, isPercent: true },
+            { ...ly, curr: d.hotel, ref: d.lyH, isPercent: true },
+            { ...fc, curr: d.hotel, ref: d.fcstH, isPercent: true },
+          ]}
+          markerPct={compare !== 'none' ? d.sdlyH : null}
+          segments={toOtherBar(d)}
+        />
       );
     case 'onoff':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">{d.onlinePct}%</span>)}
-          {barTrack([
-            { pct: d.onlinePct, color: '#004948' },
-            { pct: 100 - d.onlinePct, color: '#52d9ce' },
-          ])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`${d.onlinePct}%`}
+          pills={[
+            { ...stly, curr: d.onlinePct, ref: Math.max(20, d.onlinePct - 4), isPercent: true },
+            { ...ly, curr: d.onlinePct, ref: Math.max(20, d.onlinePct - 2), isPercent: true },
+            { ...fc, curr: d.onlinePct, ref: Math.min(90, d.onlinePct + 2), isPercent: true },
+          ]}
+          segments={[
+            { pct: d.onlinePct, color: WB_TO },
+            { pct: 100 - d.onlinePct, color: WB_OTHER },
+          ]}
+        />
       );
     case 'adr':
       return (
-        <>
-          {sectVal(
-            <>
-              <span className="wv-occ-total">${d.toAdr}</span>
-              {trendBadge(d, d.toAdr, d.sdlyA, d.lyA, d.fcstA, compare)}
-            </>,
-          )}
-          {barTrack([{ pct: Math.min(90, Math.round(d.toAdr / 280 * 100)), color: '#004948' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`$${d.toAdr}`}
+          pills={[
+            { ...stly, curr: d.toAdr, ref: d.sdlyA },
+            { ...ly, curr: d.toAdr, ref: d.lyA },
+            { ...fc, curr: d.toAdr, ref: d.fcstA },
+          ]}
+          markerPct={compare !== 'none' ? d.sdlyH : null}
+          segments={toOtherBar(d)}
+        />
       );
     case 'rev':
       return (
-        <>
-          {sectVal(
-            <>
-              <span className="wv-occ-total">{d.fR(d.toRev)}</span>
-              {trendBadge(d, d.toRev, d.sdlyR, d.lyR, d.fcstR, compare)}
-            </>,
-          )}
-          {barTrack([{ pct: Math.min(90, Math.round(d.toRev / 4_500_000 * 100)), color: '#004948' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={d.fR(d.toRev)}
+          pills={[
+            { ...stly, curr: d.toRev, ref: d.sdlyR },
+            { ...ly, curr: d.toRev, ref: d.lyR },
+            { ...fc, curr: d.toRev, ref: d.fcstR },
+          ]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'rn':
       return (
-        <>
-          {sectVal(
-            <>
-              <span className="wv-occ-total">{d.toRn}</span>
-              {trendBadge(d, d.toRn, d.sdlyRn, d.lyRn, d.fcstRn, compare)}
-            </>,
-          )}
-          {barTrack([
+        <SectionCell
+          compare={compare}
+          primary={String(d.toRn)}
+          pills={[
+            { ...stly, curr: d.toRn, ref: d.sdlyRn },
+            { ...ly, curr: d.toRn, ref: d.lyRn },
+            { ...fc, curr: d.toRn, ref: d.fcstRn },
+          ]}
+          segments={[
             { pct: Math.min(90, Math.round((d.toRn / HOTEL_CAPACITY) * 100)), color: '#004948' },
             { pct: Math.min(90, Math.round((d.hnRn / HOTEL_CAPACITY) * 100)), color: '#52d9ce' },
-          ])}
-        </>
+          ]}
+        />
       );
     case 'revpar_s':
       return (
-        <>
-          {sectVal(
-            <>
-              <span className="wv-occ-total">${d.hRevpar}</span>
-              {trendBadge(d, d.hRevpar, d.sdlyRevpar, d.lyRevpar, d.hRevpar + 4, compare)}
-            </>,
-          )}
-          {barTrack([{ pct: Math.min(90, Math.round(d.hRevpar / 4)), color: '#004948' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`$${d.hRevpar}`}
+          pills={[
+            { ...stly, curr: d.hRevpar, ref: d.sdlyRevpar },
+            { ...ly, curr: d.hRevpar, ref: d.lyRevpar },
+            { ...fc, curr: d.hRevpar, ref: d.hRevpar + 4 },
+          ]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'pickup_0':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">+{d.pickup}</span>)}
-          {barTrack([{ pct: Math.min(90, d.pickup * 3), color: '#004948' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`+${d.pickup}`}
+          pills={[
+            { ...stly, curr: d.pickup, ref: Math.max(0, d.hPickup - 2) },
+            { ...ly, curr: d.pickup, ref: Math.max(0, d.hPickup - 1) },
+            { ...fc, curr: d.pickup, ref: d.pickup + 1 },
+          ]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'avga_s':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">{d.avgA}</span>)}
-          {barTrack([
-            { pct: Math.min(90, (parseFloat(d.avgA) / 3) * 100), color: '#004948' },
-            { pct: Math.min(90, (parseFloat(d.hAvgA) / 3) * 100), color: '#52d9ce' },
-          ])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={d.avgA}
+          pills={[]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'los_s':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">{d.avgLos}</span>)}
-          {barTrack([
-            { pct: 60, color: '#004948' },
-            { pct: 50, color: '#52d9ce' },
-          ])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={d.avgLos}
+          pills={[]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'lead_s':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">{d.avgLead}</span>)}
-          {barTrack([{ pct: Math.min(90, (parseInt(d.avgLead, 10) / 90) * 100), color: '#004948' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={d.avgLead}
+          pills={[]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'avail_s':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">{d.availRooms} rm</span>)}
-          {barTrack([{ pct: Math.min(90, Math.round((d.availRooms / HOTEL_CAPACITY) * 100)), color: '#16a34a' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`${d.availRooms} rm`}
+          pills={[]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'availg_s':
       return (
-        <>
-          {sectVal(<span className="wv-occ-total">{d.availGuar} rm</span>)}
-          {barTrack([{ pct: Math.min(90, Math.round((d.availGuar / 20) * 100)), color: '#004948' }])}
-        </>
+        <SectionCell
+          compare={compare}
+          primary={`${d.availGuar} rm`}
+          pills={[]}
+          segments={toOtherBar(d)}
+        />
       );
     case 'biz':
       return (
-        <>
-          {barTrack([
+        <SectionCell
+          compare={compare}
+          primary=""
+          pills={[]}
+          segments={[
             { pct: d.toMix, color: '#004948' },
             { pct: d.dirMix, color: '#52d9ce' },
             { pct: d.otaMix, color: '#D97706' },
             { pct: d.otherMix, color: '#9ca3af' },
-          ])}
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 3, fontSize: 12 }}>
-            <span style={{ color: '#004948' }}>TO {d.toMix}%</span>
-            <span style={{ color: '#52d9ce' }}>D {d.dirMix}%</span>
-            <span style={{ color: '#D97706' }}>OTA {d.otaMix}%</span>
-          </div>
-        </>
+          ]}
+          footer={
+            <div className="wb-biz-legend">
+              <span style={{ color: '#004948' }}>TO {d.toMix}%</span>
+              <span style={{ color: '#52d9ce' }}>D {d.dirMix}%</span>
+              <span style={{ color: '#D97706' }}>OTA {d.otaMix}%</span>
+            </div>
+          }
+        />
       );
     case 'mp_sum': {
       const gpr = parseFloat(d.hAvgA) + parseFloat(d.hAvgC);
       const aiSt = Math.round(d.hnRn * (d.aiPct / 100) * gpr);
       return (
-        <>
-          {barTrack([
+        <SectionCell
+          compare={compare}
+          primary=""
+          pills={[]}
+          segments={[
             { pct: d.aiPct, color: '#004948' },
             { pct: d.bbPct, color: '#52d9ce' },
             { pct: d.hbPct, color: '#D97706' },
             { pct: d.roPct, color: '#d7f7ed' },
-          ])}
-          <div style={{ fontSize: 12, marginTop: 3 }}>AI {d.aiPct}% · {aiSt} seats</div>
-        </>
+          ]}
+          footer={
+            <div className="wb-biz-legend">
+              AI {d.aiPct}% · {aiSt} seats
+            </div>
+          }
+        />
       );
     }
     default:
       if (row.mpKey) {
         const pct = mealPct(d, row.mpKey);
+        const toRm = Math.round(d.toRn * (pct / 100));
         const hRm = Math.round(d.hnRn * (pct / 100));
         return (
-          <>
-            {sectVal(
-              <>
-                <span className="wv-occ-total">{pct}%</span>
-                <span style={{ fontSize: 11, color: '#6b7280', marginLeft: 4 }}>{hRm} RN</span>
-              </>,
-            )}
-            {barTrack([{ pct, color: '#004948' }])}
-          </>
+          <SectionCell
+            compare={compare}
+            primary={`${pct}%`}
+            pills={[]}
+            segments={toHotelRnBar(toRm, hRm)}
+            footer={<span className="wb-acc-footer-muted">{hRm} RN hotel</span>}
+          />
         );
       }
       if (row.rtIdx !== undefined) {
         const inv = RT_CAPS[row.rtIdx];
         const sold = Math.min(inv, Math.floor((inv * d.hotel) / 110));
+        const toSold = Math.min(sold, Math.floor((inv * d.to) / 100));
+        const otherSold = Math.max(0, sold - toSold);
         const avRm = Math.max(0, inv - sold);
-        const avClr = avRm <= 0 ? '#dc2626' : '#004948';
         return (
-          <>
-            {sectVal(
-              <span className="wv-occ-total" style={{ color: avRm <= 0 ? '#16a34a' : avClr }}>
-                {avRm <= 0 ? '0 available' : `${avRm} avail`}
-              </span>,
-            )}
-            {barTrack([{ pct: Math.min(100, Math.round((sold / inv) * 100)), color: '#004948' }])}
-          </>
+          <SectionCell
+            compare={compare}
+            primary={avRm <= 0 ? '0 available' : `${avRm} avail`}
+            pills={[]}
+            segments={[
+              { pct: Math.min(100, (toSold / inv) * 100), color: WB_TO },
+              { pct: Math.min(100, (otherSold / inv) * 100), color: WB_OTHER },
+            ]}
+          />
         );
       }
       if (row.toIdx !== undefined) {
         const toRate = d.adr - 15 + Math.abs((d.dm * (row.toIdx + 3) + d.dd * (row.toIdx + 5)) % 50);
         return (
-          <>
-            {sectVal(<span className="wv-occ-total">${toRate}</span>)}
-            {barTrack([{ pct: 70, color: '#004948' }])}
-          </>
+          <SectionCell
+            compare={compare}
+            primary={`$${toRate}`}
+            pills={[]}
+            segments={toOtherBar(d)}
+          />
         );
       }
       if (row.toBase) {
         const baseRate = d.adr + 8;
         return (
-          <>
-            {sectVal(<span className="wv-occ-total" style={{ fontWeight: 700 }}>${baseRate}</span>)}
-            {barTrack([{ pct: Math.min(90, Math.round(baseRate / 280 * 100)), color: '#004948' }])}
-          </>
+          <SectionCell
+            compare={compare}
+            primary={`$${baseRate}`}
+            pills={[]}
+            segments={toOtherBar(d)}
+          />
         );
       }
       return null;
   }
 }
 
-export function renderSubCell(
-  row: WbRow,
-  d: WeekDayData,
-  isLocked: boolean,
-  isPartial: boolean,
-) {
-  let v1 = '';
-  let v2 = '';
+export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isPartial: boolean, compare: CompareMode) {
+  const chips = [
+    { label: 'STLY', ref: 20 },
+    { label: 'LY', ref: 18 },
+    { label: 'Fc', ref: 22 },
+  ];
 
   switch (row.id) {
     case 'co_rooms':
-      v1 = isLocked ? 'All' : isPartial ? 'Partial' : '—';
-      break;
+      return (
+        <SubCell primary={isLocked ? 'All' : isPartial ? 'Partial' : '—'} chips={[]} compare={compare} />
+      );
     case 'co_boards':
-      v1 = isLocked ? 'All' : isPartial ? 'BB, HB' : '—';
-      break;
+      return (
+        <SubCell primary={isLocked ? 'All' : isPartial ? 'BB, HB' : '—'} chips={[]} compare={compare} />
+      );
     case 'co_tos':
-      v1 = isLocked ? 'All' : isPartial ? 'Sunshine Tours' : '—';
-      break;
+      return (
+        <SubCell
+          primary={isLocked ? 'All' : isPartial ? 'Sunshine Tours' : '—'}
+          chips={[]}
+          compare={compare}
+        />
+      );
     case 'occ_tdh':
-      v1 = `${d.toRn} RN`;
-      v2 = `${d.to}%`;
-      break;
+      return (
+        <SubCell
+          primary={`${d.toRn} RN`}
+          secondary={`${d.to}%`}
+          chips={[{ label: 'STLY', ref: d.sdlyRn }]}
+          compare={compare}
+        />
+      );
     case 'occ_other':
-      v1 = `${d.otherRms} RN`;
-      v2 = `${d.otherPct}%`;
-      break;
+      return (
+        <SubCell
+          primary={`${d.otherRms} RN`}
+          secondary={`${d.otherPct}%`}
+          chips={[{ label: 'STLY', ref: d.sdlyRn }]}
+          compare={compare}
+        />
+      );
     case 'occ_rem':
-      v1 = `${d.freeRms} RN`;
-      v2 = `${Math.max(0, 100 - d.hotel)}%`;
-      break;
+      return (
+        <SubCell
+          primary={`${d.freeRms} RN`}
+          secondary={`${Math.max(0, 100 - d.hotel)}%`}
+          chips={[{ label: 'STLY', ref: 20 }]}
+          compare={compare}
+          isRem
+        />
+      );
     case 'onoff_on':
-      v1 = `${d.onlinePct}%`;
-      break;
+      return <SubCell primary={`${d.onlinePct}%`} chips={chips} compare={compare} />;
     case 'onoff_off':
-      v1 = `${100 - d.onlinePct}%`;
-      break;
+      return <SubCell primary={`${100 - d.onlinePct}%`} chips={chips} compare={compare} />;
     case 'adr_t':
-      v1 = `$${d.toAdr}`;
-      break;
+      return <SubCell primary={`$${d.toAdr}`} chips={[{ label: 'STLY', ref: d.sdlyA }]} compare={compare} />;
     case 'adr_hotel':
-      v1 = `$${d.adr}`;
-      break;
+      return <SubCell primary={`$${d.adr}`} chips={[{ label: 'STLY', ref: d.sdlyA }]} compare={compare} />;
     case 'rev_t':
-      v1 = d.fR(d.toRev);
-      break;
+      return <SubCell primary={d.fR(d.toRev)} chips={[{ label: 'STLY', ref: d.fR(d.sdlyR) }]} compare={compare} />;
     case 'rev_hotel':
-      v1 = d.fR(d.hnRev);
-      break;
+      return <SubCell primary={d.fR(d.hnRev)} chips={[{ label: 'STLY', ref: d.fR(d.lyR) }]} compare={compare} />;
     case 'rn_t':
-      v1 = `${d.toRn} RN`;
-      break;
+      return <SubCell primary={`${d.toRn} RN`} chips={[{ label: 'STLY', ref: d.sdlyRn }]} compare={compare} />;
     case 'rn_hotel':
-      v1 = `${d.hnRn} RN`;
-      break;
+      return <SubCell primary={`${d.hnRn} RN`} chips={[{ label: 'STLY', ref: Math.round(d.lyRn) }]} compare={compare} />;
     case 'revpar_t':
-      v1 = `$${d.toRevpar}`;
-      break;
+      return <SubCell primary={`$${d.toRevpar}`} chips={[{ label: 'STLY', ref: d.sdlyRevpar }]} compare={compare} />;
     case 'revpar_h':
-      v1 = `$${d.hRevpar}`;
-      break;
+      return <SubCell primary={`$${d.hRevpar}`} chips={[{ label: 'STLY', ref: d.lyRevpar }]} compare={compare} />;
     case 'pickup_0_t':
-      v1 = `+${d.pickup}`;
-      break;
+      return <SubCell primary={`+${d.pickup}`} chips={chips} compare={compare} />;
     case 'pickup_0_h':
-      v1 = `+${d.hPickup}`;
-      break;
+      return <SubCell primary={`+${d.hPickup}`} chips={chips} compare={compare} />;
     case 'avga_t':
-      v1 = d.avgA;
-      break;
+      return <SubCell primary={d.avgA} chips={chips} compare={compare} />;
     case 'avga_h':
-      v1 = d.hAvgA;
-      break;
+      return <SubCell primary={d.hAvgA} chips={chips} compare={compare} />;
     case 'los_t':
-      v1 = d.avgLos;
-      break;
+      return <SubCell primary={d.avgLos} chips={chips} compare={compare} />;
     case 'los_h':
-      v1 = d.hLos;
-      break;
+      return <SubCell primary={d.hLos} chips={chips} compare={compare} />;
     case 'lead_t':
-      v1 = d.avgLead;
-      break;
+      return <SubCell primary={d.avgLead} chips={chips} compare={compare} />;
     case 'lead_h':
-      v1 = d.hLead;
-      break;
+      return <SubCell primary={d.hLead} chips={chips} compare={compare} />;
     case 'biz_to':
-      v1 = `${d.toMix}%`;
-      break;
+      return <SubCell primary={`${d.toMix}%`} chips={chips} compare={compare} />;
     case 'biz_dir':
-      v1 = `${d.dirMix}%`;
-      break;
+      return <SubCell primary={`${d.dirMix}%`} chips={chips} compare={compare} />;
     case 'biz_ota':
-      v1 = `${d.otaMix}%`;
-      break;
+      return <SubCell primary={`${d.otaMix}%`} chips={chips} compare={compare} />;
     case 'biz_other':
-      v1 = `${d.otherMix}%`;
-      break;
+      return <SubCell primary={`${d.otherMix}%`} chips={chips} compare={compare} />;
     default:
       if (row.mpKey && row.id.endsWith('_t')) {
-        v1 = `${Math.round(d.toRn * (mealPct(d, row.mpKey) / 100))} RN`;
-      } else if (row.mpKey && row.id.endsWith('_h')) {
-        v1 = `${Math.round(d.hnRn * (mealPct(d, row.mpKey) / 100))} RN`;
-      } else if (row.rtIdx !== undefined && row.rtSub === 'to') {
-        v1 = `${Math.min(RT_CAPS[row.rtIdx], Math.floor((RT_CAPS[row.rtIdx] * d.to) / 100))} RN`;
-      } else if (row.rtIdx !== undefined && row.rtSub === 'avail') {
+        return (
+          <SubCell
+            primary={`${Math.round(d.toRn * (mealPct(d, row.mpKey) / 100))} RN`}
+            chips={chips}
+            compare={compare}
+          />
+        );
+      }
+      if (row.mpKey && row.id.endsWith('_h')) {
+        return (
+          <SubCell
+            primary={`${Math.round(d.hnRn * (mealPct(d, row.mpKey) / 100))} RN`}
+            chips={chips}
+            compare={compare}
+          />
+        );
+      }
+      if (row.rtIdx !== undefined && row.rtSub === 'to') {
+        return (
+          <SubCell
+            primary={`${Math.min(RT_CAPS[row.rtIdx], Math.floor((RT_CAPS[row.rtIdx] * d.to) / 100))} RN`}
+            chips={chips}
+            compare={compare}
+          />
+        );
+      }
+      if (row.rtIdx !== undefined && row.rtSub === 'avail') {
         const inv = RT_CAPS[row.rtIdx];
         const sold = Math.min(inv, Math.floor((inv * d.hotel) / 110));
-        v1 = `${Math.max(0, inv - sold)} RN`;
+        return (
+          <SubCell
+            primary={`${Math.max(0, inv - sold)} RN`}
+            chips={chips}
+            compare={compare}
+            isRem
+          />
+        );
       }
+      return null;
   }
-
-  const remCls = row.isRem ? ' wb-sub-val-rem' : '';
-  return (
-    <div className={`wb-sub-vals${remCls}`}>
-      <span className="wb-sub-v1">{v1}</span>
-      {v2 ? <span className="wb-sub-v2">{v2}</span> : null}
-    </div>
-  );
 }

@@ -3,6 +3,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import TodayIcon from '@mui/icons-material/Today';
+import Checkbox from '@mui/material/Checkbox';
 import { type ReactNode, useMemo, useState } from 'react';
 import { EVENT_DAYS } from '@/data/calendarData';
 import { useCalendar } from '@/context/CalendarContext';
@@ -73,6 +74,12 @@ export function WeekGrid({ month, startDay, compare }: Props) {
                 .filter(Boolean)
                 .join(' ')}
             >
+              <Checkbox
+                size="small"
+                className="wb-hdr-check"
+                sx={{ p: 0, color: 'rgba(255,255,255,0.7)', '&.Mui-checked': { color: '#c4ff45' } }}
+                onClick={(e) => e.stopPropagation()}
+              />
               <span className="wb-hdr-dow">{dow}</span>
               <span className="wb-hdr-date">
                 {dv.day}/{dv.month}
@@ -155,7 +162,7 @@ export function WeekGrid({ month, startDay, compare }: Props) {
               } else if (row.type === 'sect') {
                 content = renderSectCell(row, d, compare);
               } else {
-                content = renderSubCell(row, d, locked, partial);
+                content = renderSubCell(row, d, locked, partial, compare);
               }
 
               return (
