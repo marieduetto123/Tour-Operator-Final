@@ -1,5 +1,7 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -10,7 +12,14 @@ import { ALL_MONTHS, type MetricKey } from '@/data/calendarData';
 import { DEFAULT_SEGMENTS, SEGMENT_OPTIONS, type SegmentKey } from '@/data/metricTree';
 import { useCalendar } from '@/context/CalendarContext';
 import { buildCellMetrics } from '@/lib/calendar/metrics';
-import { getWeekDays, shiftWeekAnchor, weekRangeLabel } from '@/lib/calendar/weekGridData';
+import {
+  buildWbRows,
+  defaultWbCollapsed,
+  getWeekDays,
+  shiftWeekAnchor,
+  wbSetAllCollapsed,
+  weekRangeLabel,
+} from '@/lib/calendar/weekGridData';
 import { heatmapCssVars } from '@/lib/calendar/heatmap';
 import type { FilterGroupId } from '@/data/filterOptions';
 import { toggleFilterValue } from '@/data/filterOptions';
@@ -85,6 +94,8 @@ export function CalendarApp() {
   const [compare, setCompare] = useState<CompareMode>('none');
   const [cmpVisible, setCmpVisible] = useState(false);
   const [dayModal, setDayModal] = useState<DayModal | null>(null);
+  const wbRows = useMemo(() => buildWbRows(), []);
+  const [wbCollapsed, setWbCollapsed] = useState(() => defaultWbCollapsed(wbRows));
   const gridRef = useRef<HTMLDivElement>(null);
 
   const isCompact = displayView >= 3;
@@ -261,7 +272,7 @@ export function CalendarApp() {
     </Box>
   ) : (
     <Box className="wv-date-shuffler">
-      <IconButton className="wv-nav-btn" onClick={() => shiftWeek(-1)} aria-label="Previous week" size="small">
+      <IconButton className="wv-nav-btn" onClick={() => shiftWeek(-1)} aria-label="Previous day" size="small">
         <ChevronLeftIcon />
       </IconButton>
       <Typography component="span" className="wv-range">
@@ -275,11 +286,38 @@ export function CalendarApp() {
           </Typography>
         )}
       </Typography>
-      <IconButton className="wv-nav-btn" onClick={() => shiftWeek(1)} aria-label="Next week" size="small">
+      <IconButton className="wv-nav-btn" onClick={() => shiftWeek(1)} aria-label="Next day" size="small">
         <ChevronRightIcon />
       </IconButton>
     </Box>
   );
+
+  const tabBarTrailing =
+    viewMode === 'weekly' ? (
+      <Box className="ds-tab-bar__trailing-inner">
+        <div className="wv-date-acc-controls">
+          <button
+            type="button"
+            className="wv-acc-action-btn"
+            onClick={() => setWbCollapsed(wbSetAllCollapsed(wbRows, true))}
+          >
+            <UnfoldLessIcon sx={{ fontSize: 18 }} aria-hidden />
+            Close All
+          </button>
+          <button
+            type="button"
+            className="wv-acc-action-btn"
+            onClick={() => setWbCollapsed(wbSetAllCollapsed(wbRows, false))}
+          >
+            <UnfoldMoreIcon sx={{ fontSize: 18 }} aria-hidden />
+            Open All
+          </button>
+        </div>
+        {dateShuffler}
+      </Box>
+    ) : (
+      dateShuffler
+    );
 
   return (
     <>
@@ -342,7 +380,7 @@ export function CalendarApp() {
           onDatePickerClose={() => setDatePickerOpen(false)}
         />
 
-        <CalendarTabBar value={viewMode} onChange={handleTabChange} trailing={dateShuffler} />
+        <CalendarTabBar value={viewMode} onChange={handleTabChange} trailing={tabBarTrailing} />
 
         {viewMode === 'monthly' ? (
           <Box
@@ -374,6 +412,8 @@ export function CalendarApp() {
             startDay={weekAnchor.day}
             compare={compare}
             selectedMetrics={appliedMetrics}
+            collapsed={wbCollapsed}
+            onCollapsedChange={setWbCollapsed}
           />
         )}
       </Paper>

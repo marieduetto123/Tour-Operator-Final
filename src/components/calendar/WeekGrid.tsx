@@ -4,7 +4,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import TodayIcon from '@mui/icons-material/Today';
 import Checkbox from '@mui/material/Checkbox';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type Dispatch, type ReactNode, type SetStateAction, useMemo } from 'react';
 import { EVENT_DAYS } from '@/data/calendarData';
 import { useCalendar } from '@/context/CalendarContext';
 import type { CompareMode } from '@/lib/calendar/metrics';
@@ -13,7 +13,6 @@ import { renderSectCell, renderSubCell, renderTopCell } from '@/lib/calendar/wee
 import {
   buildWbRows,
   buildWeekDayData,
-  defaultWbCollapsed,
   getWeekDays,
   isRowHidden,
 } from '@/lib/calendar/weekGridData';
@@ -25,13 +24,14 @@ type Props = {
   month: number;
   startDay: number;
   compare: CompareMode;
+  collapsed: Record<string, boolean>;
+  onCollapsedChange: Dispatch<SetStateAction<Record<string, boolean>>>;
 };
 
-export function WeekGrid({ month, startDay, compare }: Props) {
+export function WeekGrid({ month, startDay, compare, collapsed, onCollapsedChange }: Props) {
   const { isLocked, isPartial } = useCalendar();
   const rows = useMemo(() => buildWbRows(), []);
   const rowMap = useMemo(() => new Map(rows.map((r) => [r.id, r])), [rows]);
-  const [collapsed, setCollapsed] = useState(() => defaultWbCollapsed(rows));
 
   const days = useMemo(() => getWeekDays(2026, month, startDay), [month, startDay]);
   const dayData = useMemo(
@@ -40,7 +40,7 @@ export function WeekGrid({ month, startDay, compare }: Props) {
   );
 
   const toggle = (id: string) => {
-    setCollapsed((c) => ({ ...c, [id]: !c[id] }));
+    onCollapsedChange((c) => ({ ...c, [id]: !c[id] }));
   };
 
   const chev = (open: boolean) =>

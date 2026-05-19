@@ -120,10 +120,21 @@ export function weekRangeLabel(days: WeekDayRef[]): string {
   return `${MNAMES[m0.month]} ${m0.day} – ${MNAMES[m6.month]} ${m6.day}, ${m0.year}`;
 }
 
-export function shiftWeekAnchor(month: number, day: number, deltaWeeks: number) {
-  const d = new Date(2026, month - 1, day);
-  d.setDate(d.getDate() + deltaWeeks * 7);
-  return { month: d.getMonth() + 1, day: d.getDate() };
+/** Shift the week window start by calendar days (legacy: ±1 day per arrow). */
+export function shiftWeekAnchor(month: number, day: number, deltaDays: number) {
+  let m = month;
+  let d = day + deltaDays;
+  while (d < 1) {
+    m -= 1;
+    if (m < 1) m = 12;
+    d += DAYS_IN_MONTH[m];
+  }
+  while (d > DAYS_IN_MONTH[m]) {
+    d -= DAYS_IN_MONTH[m];
+    m += 1;
+    if (m > 12) m = 1;
+  }
+  return { month: m, day: d };
 }
 
 function formatRev(val: number) {
@@ -342,22 +353,19 @@ export function buildWbRows(): WbRow[] {
   return WB_GROUP_ORDER.flatMap((key) => grp[key] ?? []);
 }
 
-const WB_EXPANDED_SECTS = new Set([
-  'occ',
-  'onoff',
-  'adr',
-  'rev',
-  'rn',
-  'revpar_s',
-  'pickup_0',
-]);
-
+/** Legacy Daily B: top-level groups open; inner sections collapsed. */
 export function defaultWbCollapsed(rows: WbRow[]): Record<string, boolean> {
   const out: Record<string, boolean> = {};
   for (const r of rows) {
-    if (r.type === 'top' || r.type === 'sect') {
-      out[r.id] = r.type === 'sect' ? !WB_EXPANDED_SECTS.has(r.id) : true;
-    }
+    if (r.type === 'sect') out[r.id] = true;
+  }
+  return out;
+}
+
+export function wbSetAllCollapsed(rows: WbRow[], collapse: boolean): Record<string, boolean> {
+  const out: Record<string, boolean> = {};
+  for (const r of rows) {
+    if (r.type === 'top' || r.type === 'sect') out[r.id] = collapse;
   }
   return out;
 }
