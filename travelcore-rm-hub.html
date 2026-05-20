@@ -107,7 +107,7 @@
     <span class="bc-sep">
       <span class="material-icons" style="font-size:12px;color:#585858">chevron_right</span>
     </span>
-    <span class="bc-current">Travel Distribution Hubs</span>
+    <span class="bc-current">tour operator</span>
   </div>
   <div class="property-picker">
     <span class="material-icons" style="font-size:20px;color:#19393E">home</span>
@@ -126,7 +126,7 @@
         <span class="material-icons">dashboard</span>
         Dashboard
       </a>
-      <a class="nav-item" href="#" data-label="Travel Distribution Hubs & Contracts">
+      <a class="nav-item" href="#" data-label="tour operator & Contracts">
         <span class="material-icons">people</span>
         Contacts &amp; Contracts
       </a>
@@ -459,24 +459,8 @@
             </button>
             <h2 class="cal-title">Calendar</h2>
           </div>
-          <!-- Header centre — compare + date picker, only visible in week view -->
-          <div class="cal-header-center" id="wvHeaderCenter" style="display:none;gap:8px">
-            <!-- Compare multi-select -->
-            <div id="wvCmpWrap" class="wv-cmp-wrap" style="margin:0">
-              <div class="wv-cmp-dd" id="wvCmpDd">
-                <button class="wv-cmp-dd-btn" id="wvCmpDdBtn" onclick="wvCmpDdToggle(event)">
-                  <span id="wvCmpDdLabel">Compare</span>
-                  <span class="material-icons" style="font-size:15px;margin-left:2px;opacity:.65">expand_more</span>
-                </button>
-                <div class="wv-cmp-dd-menu" id="wvCmpDdMenu">
-                  <div class="wv-cmp-dd-item active" data-cmp="none" onclick="event.stopPropagation();wvSetCompare('none')"><input type="checkbox" class="wv-cmp-chk" checked onclick="event.preventDefault();event.stopPropagation()"><span>None</span></div>
-                  <div class="wv-cmp-dd-item"         data-cmp="stly" onclick="event.stopPropagation();wvSetCompare('stly')"><input type="checkbox" class="wv-cmp-chk"         onclick="event.preventDefault();event.stopPropagation()"><span>STLY</span></div>
-                  <div class="wv-cmp-dd-item"         data-cmp="ly"   onclick="event.stopPropagation();wvSetCompare('ly')"  ><input type="checkbox" class="wv-cmp-chk"         onclick="event.preventDefault();event.stopPropagation()"><span>LY</span></div>
-                  <div class="wv-cmp-dd-item"         data-cmp="fcst" onclick="event.stopPropagation();wvSetCompare('fcst')"><input type="checkbox" class="wv-cmp-chk"         onclick="event.preventDefault();event.stopPropagation()"><span>Forecast</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Header centre — reserved for week view (compare lives in week topbar) -->
+          <div class="cal-header-center" id="wvHeaderCenter" style="display:none"></div>
           <div class="cal-header-right">
             <!-- Select Dates toggle -->
             <button class="mo-select-dates-btn" id="moSelectDatesBtn" onclick="moToggleSelectMode()" style="order:0">
@@ -486,41 +470,6 @@
             <button class="wv-closeout-primary mo-custom-close-btn" id="moCloseOutBtn" onclick="moSmartClose()" style="order:1">
               <span class="material-icons" style="font-size:16px">lock</span> Close/Re-Open
             </button>
-            <!-- Date Range selector -->
-            <div class="drp-wrap caldr-wrap" style="order:8" id="calDRWrap">
-              <button type="button" id="calDRTrigger" class="drp-trigger" onclick="calDRToggle()">
-                <span class="material-icons" style="font-size:16px">date_range</span>
-                <span id="calDRLabel">Jan 2026 – Dec 2026</span>
-              </button>
-              <!-- Month range picker — DS v4, two-year ranged mode -->
-              <div id="calDRPanel" class="drp-dropdown caldr-panel" style="display:none">
-                <div class="drp-calendars">
-                  <div class="drp-month">
-                    <div class="drp-month-hdr caldr-year-hdr">
-                      <button type="button" class="drp-nav" onclick="calDRNav(-1)" aria-label="Previous year">&#8249;</button>
-                      <span id="calDRLeftYear" class="drp-month-title caldr-year-title"></span>
-                      <span class="caldr-nav-spacer" aria-hidden="true"></span>
-                    </div>
-                    <div id="calDRLeftGrid" class="caldr-mgrid"></div>
-                  </div>
-                  <div class="drp-month">
-                    <div class="drp-month-hdr caldr-year-hdr">
-                      <span class="caldr-nav-spacer" aria-hidden="true"></span>
-                      <span id="calDRRightYear" class="drp-month-title caldr-year-title"></span>
-                      <button type="button" class="drp-nav" onclick="calDRNav(1)" aria-label="Next year">&#8250;</button>
-                    </div>
-                    <div id="calDRRightGrid" class="caldr-mgrid"></div>
-                  </div>
-                </div>
-                <div class="drp-footer">
-                  <span id="calDRFooterLabel" class="drp-range-text"></span>
-                  <div class="drp-footer-btns">
-                    <button type="button" class="drp-cancel" onclick="calDRCancel()">Cancel</button>
-                    <button type="button" class="drp-apply" onclick="calDRApply()">Apply</button>
-                  </div>
-                </div>
-              </div>
-            </div>
             <!-- Cell metrics selector -->
             <div class="cal-metrics-wrap" id="calMetricsWrap" style="order:5">
               <button class="wv-topbar-text-btn" id="calMetricsBtn">
@@ -727,15 +676,18 @@
               </div>
 
                 </div>
-            <!-- Compare dropdown -->
-            <div style="position:relative;order:6" id="calCompareWrap">
-              <select class="wv-cmp-select" id="calCompare" onchange="calSetCompare(this.value)">
-                <option value="ly">vs LY</option>
-                <option value="stly">vs STLY</option>
-                <option value="fcst">vs Locked Forecast</option>
-                <option value="budget">vs Locked Budget</option>
-                <option value="none" selected>No Compare</option>
-              </select>
+            <!-- Compare — Figma Selector (1315:38117) -->
+            <div class="cmp-select-wrap" id="calCompareWrap" style="order:6">
+              <button type="button" class="cmp-select-trigger" id="calCmpSelector" onclick="calCmpSelectToggle(event)" aria-haspopup="listbox" aria-expanded="false">
+                <span class="cmp-select-label" id="calCmpSelectLabel">Compare</span>
+                <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
+              </button>
+              <div class="cmp-select-menu ds-select-menu" id="calCmpSelectMenu" role="listbox" style="display:none">
+                <button type="button" class="ds-select-opt active" data-cmp="none" onclick="calPickCompare('none', event)">None</button>
+                <button type="button" class="ds-select-opt" data-cmp="stly" onclick="calPickCompare('stly', event)">STLY</button>
+                <button type="button" class="ds-select-opt" data-cmp="ly" onclick="calPickCompare('ly', event)">LY</button>
+                <button type="button" class="ds-select-opt" data-cmp="fcst" onclick="calPickCompare('fcst', event)">Forecast</button>
+              </div>
             </div>
             <!-- Filters (moved next to Cell Metrics) -->
             <div class="cal-filters-wrap" id="calFiltersWrap" style="position:relative;order:3">
@@ -920,9 +872,41 @@
           <div class="wv-groupby-row">
             <button class="wv-groupby-btn mo-grp-btn active" data-mogroupby="monthly">Monthly</button>
             <button class="wv-groupby-btn mo-grp-btn" data-mogroupby="daily">Weekly</button>
-            <div class="wv-date-shuffler" style="margin-left:auto">
+            <div class="wv-date-shuffler wv-week-nav-center mo-month-nav-center">
               <button class="wv-nav-btn" id="moShufPrev" title="Previous"><span class="material-icons" style="font-size:18px">chevron_left</span></button>
-              <span class="wv-range" id="moShufRange">February – April 2026</span>
+              <div class="drp-wrap caldr-wrap mo-month-pick-wrap" id="calDRWrap">
+                <button type="button" id="calDRTrigger" class="drp-trigger wv-week-range-trigger mo-month-range-trigger" onclick="calDRToggle()">
+                  <span class="material-icons" style="font-size:16px">date_range</span>
+                  <span class="wv-range" id="calDRLabel">February – April 2026</span>
+                </button>
+                <div id="calDRPanel" class="drp-dropdown caldr-panel" style="display:none">
+                  <div class="drp-calendars">
+                    <div class="drp-month">
+                      <div class="drp-month-hdr caldr-year-hdr">
+                        <button type="button" class="drp-nav" onclick="calDRNav(-1)" aria-label="Previous year">&#8249;</button>
+                        <span id="calDRLeftYear" class="drp-month-title caldr-year-title"></span>
+                        <span class="caldr-nav-spacer" aria-hidden="true"></span>
+                      </div>
+                      <div id="calDRLeftGrid" class="caldr-mgrid"></div>
+                    </div>
+                    <div class="drp-month">
+                      <div class="drp-month-hdr caldr-year-hdr">
+                        <span class="caldr-nav-spacer" aria-hidden="true"></span>
+                        <span id="calDRRightYear" class="drp-month-title caldr-year-title"></span>
+                        <button type="button" class="drp-nav" onclick="calDRNav(1)" aria-label="Next year">&#8250;</button>
+                      </div>
+                      <div id="calDRRightGrid" class="caldr-mgrid"></div>
+                    </div>
+                  </div>
+                  <div class="drp-footer">
+                    <span id="calDRFooterLabel" class="drp-range-text"></span>
+                    <div class="drp-footer-btns">
+                      <button type="button" class="drp-cancel" onclick="calDRCancel()">Cancel</button>
+                      <button type="button" class="drp-apply" onclick="calDRApply()">Apply</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <button class="wv-nav-btn" id="moShufNext" title="Next"><span class="material-icons" style="font-size:18px">chevron_right</span></button>
             </div>
           </div>
@@ -947,12 +931,12 @@
             <span>Event</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#1C1C1C"></span>
+            <span class="leg-color-swatch" style="background:#006461"></span>
             <span>Hotel</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#47c5bc"></span>
-            <span>Tour Operator</span>
+            <span class="leg-color-swatch" style="background:#5CEADE"></span>
+            <span>TO</span>
           </div>
         </div>
 
@@ -976,6 +960,10 @@
           </div>
           <!-- Right: Compare select / Filters / Metrics / Close -->
           <div class="wv-topbar-right">
+            <!-- Select Dates (close-out mode — button flow, no checkboxes) -->
+            <button class="mo-select-dates-btn" id="wvSelectDatesBtn" onclick="wvToggleSelectMode()">
+              <span id="wvSelectDatesLabel">Select Dates</span>
+            </button>
             <!-- Single smart Close/Re-Open button -->
             <button class="wv-closeout-primary" id="wbCloseOutBtn" onclick="wvSmartClose()">
               <span class="material-icons" style="font-size:16px">lock</span>
@@ -1105,32 +1093,17 @@
                 <label class="wv-ms-item"><span class="wv-ms-cb checked" data-key="cmp_hotel"></span><span class="wv-ms-label"><span class="wv-ref-dot" style="background:#7c3aed"></span>Hotel</span></label>
               </div>
             </div>
-            <!-- Week date picker -->
-            <div class="wv-week-pick-wrap" id="wvWeekPickWrap">
-              <button class="wv-week-pick-btn" id="wvWeekPickBtn" onclick="wvWeekPickToggle()">
-                <span id="wvRange">March 1 – 7, 2026</span>
-                <span class="material-icons" style="font-size:16px">calendar_today</span>
+            <!-- Compare — Figma Selector (1315:38117) -->
+            <div class="cmp-select-wrap" id="wvCmpSelectWrap">
+              <button type="button" class="cmp-select-trigger" id="wvCmpSelector" onclick="wvCmpSelectToggle(event)" aria-haspopup="listbox" aria-expanded="false">
+                <span class="cmp-select-label" id="wvCmpSelectLabel">Compare</span>
+                <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
               </button>
-              <div id="wvWeekPickPanel">
-                <div class="wvwp-hdr">
-                  <button class="caldr-nav-btn" onclick="wvwpNav(-1)">&#8249;</button>
-                  <span class="caldr-yr" id="wvwpTitle"></span>
-                  <button class="caldr-nav-btn" onclick="wvwpNav(1)">&#8250;</button>
-                </div>
-                <div id="wvwpGrid" class="wvwp-grid"></div>
-              </div>
-            </div>
-            <!-- Compare multi-select dropdown (toolbar) -->
-            <div class="wv-cmp-dd" id="wvCmpDd2">
-              <button class="wv-cmp-dd-btn" id="wvCmpDdBtn2" onclick="wvCmpDdToggle2(event)">
-                <span id="wvCmpDdLabel2">Compare</span>
-                <span class="material-icons" style="font-size:15px;margin-left:2px;opacity:.65">expand_more</span>
-              </button>
-              <div class="wv-cmp-dd-menu" id="wvCmpDdMenu2">
-                <div class="wv-cmp-dd-item active" data-cmp="none" onclick="event.stopPropagation();wvSetCompare('none')"><input type="checkbox" class="wv-cmp-chk" checked onclick="event.preventDefault();event.stopPropagation()"><span>None</span></div>
-                <div class="wv-cmp-dd-item"         data-cmp="stly" onclick="event.stopPropagation();wvSetCompare('stly')"><input type="checkbox" class="wv-cmp-chk"         onclick="event.preventDefault();event.stopPropagation()"><span>STLY</span></div>
-                <div class="wv-cmp-dd-item"         data-cmp="ly"   onclick="event.stopPropagation();wvSetCompare('ly')"  ><input type="checkbox" class="wv-cmp-chk"         onclick="event.preventDefault();event.stopPropagation()"><span>LY</span></div>
-                <div class="wv-cmp-dd-item"         data-cmp="fcst" onclick="event.stopPropagation();wvSetCompare('fcst')"><input type="checkbox" class="wv-cmp-chk"         onclick="event.preventDefault();event.stopPropagation()"><span>Forecast</span></div>
+              <div class="cmp-select-menu ds-select-menu" id="wvCmpSelectMenu" role="listbox" style="display:none">
+                <button type="button" class="ds-select-opt active" data-cmp="none" onclick="wvSetCompare('none')">None</button>
+                <button type="button" class="ds-select-opt" data-cmp="stly" onclick="wvSetCompare('stly')">STLY</button>
+                <button type="button" class="ds-select-opt" data-cmp="ly" onclick="wvSetCompare('ly')">LY</button>
+                <button type="button" class="ds-select-opt" data-cmp="fcst" onclick="wvSetCompare('fcst')">Forecast</button>
               </div>
             </div>
 
@@ -1184,20 +1157,54 @@
               <span class="material-icons" style="font-size:16px">tune</span>
               Columns
             </button>
-            <!-- Open All / Close All -->
-            <div class="wv-date-acc-controls" style="margin-left:auto">
-              <button class="wv-acc-action-btn" id="wvRtCloseAll">
-                <span class="material-icons" style="font-size:16px">unfold_less</span>
-                Close All
-              </button>
-              <button class="wv-acc-action-btn" id="wvRtOpenAll">
-                <span class="material-icons" style="font-size:16px">unfold_more</span>
-                Open All
-              </button>
-            </div>
-            <!-- Week prev / next -->
-            <div class="wv-date-shuffler">
+            <!-- Week nav — Open/Close All, then arrows + date picker -->
+            <div class="wv-date-shuffler wv-week-nav-center">
+              <div class="wv-date-acc-controls">
+                <button class="wv-acc-action-btn" id="wvRtCloseAll">
+                  <span class="material-icons" style="font-size:16px">unfold_less</span>
+                  Close All
+                </button>
+                <button class="wv-acc-action-btn" id="wvRtOpenAll">
+                  <span class="material-icons" style="font-size:16px">unfold_more</span>
+                  Open All
+                </button>
+              </div>
               <button class="wv-nav-btn" id="wvPrev" title="Previous week"><span class="material-icons" style="font-size:18px">chevron_left</span></button>
+              <div class="wv-week-pick-wrap" id="wvWeekPickWrap">
+                <button type="button" class="drp-trigger wv-week-range-trigger" id="wvWeekPickBtn" onclick="wvWeekPickToggle(event)">
+                  <span class="material-icons" style="font-size:16px">date_range</span>
+                  <span class="wv-range" id="wvRange">March 1 – 7, 2026</span>
+                </button>
+                <div id="wvWeekPickPanel" class="drp-dropdown wv-week-pick-panel" style="display:none">
+                  <div class="drp-calendars">
+                    <div class="drp-month">
+                      <div class="drp-month-hdr">
+                        <button type="button" class="drp-nav" id="wvWpPrev" aria-label="Previous month">&#8249;</button>
+                        <span class="drp-month-title" id="wvWpTitle1"></span>
+                        <div style="flex:1"></div>
+                      </div>
+                      <div class="drp-dow-row"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+                      <div class="drp-days" id="wvWpDays1"></div>
+                    </div>
+                    <div class="drp-month">
+                      <div class="drp-month-hdr">
+                        <div style="flex:1"></div>
+                        <span class="drp-month-title" id="wvWpTitle2"></span>
+                        <button type="button" class="drp-nav" id="wvWpNext" aria-label="Next month">&#8250;</button>
+                      </div>
+                      <div class="drp-dow-row"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+                      <div class="drp-days" id="wvWpDays2"></div>
+                    </div>
+                  </div>
+                  <div class="drp-footer">
+                    <span class="drp-range-text" id="wvWpRangeText"></span>
+                    <div class="drp-footer-btns">
+                      <button type="button" class="drp-cancel" id="wvWpCancel">Cancel</button>
+                      <button type="button" class="drp-apply" id="wvWpApply">Apply</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <button class="wv-nav-btn" id="wvNext" title="Next week"><span class="material-icons" style="font-size:18px">chevron_right</span></button>
             </div>
           </div>
@@ -1209,6 +1216,14 @@
           <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#D32F2F">lock</span><span>Full close out</span></div>
           <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#FFB90F">lock</span><span>Partial close out</span></div>
           <div class="leg-item leg-item-event"><span class="material-icons" style="font-size:18px;color:#006461">today</span><span>Event</span></div>
+          <div class="leg-item">
+            <span class="leg-color-swatch" style="background:#006461"></span>
+            <span>Hotel</span>
+          </div>
+          <div class="leg-item">
+            <span class="leg-color-swatch" style="background:#5CEADE"></span>
+            <span>TO</span>
+          </div>
         </div>
         <div class="wv-cal-scroll-area">
           <div class="wv-week-layout">
@@ -1229,7 +1244,7 @@
         <div class="section-header">
           <div>
             <h3 class="section-title">Room type sales by segment</h3>
-            <p class="section-sub">Comparing Travel Distribution Hubs to Other Booking Segments</p>
+            <p class="section-sub">Comparing tour operator to Other Booking Segments</p>
           </div>
           <button class="btn btn-outline">
             <span class="material-icons" style="font-size:14px">info</span>
@@ -2120,7 +2135,7 @@
   <!-- Tabs — outside section-card, matching Contacts & Contracts -->
   <div class="to-tabs to-page-tabs">
     <div class="st-tabs-inner">
-      <button class="st-tab active" data-stab="operators">Travel Distribution Hubs</button>
+      <button class="st-tab active" data-stab="operators">tour operator</button>
       <button class="st-tab" data-stab="stopsales">Stop Sales &amp; Alerts</button>
       <button class="st-tab" data-stab="autopilot">Autopilot</button>
     </div>
@@ -3552,6 +3567,17 @@
     <div class="mo-sel-footer-actions">
       <button type="button" class="mo-sel-footer-cancel" onclick="moToggleSelectMode()">Cancel</button>
       <button type="button" class="mo-sel-footer-action" onclick="moOpenCloseOut()">Close / Re-Open</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Weekly view: fixed selection footer (same pattern as monthly) -->
+<div id="wvSelFooter" class="mo-sel-footer">
+  <div class="mo-sel-footer-inner">
+    <span id="wvSelCount" class="mo-sel-count">0 dates selected</span>
+    <div class="mo-sel-footer-actions">
+      <button type="button" class="mo-sel-footer-cancel" onclick="wvToggleSelectMode()">Cancel</button>
+      <button type="button" class="mo-sel-footer-action" onclick="wvOpenCloseOut()">Close / Re-Open</button>
     </div>
   </div>
 </div>
