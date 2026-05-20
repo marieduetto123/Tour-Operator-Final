@@ -552,12 +552,9 @@ function revDRApplyRange() {
     var trigger= document.getElementById('revDRTrigger');
     if(!panel) return;
     if(panel.style.display!=='none'){panel.style.display='none';return;}
-    var rect=trigger.getBoundingClientRect();
     var pw=Math.min(720,window.innerWidth*0.95);
-    var left=rect.left;
-    if(left+pw>window.innerWidth-8) left=Math.max(8,window.innerWidth-pw-8);
-    panel.style.left=left+'px'; panel.style.top=(rect.bottom+6)+'px';
-    panel.style.width=pw+'px'; panel.style.display='block';
+    positionFixedDropdown(panel, trigger, { align: 'left', width: pw });
+    panel.style.display='block';
     drPickingTo=false; renderPicker();
   };
 
@@ -1262,6 +1259,126 @@ const ALL_MONTHS = [
   { name:'December 2026',  year:2026, month:12, days:31, firstDay:2, lockedCount:5, stats:{occ:'85%',occDelta:'+4.1',adr:'$205',adrDelta:'+$18',rev:'$692k',revDelta:'+8.4%'} },
 ];
 
+function formatMonthRangeLabel(lo, hi, pendingEnd) {
+  if (lo == null || hi == null || lo < 0 || hi >= ALL_MONTHS.length) return '';
+  var startM = ALL_MONTHS[lo];
+  var endM = ALL_MONTHS[hi];
+  if (!startM) return '';
+  if (pendingEnd) return startM.name + ' - \u2026';
+  if (lo === hi) return startM.name;
+  return startM.name + ' - ' + endM.name;
+}
+
+const WV_MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function wvFormatDateLong(d) {
+  if (!d) return '';
+  return WV_MONTH_NAMES[d.getMonth()] + ', ' + d.getDate() + ', ' + d.getFullYear();
+}
+function wvFormatDateRangeLong(start, end) {
+  if (!start) return '';
+  return wvFormatDateLong(start) + ' - ' + wvFormatDateLong(end || start);
+}
+
+/** Position a fixed dropdown so it stays within the viewport (measure while hidden). */
+function positionFixedDropdown(panel, trigger, opts) {
+  if (!panel || !trigger) return;
+  opts = opts || {};
+  var gap = opts.gap != null ? opts.gap : 6;
+  var margin = opts.margin != null ? opts.margin : 8;
+  var align = opts.align || 'center';
+
+  var prevDisplay = panel.style.display;
+  var prevVis = panel.style.visibility;
+  panel.style.visibility = 'hidden';
+  panel.style.display = 'block';
+  if (opts.width) panel.style.width = (typeof opts.width === 'number' ? opts.width + 'px' : opts.width);
+  var pw = panel.offsetWidth;
+  var ph = panel.offsetHeight;
+  panel.style.visibility = prevVis;
+  panel.style.display = prevDisplay;
+
+  var rect = trigger.getBoundingClientRect();
+  var left;
+  if (align === 'center') {
+    left = rect.left + rect.width / 2 - pw / 2;
+  } else if (align === 'right') {
+    left = rect.right - pw;
+  } else {
+    left = rect.left;
+  }
+  if (left + pw > window.innerWidth - margin) left = window.innerWidth - pw - margin;
+  if (left < margin) left = margin;
+
+  var top = rect.bottom + gap;
+  if (top + ph > window.innerHeight - margin) {
+    var above = rect.top - gap - ph;
+    top = above >= margin ? above : Math.max(margin, window.innerHeight - ph - margin);
+  }
+
+  panel.style.position = 'fixed';
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+}
+
+/** Compare dropdown — portal to body + fixed coords under trigger (escapes overflow:clip). */
+function _cmpMenuHome(menu) {
+  if (!menu._cmpHome) {
+    menu._cmpHome = { parent: menu.parentNode, next: menu.nextSibling };
+  }
+}
+function _cmpMenuPortal(menu) {
+  if (!menu) return;
+  _cmpMenuHome(menu);
+  if (menu.parentNode !== document.body) document.body.appendChild(menu);
+}
+function _cmpMenuRestore(menu) {
+  if (!menu || !menu._cmpHome || !menu._cmpHome.parent) return;
+  var h = menu._cmpHome;
+  if (h.next && h.next.parentNode === h.parent) h.parent.insertBefore(menu, h.next);
+  else h.parent.appendChild(menu);
+}
+function positionCmpSelectMenu(menu, trigger) {
+  if (!menu || !trigger) return;
+  var margin = 8;
+  var gap = 2;
+  var rect = trigger.getBoundingClientRect();
+  menu.style.position = 'fixed';
+  menu.style.right = 'auto';
+  menu.style.bottom = 'auto';
+  menu.style.minWidth = rect.width + 'px';
+  menu.style.display = 'block';
+  menu.style.visibility = 'hidden';
+  var mw = menu.offsetWidth;
+  var mh = menu.offsetHeight;
+  menu.style.visibility = '';
+  var left = rect.left;
+  if (left + mw > window.innerWidth - margin) left = window.innerWidth - mw - margin;
+  if (left < margin) left = margin;
+  var top = rect.bottom + gap;
+  if (top + mh > window.innerHeight - margin) {
+    var above = rect.top - gap - mh;
+    top = above >= margin ? above : Math.max(margin, window.innerHeight - mh - margin);
+  }
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+function openCmpSelectMenu(menu, trigger) {
+  if (!menu || !trigger) return;
+  _cmpMenuPortal(menu);
+  positionCmpSelectMenu(menu, trigger);
+}
+function closeCmpSelectMenu(menu) {
+  if (!menu) return;
+  menu.style.display = 'none';
+  _cmpMenuRestore(menu);
+}
+
+const METRIC_COLOR_TO    = '#5CEADE';
+const METRIC_COLOR_HOTEL = '#006461';
+const WV_COLOR_OCC_OTHER = '#967EF3'; /* weekly occupancy — other segments (not hotel teal) */
+const WV_COLOR_ONLINE    = '#3b82f6';
+const WV_COLOR_OFFLINE   = '#f97316';
+
 let calStartIdx = 0; // start at January
 let calView = 2;        // default 2 months on load
 let calDisplayView = 2; // default 2 months on load
@@ -1315,12 +1432,56 @@ let calSelPicking = false; // true after first click, waiting for end
 const TO_FILTER_MULT = { all:1.0, sunwing:0.82, tui:1.18, 'thomas-cook':0.71, 'club-med':1.08 };
 let calFiltTO = 'all';
 let calCompareMode = 'none'; // 'ly', 'stly', 'fcst', 'budget', 'none'
+
+function calSyncCmpDd() {
+  var _names = { none: 'Compare', stly: 'STLY', ly: 'LY', fcst: 'Forecast', budget: 'Budget' };
+  var menu = document.getElementById('calCmpSelectMenu');
+  if (menu) {
+    menu.querySelectorAll('.ds-select-opt').forEach(function(item) {
+      item.classList.toggle('active', item.dataset.cmp === calCompareMode);
+    });
+  }
+  var lbl = document.getElementById('calCmpSelectLabel');
+  if (lbl) lbl.textContent = _names[calCompareMode] || 'Compare';
+}
+
 function calSetCompare(val) {
   calCompareMode = val || 'none';
-  var sel = document.getElementById('calCompare');
-  if (sel) sel.value = calCompareMode;
+  calSyncCmpDd();
   renderCalendar();
 }
+
+window.calPickCompare = function(val, e) {
+  if (e) e.stopPropagation();
+  calSetCompare(val);
+  var menu = document.getElementById('calCmpSelectMenu');
+  var btn  = document.getElementById('calCmpSelector');
+  closeCmpSelectMenu(menu);
+  if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+};
+
+window.calCmpSelectToggle = function(e) {
+  if (e) e.stopPropagation();
+  var menu = document.getElementById('calCmpSelectMenu');
+  var btn  = document.getElementById('calCmpSelector');
+  if (!menu || !btn) return;
+  var opening = menu.style.display === 'none' || !menu.style.display;
+  if (opening) openCmpSelectMenu(menu, btn);
+  else closeCmpSelectMenu(menu);
+  btn.classList.toggle('open', opening);
+  btn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+};
+
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('calCmpSelectMenu');
+  if (!menu || menu.style.display === 'none') return;
+  var wrap = document.getElementById('calCompareWrap');
+  if (wrap && wrap.contains(e.target)) return;
+  if (menu.contains(e.target)) return;
+  closeCmpSelectMenu(menu);
+  var btn = document.getElementById('calCmpSelector');
+  if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+});
 var CAL_CMP_MIN_CELL_W = 108;
 var CAL_FULL_UNITS_MIN_CELL_W = 112;
 
@@ -1383,8 +1544,8 @@ function _calSyncCellCompareVisibility() {
   grid.classList.toggle('cal-cmp-visible', showInlineCmp);
   var wrap = document.getElementById('calCompareWrap');
   if (wrap) wrap.classList.remove('cmp-disabled');
-  var sel = document.getElementById('calCompare');
-  if (sel) sel.disabled = false;
+  var btn = document.getElementById('calCmpSelector');
+  if (btn) btn.disabled = false;
 }
 
 function _calUpdateCompareState() {
@@ -1658,8 +1819,8 @@ function getGuaranteeFill(month, day) {
 let calMetric = 'occupancy';
 
 const CAL_METRIC_DEFS = {
-  hotelOcc:    { label: 'H-Occ',   color: '#5883ed', maxVal: 100,   fmt: function(v){ return v + '%'; },                        name: 'Hotel Occ',       group: 'Occupancy'  },
-  toOcc:       { label: 'TO-Occ',   color: '#006461', maxVal: 100,   fmt: function(v){ return v + '%'; },                        name: 'TO Occ',           group: 'Occupancy'  },
+  hotelOcc:    { label: 'H-Occ',   color: METRIC_COLOR_HOTEL, maxVal: 100,   fmt: function(v){ return v + '%'; },                        name: 'Hotel Occ',       group: 'Occupancy'  },
+  toOcc:       { label: 'TO-Occ',   color: METRIC_COLOR_TO, maxVal: 100,   fmt: function(v){ return v + '%'; },                        name: 'TO Occ',           group: 'Occupancy'  },
   lyOcc:       { label: 'LY-Occ',  color: '#93c5fd', maxVal: 100,   fmt: function(v){ return v + '%'; },                        name: 'LY Occ',          group: 'Occupancy'  },
   fcstOcc:     { label: 'Fc-Occ',  color: '#fbbf24', maxVal: 100,   fmt: function(v){ return v + '%'; },                        name: 'Fcst Occ',        group: 'Occupancy'  },
   hotelAdr:    { label: 'H-ADR',   color: '#7c3aed', maxVal: 300,   fmt: function(v){ return '$' + v; },                        name: 'Hotel ADR',       group: 'ADR'        },
@@ -1715,14 +1876,18 @@ function renderCalendar() {
 
   const visible = ALL_MONTHS.slice(calStartIdx, calStartIdx + calView);
 
-  // Update nav range label — target the dedicated date-nav row element
-  const rangeLabel = calView <= 2
+  // Update nav range label — full month names (e.g. January 2026 - September 2026)
+  const rangeLabel = visible.length === 1
     ? visible[0].name
-    : `${visible[0].name.split(' ')[0]} – ${visible[visible.length-1].name}`;
+    : visible[0].name + ' - ' + visible[visible.length - 1].name;
   const rangeEl = document.getElementById('calRange') || document.querySelector('.cal-range');
   if (rangeEl) rangeEl.textContent = rangeLabel;
-  var calDrLbl = document.getElementById('calDRLabel');
-  if (calDrLbl) calDrLbl.textContent = rangeLabel;
+  var calDrPanel = document.getElementById('calDRPanel');
+  var pickerOpen = calDrPanel && calDrPanel.style.display !== 'none';
+  if (!pickerOpen) {
+    var calDrLbl = document.getElementById('calDRLabel');
+    if (calDrLbl) calDrLbl.textContent = rangeLabel;
+  }
 
   // Grid columns — max 4 per row
   var gridCols = calView;
@@ -1816,8 +1981,8 @@ function renderCalendar() {
         var rows = (typeof window.cmBuildRows === 'function')
           ? window.cmBuildRows(cellMetricVals, _useFullMetrics)
           : [
-              { label: 'H-Occ', value: hotel + '%', raw: hotel, color: '#5883ed' },
-              { label: 'TO-Occ', value: to + '%',    raw: to,    color: '#006461' },
+              { label: 'H-Occ', value: hotel + '%', raw: hotel, color: METRIC_COLOR_HOTEL },
+              { label: 'TO-Occ', value: to + '%',    raw: to,    color: METRIC_COLOR_TO },
             ];
 
         // Compare multipliers
@@ -2226,8 +2391,8 @@ function renderCalMonthlySummary() {
   // Reuse wb- classes from the weekly view but with month columns
 
   function moGrad(clr) {
-    if (clr==='#004948') return 'linear-gradient(to right,#004948,#007a75)';
-    if (clr==='#52d9ce') return 'linear-gradient(to right,#52d9ce,#8aeee8)';
+    if (clr===METRIC_COLOR_TO || clr==='#004948') return 'linear-gradient(to right,'+METRIC_COLOR_TO+',#3dbdb4)';
+    if (clr===METRIC_COLOR_HOTEL || clr==='#52d9ce') return 'linear-gradient(to right,'+METRIC_COLOR_HOTEL+',#008f87)';
     if (clr==='#006461') return 'linear-gradient(to right,#006461,#009c96)';
     if (clr==='#0891b2') return 'linear-gradient(to right,#0891b2,#22d3ee)';
     if (clr==='#6366f1') return 'linear-gradient(to right,#6366f1,#818cf8)';
@@ -2278,68 +2443,68 @@ function renderCalMonthlySummary() {
   // ── Daily Metrics group
   moRows.push({type:'top', id:'mo_daily', label:'Daily Metrics'});
   moRows.push({type:'sect', id:'mos_occ', label:'Occupancy', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_occ_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_occ', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_occ_to', label:'Tour Operator', dot:'#004948', parent:'mos_occ', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_occ_to', label:'TO', dot:'#5CEADE', parent:'mos_occ', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_occ_htl', label:'Hotel', dot:'#006461', parent:'mos_occ', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_adr', label:'ADR', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_adr', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_adr_to', label:'Tour Operator', dot:'#004948', parent:'mos_adr', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_adr_to', label:'TO', dot:'#5CEADE', parent:'mos_adr', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:'#006461', parent:'mos_adr', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_rev', label:'Revenue /day', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_rev', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rev_to', label:'Tour Operator', dot:'#004948', parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rev_to', label:'TO', dot:'#5CEADE', parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:'#006461', parent:'mos_rev', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_rn', label:'RN Sold /day', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rn_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_rn', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rn_to', label:'Tour Operator', dot:'#004948', parent:'mos_rn', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rn_to', label:'TO', dot:'#5CEADE', parent:'mos_rn', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rn_htl', label:'Hotel', dot:'#006461', parent:'mos_rn', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_revpar', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_revpar_to', label:'Tour Operator', dot:'#004948', parent:'mos_revpar', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_revpar_to', label:'TO', dot:'#5CEADE', parent:'mos_revpar', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#006461', parent:'mos_revpar', gp:'mo_daily'});
 
   // ── Segments group
 
-  // ── Other Metrics group (metric → Hotel / Tour Operator)
+  // ── Other Metrics group (metric → TO / Hotel)
   moRows.push({type:'top', id:'mo_more', label:'Other Metrics'});
   moRows.push({type:'sect', id:'mos_pickup', label:'Pickup', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_pickup_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_pickup', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_pickup_to', label:'Tour Operator', dot:'#004948', parent:'mos_pickup', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_pickup_to', label:'TO', dot:'#5CEADE', parent:'mos_pickup', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_pickup_htl', label:'Hotel', dot:'#006461', parent:'mos_pickup', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_los', label:'Avg LOS', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_los_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_los', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_los_to', label:'Tour Operator', dot:'#004948', parent:'mos_los', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_los_to', label:'TO', dot:'#5CEADE', parent:'mos_los', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_los_htl', label:'Hotel', dot:'#006461', parent:'mos_los', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_lead', label:'Lead Time', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_lead_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_lead', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_lead_to', label:'Tour Operator', dot:'#004948', parent:'mos_lead', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_lead_to', label:'TO', dot:'#5CEADE', parent:'mos_lead', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_lead_htl', label:'Hotel', dot:'#006461', parent:'mos_lead', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_avga', label:'Avg Adults', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avga_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_avga', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avga_to', label:'Tour Operator', dot:'#004948', parent:'mos_avga', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avga_to', label:'TO', dot:'#5CEADE', parent:'mos_avga', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avga_htl', label:'Hotel', dot:'#006461', parent:'mos_avga', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_avgc', label:'Avg Children', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avgc_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_avgc', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avgc_to', label:'Tour Operator', dot:'#004948', parent:'mos_avgc', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avgc_to', label:'TO', dot:'#5CEADE', parent:'mos_avgc', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avgc_htl', label:'Hotel', dot:'#006461', parent:'mos_avgc', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_totg', label:'Total Guests', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_totg_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_totg', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_totg_to', label:'Tour Operator', dot:'#004948', parent:'mos_totg', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_totg_to', label:'TO', dot:'#5CEADE', parent:'mos_totg', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_totg_htl', label:'Hotel', dot:'#006461', parent:'mos_totg', gp:'mo_more'});
 
   // ── Availability group
   moRows.push({type:'top', id:'mo_avail', label:'Availability'});
+  moRows.push({type:'sect', id:'mos_avail_to', label:'TO', parent:'mo_avail'});
+  moRows.push({type:'sub', id:'mos_availg_rooms', label:'Avail Guaranteed', dot:'#5CEADE', parent:'mos_avail_to', gp:'mo_avail'});
   moRows.push({type:'sect', id:'mos_avail_hotel', label:'Hotel', parent:'mo_avail'});
-  moRows.push({type:'sub', id:'mos_avail_rooms', label:'Avail Rooms', dot:'#52d9ce', parent:'mos_avail_hotel', gp:'mo_avail'});
-  moRows.push({type:'sect', id:'mos_avail_to', label:'Tour Operator', parent:'mo_avail'});
-  moRows.push({type:'sub', id:'mos_availg_rooms', label:'Avail Guaranteed', dot:'#004948', parent:'mos_avail_to', gp:'mo_avail'});
+  moRows.push({type:'sub', id:'mos_avail_rooms', label:'Avail Rooms', dot:'#006461', parent:'mos_avail_hotel', gp:'mo_avail'});
 
   // ── Business Mix group
   moRows.push({type:'top', id:'mo_biz', label:'Business Mix'});
-  moRows.push({type:'sect', id:'mos_biz_to', label:'Tour Operator Mix %', parent:'mo_biz'});
+  moRows.push({type:'sect', id:'mos_biz_to', label:'TO Mix %', parent:'mo_biz'});
   moRows.push({type:'sect', id:'mos_biz_dir', label:'Direct Mix %', parent:'mo_biz'});
   moRows.push({type:'sect', id:'mos_biz_ota', label:'OTA Mix %', parent:'mo_biz'});
 
   // ── Selling Rates group
   moRows.push({type:'top', id:'mo_tc', label:'Selling Rates'});
-  moRows.push({type:'sect', id:'mos_tc_contract', label:'Tour Operator Contract Rate', parent:'mo_tc'});
+  moRows.push({type:'sect', id:'mos_tc_contract', label:'TO Contract Rate', parent:'mo_tc'});
   moRows.push({type:'sect', id:'mos_tc_promo', label:'Promotion %', parent:'mo_tc'});
   moRows.push({type:'sect', id:'mos_tc_base', label:'Base Segment Rate', parent:'mo_tc'});
 
   // ── Meal Plans group
   moRows.push({type:'top', id:'mo_meals', label:'Meal Plans'});
   moRows.push({type:'sect', id:'mos_mpsum', label:'Summary', parent:'mo_meals'});
-  moRows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_mpsum', gp:'mo_meals'});
-  moRows.push({type:'sub', id:'mos_mpsum_to', label:'TO', dot:'#004948', parent:'mos_mpsum', gp:'mo_meals'});
+  moRows.push({type:'sub', id:'mos_mpsum_to', label:'TO', dot:'#5CEADE', parent:'mos_mpsum', gp:'mo_meals'});
+  moRows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:'#006461', parent:'mos_mpsum', gp:'mo_meals'});
   moRows.push({type:'sub', id:'mos_mp_ai', label:'All Inclusive', dot:'#006461', parent:'mos_mpsum', gp:'mo_meals'});
   moRows.push({type:'sub', id:'mos_mp_bb', label:'Bed & Breakfast', dot:'#3b82f6', parent:'mos_mpsum', gp:'mo_meals'});
   moRows.push({type:'sub', id:'mos_mp_hb', label:'Half Board', dot:'#967EF3', parent:'mos_mpsum', gp:'mo_meals'});
@@ -2348,8 +2513,8 @@ function renderCalMonthlySummary() {
   // ── Business Mix group
   moRows.push({type:'top', id:'mo_biz', label:'Business Mix'});
   moRows.push({type:'sect', id:'mos_bizbar', label:'Summary', parent:'mo_biz'});
-  moRows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_bizbar', gp:'mo_biz'});
-  moRows.push({type:'sub', id:'mos_biz_to', label:'TO', dot:'#004948', parent:'mos_bizbar', gp:'mo_biz'});
+  moRows.push({type:'sub', id:'mos_biz_to', label:'TO', dot:'#5CEADE', parent:'mos_bizbar', gp:'mo_biz'});
+  moRows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:'#006461', parent:'mos_bizbar', gp:'mo_biz'});
   moRows.push({type:'sub', id:'mos_biz_dir', label:'Direct', dot:'#0284c7', parent:'mos_bizbar', gp:'mo_biz'});
   moRows.push({type:'sub', id:'mos_biz_ota', label:'OTA', dot:'#D97706', parent:'mos_bizbar', gp:'mo_biz'});
   moRows.push({type:'sub', id:'mos_biz_oth', label:'Other', dot:'#9ca3af', parent:'mos_bizbar', gp:'mo_biz'});
@@ -2360,7 +2525,7 @@ function renderCalMonthlySummary() {
   var MO_RT_CAPS  = [51,36,27,12,15,9];
   MO_RT_NAMES.forEach(function(name, i) {
     moRows.push({type:'sect', id:'moavrt'+i,       label:name,                    parent:'mo_avail', rtIdx:i});
-    moRows.push({type:'sub',  id:'moavrt'+i+'_to', label:'TO Sold',               dot:'#004948', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'to'});
+    moRows.push({type:'sub',  id:'moavrt'+i+'_to', label:'TO Sold',               dot:'#5CEADE', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'to'});
     moRows.push({type:'sub',  id:'moavrt'+i+'_ot', label:'Other Segments',        dot:'#52d9ce', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'other'});
     moRows.push({type:'sub',  id:'moavrt'+i+'_tn', label:'Tentative Sold (Group)',dot:'#967EF3', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'tentative'});
     moRows.push({type:'sub',  id:'moavrt'+i+'_oo', label:'Out-of-Order',          dot:'#ef4444', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'ooo'});
@@ -2439,13 +2604,13 @@ function renderCalMonthlySummary() {
           case 'mos_occ':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgH+'%</span></div>'
               + '<div class="wv-occ-bar-track">'
-              + '<div style="width:'+mo.avgT+'%;background:'+moGrad('#004948')+';height:6px"></div>'
-              + '<div style="width:'+Math.max(0,mo.avgH-mo.avgT)+'%;background:'+moGrad('#52d9ce')+';height:6px"></div>'
+              + '<div style="width:'+mo.avgT+'%;background:'+moGrad(METRIC_COLOR_TO)+';height:6px"></div>'
+              + '<div style="width:'+Math.max(0,mo.avgH-mo.avgT)+'%;background:'+moGrad(METRIC_COLOR_HOTEL)+';height:6px"></div>'
               + '</div>';
             break;
           case 'mos_adr':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">$'+mo.avgToAdr+'</span></div>'
-              + moBar(Math.round(mo.avgToAdr/3.5), '#004948');
+              + moBar(Math.round(mo.avgToAdr/3.5), METRIC_COLOR_TO);
             break;
           case 'mos_rev':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgRev+'</span></div>'
@@ -2453,11 +2618,11 @@ function renderCalMonthlySummary() {
             break;
           case 'mos_revpar':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">$'+mo.avgRevpar+'</span></div>'
-              + moBar(Math.round(mo.avgRevpar/4), '#004948');
+              + moBar(Math.round(mo.avgRevpar/4), METRIC_COLOR_TO);
             break;
           case 'mos_pickup':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">+'+mo.avgPickup+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: +'+mo.avgHPickup+'</span></div>'
-              + moBar(Math.min(90,mo.avgPickup*3), '#004948');
+              + moBar(Math.min(90,mo.avgPickup*3), METRIC_COLOR_TO);
             break;
           case 'mos_onoff':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgOnline+'% online</span></div>'
@@ -2476,11 +2641,11 @@ function renderCalMonthlySummary() {
             break;
           case 'mos_rn':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgRn+' rn</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+mo.avgHRn+'</span></div>'
-              + moBar(Math.round(mo.avgRn/WV*100), '#004948') + moBar(Math.round(mo.avgHRn/WV*100), '#52d9ce');
+              + moBar(Math.round(mo.avgRn/WV*100), METRIC_COLOR_TO) + moBar(Math.round(mo.avgHRn/WV*100), METRIC_COLOR_HOTEL);
             break;
           case 'mos_avga':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgA+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+mo.hAvgA+'</span></div>'
-              + moBar(Math.min(90,parseFloat(mo.avgA)/3*100), '#004948');
+              + moBar(Math.min(90,parseFloat(mo.avgA)/3*100), METRIC_COLOR_TO);
             break;
           case 'mos_avgc':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgC+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+mo.hAvgC+'</span></div>'
@@ -2497,11 +2662,11 @@ function renderCalMonthlySummary() {
             break;
           case 'mos_los':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgLos+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+mo.avgHLos+'</span></div>'
-              + moBar(Math.min(90,parseFloat(mo.avgLos)/10*100), '#004948');
+              + moBar(Math.min(90,parseFloat(mo.avgLos)/10*100), METRIC_COLOR_TO);
             break;
           case 'mos_lead':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgLead+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+mo.avgHLead+'</span></div>'
-              + moBar(Math.min(90,parseInt(mo.avgLead)/90*100), '#004948');
+              + moBar(Math.min(90,parseInt(mo.avgLead)/90*100), METRIC_COLOR_TO);
             break;
           case 'mos_avail':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgAvailRooms+' rm</span></div>'
@@ -2509,7 +2674,7 @@ function renderCalMonthlySummary() {
             break;
           case 'mos_availg':
             cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+mo.avgAvailGuar+' rm</span></div>'
-              + moBar(Math.min(90,Math.round(mo.avgAvailGuar/20*100)), '#004948');
+              + moBar(Math.min(90,Math.round(mo.avgAvailGuar/20*100)), METRIC_COLOR_TO);
             break;
           case 'mos_mpsum':
             { var _moGPR=parseFloat(mo.hAvgA)+parseFloat(mo.hAvgC);
@@ -2559,7 +2724,7 @@ function renderCalMonthlySummary() {
             break;
           case 'mos_tcbase': {
             cc = '<div class="wb-sect-val"><span class="wv-occ-total" style="font-weight:700;color:#1C1C1C">$'+mo.baseRate+'</span></div>'
-              + moBar(Math.min(90,Math.round(mo.baseRate/280*100)), '#004948');
+              + moBar(Math.min(90,Math.round(mo.baseRate/280*100)), METRIC_COLOR_TO);
             break;
           }
           default:
@@ -2596,7 +2761,7 @@ function renderCalMonthlySummary() {
                 + '<span class="wv-occ-total" style="color:#1C1C1C">$'+mo.tcRates[row.toIdx]+'</span>'
                 + '<span style="font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+promoClr+'22;color:'+promoClr+';border:1px solid '+promoClr+'44">'+promoTxt+'</span>'
                 + '</div>'
-                + moBar(Math.min(90,Math.round(mo.tcRates[row.toIdx]/280*100)), '#004948');
+                + moBar(Math.min(90,Math.round(mo.tcRates[row.toIdx]/280*100)), METRIC_COLOR_TO);
             }
             break;
         }
@@ -2787,9 +2952,9 @@ window.calSetDisplayView = function(n) {
     }
   }
 
-  // Show/hide monthly tab bar (only for 1/2/3 month views)
+  // Keep monthly tab bar + date picker visible for all view lengths
   var moBar = document.getElementById('moGroupbyBar');
-  if (moBar) moBar.style.display = (n <= 3) ? '' : 'none';
+  if (moBar) moBar.style.display = '';
 
   // Apply compact CSS class + view class
   var grid = document.getElementById('calMonths');
@@ -2888,8 +3053,6 @@ function applyCalSelection(hoverMonth, hoverDay) {
   // Update header-right: show range-mode (hide all but Select Range + Close Out)
   const hdrRight = document.querySelector('.cal-header-right');
   if (hdrRight) hdrRight.classList.toggle('range-mode', !!(calSelStart || calSelPicking));
-  const moBar = document.getElementById('moGroupbyBar');
-  if (moBar) moBar.classList.toggle('range-mode', !!(calSelStart || calSelPicking));
 
   // Update Select Range button label
   const selBtn = document.getElementById('calSelBtn');
@@ -2921,8 +3084,6 @@ function clearCalSelection() {
   if (closeBtn) { closeBtn.style.background = ''; closeBtn.style.color = ''; }
   const hdrRight = document.querySelector('.cal-header-right');
   if (hdrRight) hdrRight.classList.remove('range-mode');
-  const moBar = document.getElementById('moGroupbyBar');
-  if (moBar) moBar.classList.remove('range-mode');
   applyCalSelection();
 }
 
@@ -3343,7 +3504,7 @@ function clearCalSelection() {
     })();
 
     // ── Figma two-column popup builders (200px left | ~148px right) ──
-    var _C1='#004948',_C2='#52d9ce',_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
+    var _C1=METRIC_COLOR_TO,_C2=METRIC_COLOR_HOTEL,_C_OTHER=WV_COLOR_OCC_OTHER,_C_ON=WV_COLOR_ONLINE,_C_OFF=WV_COLOR_OFFLINE,_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
     var _hasCmp = calCompareMode !== 'none';
     var _cm = (function(){
       switch(calCompareMode) {
@@ -3425,7 +3586,7 @@ function clearCalSelection() {
       var lclr=isRem?'#16a34a':'#6b7280';
       var vclr=isRem?'#16a34a':'#111827';
       var dotHtml=dot
-        ?'<span style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>'
+        ?'<span style="width:9px;height:9px;border-radius:3px;background:'+dot+';flex-shrink:0"></span>'
         :'<span style="width:9px;flex-shrink:0"></span>';
       return '<div class="pb-2col pb-sub-row">'
         +'<div class="pb-col-l" style="padding-left:27px;gap:6px">'
@@ -3498,15 +3659,15 @@ function clearCalSelection() {
     }
     _pb += _pGrpStart('Daily Metrics', _C1, 'dm');
     var _cmpHotelOcc = _hasCmp && _cm ? Math.max(5, _popCmpAdd(hotel, _cm.occD, 'Occ')) : null;
-    _pb += _pSectS('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C2}]), hotel, _cmpHotelOcc, _fmtPct);
-    _pb += _pSub('Travel Distribution Hubs', toRms+' RN  '+to+'%', _C1);
-    _pb += _pSub('Other Segments', otherRms+' RN  '+otherPct+'%', _C2);
+    _pb += _pSectS('Occupancy', hotel+'%', _pSbar([{p:to,c:_C1},{p:otherPct,c:_C_OTHER}]), hotel, _cmpHotelOcc, _fmtPct);
+    _pb += _pSub('TO', toRms+' RN  '+to+'%', _C1);
+    _pb += _pSub('Other Segments', otherRms+' RN  '+otherPct+'%', _C_OTHER);
     _pb += _pSub('Total Hotel Occupancy', freeRms+' RN  '+freePct+'%', _CREM, true);
     _pb += _pSectE();
     var _cmpOnl = _hasCmp && _cm ? Math.min(100, Math.max(10, Math.round(_popCmpMul(onlinePct, _cm.rev, 'Online')))) : null;
-    _pb += _pSectS('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C1},{p:offlinePct,c:_C2}]));
-    _pb += _pSub('Online', onlinePct+'%', _C1, false, onlinePct, _cmpOnl, _fmtPct);
-    _pb += _pSub('Offline', offlinePct+'%', _C2);
+    _pb += _pSectS('Online / Offline', onlinePct+'%', _pSbar([{p:onlinePct,c:_C_ON},{p:offlinePct,c:_C_OFF}]));
+    _pb += _pSub('Online', onlinePct+'%', _C_ON, false, onlinePct, _cmpOnl, _fmtPct);
+    _pb += _pSub('Offline', offlinePct+'%', _C_OFF);
     _pb += _pSectE();
     var _cmpToAdr = _hasCmp && _cm ? _popCmpAdd(_toAdr, _cm.adrD, 'TO-ADR') : null;
     var _cmpHtlAdr = _hasCmp && _cm ? _popCmpAdd(adr, _cm.adrD, 'H-ADR') : null;
@@ -3602,7 +3763,7 @@ function clearCalSelection() {
       +'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:4px 12px;padding:5px 0 2px">'
       +mealPlans.map(function(p){ return '<span style="font-size:10px;color:#374151;display:flex;align-items:center;gap:3px">'
-        +'<span style="width:6px;height:6px;border-radius:50%;background:'+p.color+';flex-shrink:0"></span>'
+        +'<span style="width:6px;height:6px;border-radius:3px;background:'+p.color+';flex-shrink:0"></span>'
         +p.short+' '+p.pct+'%</span>'; }).join('')
       +'</div></div>';
     // Meal Plans — each plan as collapsible section with sub-rows
@@ -3621,8 +3782,8 @@ function clearCalSelection() {
       var tRevStr = tRev >= 1000 ? '$'+Math.round(tRev/1000)+'k' : '$'+tRev;
       var hRevStr = hRev >= 1000 ? '$'+Math.round(hRev/1000)+'k' : '$'+hRev;
       _pb += _pSectS(_mpLongNames[mp.short]||mp.short, mp.pct+'% · '+totalPlanRooms+' RN', _pBar(mp.pct, mp.color));
-      _pb += _pSub('TO', toRoomsAmt+' RN · '+toGst+' G · '+tRevStr+' · $'+_mpToAdrGross, '#004948');
-      _pb += _pSub('Hotel', hRooms+' RN · '+hGst+' G · '+hRevStr+' · $'+_mpBaseAdr, '#52d9ce');
+      _pb += _pSub('TO', toRoomsAmt+' RN · '+toGst+' G · '+tRevStr+' · $'+_mpToAdrGross, METRIC_COLOR_TO);
+      _pb += _pSub('Hotel', hRooms+' RN · '+hGst+' G · '+hRevStr+' · $'+_mpBaseAdr, METRIC_COLOR_HOTEL);
       _pb += _pSectE();
     });
     _pb += _pGrpEnd();
@@ -3633,7 +3794,7 @@ function clearCalSelection() {
     var _otaMixPct   = 20 + Math.abs((dm*9+dd*3)%18);
     var _otherMixPct = Math.max(0, 100 - _toMixPct - _dirMixPct - _otaMixPct);
     var _bizMixSegs  = [
-      { label:'TO',     pct:_toMixPct,    color:'#006461' },
+      { label:'TO',     pct:_toMixPct,    color:METRIC_COLOR_TO },
       { label:'Direct', pct:_dirMixPct,   color:'#0284c7' },
       { label:'OTA',    pct:_otaMixPct,   color:'#D97706' },
       { label:'Other',  pct:_otherMixPct, color:'#9ca3af' },
@@ -3669,13 +3830,13 @@ function clearCalSelection() {
     var _rtAvailPct   = Math.max(0, 100 - _rtToSoldPct - _rtOtherPct - _rtAllocPct);
     var _rtCapBar = '<div class="wv-cap-bar-wrap">'
       +'<div class="wv-cap-bar">'
-      +'<div style="width:'+_rtToSoldPct+'%;background:#006461;height:100%" title="TO Sold"></div>'
+      +'<div style="width:'+_rtToSoldPct+'%;background:'+METRIC_COLOR_TO+';height:100%" title="TO Sold"></div>'
       +'<div style="width:'+_rtOtherPct+'%;background:#3b82f6;height:100%" title="Other Sold"></div>'
       +'<div style="width:'+_rtAllocPct+'%;background:#fb923c;opacity:.6;height:100%" title="T Alloc Remaining"></div>'
       +'<div style="width:'+_rtAvailPct+'%;background:#d1fae5;height:100%" title="Available"></div>'
       +'</div>'
       +'<div class="wv-cap-legend">'
-      +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#006461"></span>TO Sold<b>'+_rtTotToSold+'</b></span>'
+      +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:'+METRIC_COLOR_TO+'"></span>TO Sold<b>'+_rtTotToSold+'</b></span>'
       +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#3b82f6"></span>Other <b>'+_rtTotOther+'</b></span>'
       +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#fb923c"></span>T Alloc Rem. <b>'+_rtTotAlloc+'</b></span>'
       +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#16a34a"></span>Avail <b>'+_rtTotAvail+'</b></span>'
@@ -3685,7 +3846,7 @@ function clearCalSelection() {
     var _rtTblHdr = '<div class="wv-cap-tbl-hdr">'
       +'<span class="wv-cap-th-type">Room Type</span>'
       +'<span class="wv-cap-th">Cap</span>'
-      +'<span class="wv-cap-th" style="color:#006461">TO</span>'
+      +'<span class="wv-cap-th" style="color:'+METRIC_COLOR_TO+'">TO</span>'
       +'<span class="wv-cap-th" style="color:#3b82f6">Other</span>'
       +'<span class="wv-cap-th" style="color:#fb923c">Alloc↑</span>'
       +'<span class="wv-cap-th" style="color:#16a34a">Avail</span>'
@@ -3695,13 +3856,13 @@ function clearCalSelection() {
     // Capacity summary bar across full width
     _pb += '<div style="padding:6px 12px 4px">'
       +'<div class="pb-bar" style="display:flex;height:8px;border-radius:4px">'
-      +'<div style="width:'+_rtToSoldPct+'%;background:#006461;height:100%"></div>'
+      +'<div style="width:'+_rtToSoldPct+'%;background:'+METRIC_COLOR_TO+';height:100%"></div>'
       +'<div style="width:'+_rtOtherPct+'%;background:#3b82f6;height:100%"></div>'
       +'<div style="width:'+_rtAllocPct+'%;background:#fb923c;opacity:.7;height:100%"></div>'
       +'<div style="width:'+_rtAvailPct+'%;background:#d1fae5;height:100%"></div>'
       +'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:4px 8px;padding:4px 0 2px">'
-      +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#006461;flex-shrink:0"></span>TO Sold '+_rtTotToSold+'</span>'
+      +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:3px;background:'+METRIC_COLOR_TO+';flex-shrink:0"></span>TO Sold '+_rtTotToSold+'</span>'
       +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#3b82f6;flex-shrink:0"></span>Other '+_rtTotOther+'</span>'
       +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#fb923c;flex-shrink:0"></span>Alloc Rem. '+_rtTotAlloc+'</span>'
       +'<span style="font-size:9px;color:#4F5B60;display:flex;align-items:center;gap:2px"><span style="width:6px;height:6px;border-radius:1px;background:#16a34a;flex-shrink:0"></span>Avail '+_rtTotAvail+'</span>'
@@ -3719,7 +3880,7 @@ function clearCalSelection() {
       var alPct = d.inv > 0 ? Math.round(d.allocRem / d.inv * 100) : 0;
       var avPct = Math.max(0, 100 - tsPct - osPct - alPct);
       var stBarHtml = '<div class="pb-bar" style="display:flex">'
-        +'<div style="width:'+tsPct+'%;background:#006461;height:100%"></div>'
+        +'<div style="width:'+tsPct+'%;background:'+METRIC_COLOR_TO+';height:100%"></div>'
         +'<div style="width:'+osPct+'%;background:#3b82f6;height:100%"></div>'
         +'<div style="width:'+alPct+'%;background:#fb923c;opacity:.7;height:100%"></div>'
         +'<div style="width:'+avPct+'%;background:#d1fae5;height:100%"></div>'
@@ -3743,7 +3904,7 @@ function clearCalSelection() {
         +'</div>'
         +'</div>'
         +'<div class="pb-sect-body" data-sectid="'+sid+'">';
-      _pb += _pSub('TO Sold', d.toSold+' RN', '#006461');
+      _pb += _pSub('TO Sold', d.toSold+' RN', METRIC_COLOR_TO);
       _pb += _pSub('Other Segments', d.other+' RN', '#3b82f6');
       _pb += _pSub('Tentative Sold (Group)', tentSold+' RN', '#8b5cf6');
       _pb += _pSub('Out-of-Order', ooo+' RN', '#ef4444');
@@ -4002,16 +4163,19 @@ window.wvCmpSelectToggle = function(e) {
   var btn  = document.getElementById('wvCmpSelector');
   if (!menu || !btn) return;
   var opening = menu.style.display === 'none' || !menu.style.display;
-  menu.style.display = opening ? 'block' : 'none';
+  if (opening) openCmpSelectMenu(menu, btn);
+  else closeCmpSelectMenu(menu);
   btn.classList.toggle('open', opening);
   btn.setAttribute('aria-expanded', opening ? 'true' : 'false');
 };
 document.addEventListener('click', function(e) {
-  var wrap = document.getElementById('wvCmpSelectWrap');
-  if (!wrap || wrap.contains(e.target)) return;
   var menu = document.getElementById('wvCmpSelectMenu');
-  var btn  = document.getElementById('wvCmpSelector');
-  if (menu) menu.style.display = 'none';
+  if (!menu || menu.style.display === 'none') return;
+  var wrap = document.getElementById('wvCmpSelectWrap');
+  if (wrap && wrap.contains(e.target)) return;
+  if (menu.contains(e.target)) return;
+  closeCmpSelectMenu(menu);
+  var btn = document.getElementById('wvCmpSelector');
   if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
 });
 function wvSyncCmpDd() {
@@ -4040,7 +4204,7 @@ function wvSetCompare(val) {
   wvSyncCmpDd();
   var menu = document.getElementById('wvCmpSelectMenu');
   var btn  = document.getElementById('wvCmpSelector');
-  if (menu) menu.style.display = 'none';
+  closeCmpSelectMenu(menu);
   if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
   buildWeekGrid(wvMonth, wvWeekStart, wvWeekStart);
 }
@@ -4689,7 +4853,7 @@ function buildWbTableSettingsTree() {
 
   items.push({ key:'g_daily', lbl:'Daily Metrics', children:[
     { key:'occ', lbl:'Occupancy', children:[
-      { key:'occ_tdh', lbl:'Travel Distribution Hubs' },
+      { key:'occ_tdh', lbl:'TO' },
       { key:'occ_other', lbl:'Other Segments' },
       { key:'occ_rem', lbl:'Total Hotel Occupancy' }
     ]},
@@ -4951,24 +5115,24 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_daily.push({type:'top', id:'g_daily', label:'Daily Metrics'});
     if (wvMetricState.capacity) {
       grp.g_daily.push({type:'sect', id:'occ',       label:'Occupancy',               parent:'g_daily'});
-      grp.g_daily.push({type:'sub',  id:'occ_tdh',   label:'Travel Distribution Hubs',dot:'#004948', parent:'occ'});
-      grp.g_daily.push({type:'sub',  id:'occ_other', label:'Other Segments',          dot:'#52d9ce', parent:'occ'});
+      grp.g_daily.push({type:'sub',  id:'occ_tdh',   label:'TO',dot:METRIC_COLOR_TO, parent:'occ'});
+      grp.g_daily.push({type:'sub',  id:'occ_other', label:'Other Segments',          dot:WV_COLOR_OCC_OTHER, parent:'occ'});
       grp.g_daily.push({type:'sub',  id:'occ_rem',   label:'Total Hotel Occupancy',   dot:'#445e0d', parent:'occ', isRem:true});
     }
     if (wvMetricState.onlineOffline) {
       grp.g_daily.push({type:'sect', id:'onoff',     label:'Online / Offline', parent:'g_daily'});
-      grp.g_daily.push({type:'sub',  id:'onoff_on',  label:'Online',  dot:'#004948', parent:'onoff'});
-      grp.g_daily.push({type:'sub',  id:'onoff_off', label:'Offline', dot:'#52d9ce', parent:'onoff'});
+      grp.g_daily.push({type:'sub',  id:'onoff_on',  label:'Online',  dot:WV_COLOR_ONLINE, parent:'onoff'});
+      grp.g_daily.push({type:'sub',  id:'onoff_off', label:'Offline', dot:WV_COLOR_OFFLINE, parent:'onoff'});
     }
     if (wvMetricState.adr) {
       grp.g_daily.push({type:'sect', id:'adr',       label:'ADR',          parent:'g_daily'});
-      grp.g_daily.push({type:'sub',  id:'adr_t',     label:'TO',            dot:'#004948', parent:'adr'});
-      grp.g_daily.push({type:'sub',  id:'adr_hotel', label:'Hotel',         dot:'#52d9ce', parent:'adr'});
+      grp.g_daily.push({type:'sub',  id:'adr_t',     label:'TO',            dot:'#5CEADE', parent:'adr'});
+      grp.g_daily.push({type:'sub',  id:'adr_hotel', label:'Hotel',         dot:'#006461', parent:'adr'});
     }
     if (wvMetricState.revenue) {
       grp.g_daily.push({type:'sect', id:'rev',       label:'Revenue',       parent:'g_daily'});
-      grp.g_daily.push({type:'sub',  id:'rev_t',     label:'TO',            dot:'#004948', parent:'rev'});
-      grp.g_daily.push({type:'sub',  id:'rev_hotel', label:'Hotel',         dot:'#52d9ce', parent:'rev'});
+      grp.g_daily.push({type:'sub',  id:'rev_t',     label:'TO',            dot:'#5CEADE', parent:'rev'});
+      grp.g_daily.push({type:'sub',  id:'rev_hotel', label:'Hotel',         dot:'#006461', parent:'rev'});
     }
   }
 
@@ -4982,54 +5146,54 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_more.push({type:'top', id:'g_more', label:'More Metrics'});
     if (wvMetricState.dm_rnSold) {
       grp.g_more.push({type:'sect', id:'rn',       label:'RN Sold',    parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'rn_t',     label:'TO',          dot:'#004948', parent:'rn'});
-      grp.g_more.push({type:'sub',  id:'rn_hotel', label:'Hotel',       dot:'#52d9ce', parent:'rn'});
+      grp.g_more.push({type:'sub',  id:'rn_t',     label:'TO',          dot:'#5CEADE', parent:'rn'});
+      grp.g_more.push({type:'sub',  id:'rn_hotel', label:'Hotel',       dot:'#006461', parent:'rn'});
     }
     if (wvMetricState.dm_trevpar) {
       grp.g_more.push({type:'sect', id:'revpar_s',    label:'RevPAR',    parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'revpar_t',    label:'TO',        dot:'#004948', parent:'revpar_s'});
-      grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:'#52d9ce', parent:'revpar_s'});
+      grp.g_more.push({type:'sub',  id:'revpar_t',    label:'TO',        dot:'#5CEADE', parent:'revpar_s'});
+      grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:'#006461', parent:'revpar_s'});
     }
     if (wvMetricState.dm_pickup && wvMetricState['dm_pickup_0'] !== false) {
       var _puDv = pickupDayValues[0] || 1;
       grp.g_more.push({type:'sect', id:'pickup_0', label:'Pickup', parent:'g_more', puIdx: 0, puDv: _puDv});
-      grp.g_more.push({type:'sub',  id:'pickup_0_t', label:'TO',    dot:'#004948', parent:'pickup_0', puIdx: 0, puDv: _puDv});
-      grp.g_more.push({type:'sub',  id:'pickup_0_h', label:'Hotel', dot:'#52d9ce', parent:'pickup_0', puIdx: 0, puDv: _puDv});
+      grp.g_more.push({type:'sub',  id:'pickup_0_t', label:'TO',    dot:'#5CEADE', parent:'pickup_0', puIdx: 0, puDv: _puDv});
+      grp.g_more.push({type:'sub',  id:'pickup_0_h', label:'Hotel', dot:'#006461', parent:'pickup_0', puIdx: 0, puDv: _puDv});
     }
     if (wvMetricState.dm_avgAdults) {
       grp.g_more.push({type:'sect', id:'avga_s', label:'Average Adults', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'avga_t',    label:'TO',          dot:'#004948', parent:'avga_s'});
-      grp.g_more.push({type:'sub',  id:'avga_h',    label:'Hotel',       dot:'#52d9ce', parent:'avga_s'});
+      grp.g_more.push({type:'sub',  id:'avga_t',    label:'TO',          dot:'#5CEADE', parent:'avga_s'});
+      grp.g_more.push({type:'sub',  id:'avga_h',    label:'Hotel',       dot:'#006461', parent:'avga_s'});
     }
     if (wvMetricState.dm_avgChildren) {
       grp.g_more.push({type:'sect', id:'avgc_s', label:'Average Children', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'avgc_t',    label:'TO',            dot:'#004948', parent:'avgc_s'});
-      grp.g_more.push({type:'sub',  id:'avgc_h',    label:'Hotel',         dot:'#52d9ce', parent:'avgc_s'});
+      grp.g_more.push({type:'sub',  id:'avgc_t',    label:'TO',            dot:'#5CEADE', parent:'avgc_s'});
+      grp.g_more.push({type:'sub',  id:'avgc_h',    label:'Hotel',         dot:'#006461', parent:'avgc_s'});
     }
     if (wvMetricState.dm_totalAdults) {
       grp.g_more.push({type:'sect', id:'tota_s', label:'Total Adults', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'tota_t',    label:'TO',        dot:'#004948', parent:'tota_s'});
-      grp.g_more.push({type:'sub',  id:'tota_h',    label:'Hotel',     dot:'#52d9ce', parent:'tota_s'});
+      grp.g_more.push({type:'sub',  id:'tota_t',    label:'TO',        dot:'#5CEADE', parent:'tota_s'});
+      grp.g_more.push({type:'sub',  id:'tota_h',    label:'Hotel',     dot:'#006461', parent:'tota_s'});
     }
     if (wvMetricState.dm_totalChildren) {
       grp.g_more.push({type:'sect', id:'totc_s', label:'Total Children', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'totc_t',    label:'TO',          dot:'#004948', parent:'totc_s'});
-      grp.g_more.push({type:'sub',  id:'totc_h',    label:'Hotel',       dot:'#52d9ce', parent:'totc_s'});
+      grp.g_more.push({type:'sub',  id:'totc_t',    label:'TO',          dot:'#5CEADE', parent:'totc_s'});
+      grp.g_more.push({type:'sub',  id:'totc_h',    label:'Hotel',       dot:'#006461', parent:'totc_s'});
     }
     if (wvMetricState.dm_totalGuests) {
       grp.g_more.push({type:'sect', id:'totg_s', label:'Total Guests', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'totg_t',    label:'TO',        dot:'#004948', parent:'totg_s'});
-      grp.g_more.push({type:'sub',  id:'totg_h',    label:'Hotel',     dot:'#52d9ce', parent:'totg_s'});
+      grp.g_more.push({type:'sub',  id:'totg_t',    label:'TO',        dot:'#5CEADE', parent:'totg_s'});
+      grp.g_more.push({type:'sub',  id:'totg_h',    label:'Hotel',     dot:'#006461', parent:'totg_s'});
     }
     if (wvMetricState.dm_avgLos) {
       grp.g_more.push({type:'sect', id:'los_s', label:'Average LOS', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'los_t', label:'TO',          dot:'#004948', parent:'los_s'});
-      grp.g_more.push({type:'sub',  id:'los_h', label:'Hotel',       dot:'#52d9ce', parent:'los_s'});
+      grp.g_more.push({type:'sub',  id:'los_t', label:'TO',          dot:'#5CEADE', parent:'los_s'});
+      grp.g_more.push({type:'sub',  id:'los_h', label:'Hotel',       dot:'#006461', parent:'los_s'});
     }
     if (wvMetricState.dm_avgLeadTime) {
       grp.g_more.push({type:'sect', id:'lead_s', label:'Lead Time', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'lead_t', label:'TO',        dot:'#004948', parent:'lead_s'});
-      grp.g_more.push({type:'sub',  id:'lead_h', label:'Hotel',     dot:'#52d9ce', parent:'lead_s'});
+      grp.g_more.push({type:'sub',  id:'lead_t', label:'TO',        dot:'#5CEADE', parent:'lead_s'});
+      grp.g_more.push({type:'sub',  id:'lead_h', label:'Hotel',     dot:'#006461', parent:'lead_s'});
     }
     if (wvMetricState.dm_availRooms) grp.g_more.push({type:'sect', id:'avail_s',  label:'Avail Rooms', parent:'g_more'});
     if (wvMetricState.dm_availGuar)  grp.g_more.push({type:'sect', id:'availg_s', label:'Avail Guar.', parent:'g_more'});
@@ -5046,8 +5210,8 @@ function buildDailyBView(days, month, activeDay) {
     ];
     _mpPlans.forEach(function(p) {
       grp.g_meals.push({type:'sect', id:'mp_'+p.key,       label:p.label, parent:'g_meals', mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_t',  label:'TO',    dot:'#004948', parent:'mp_'+p.key, mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_h',  label:'Hotel', dot:'#52d9ce', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_t',  label:'TO',    dot:'#5CEADE', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_h',  label:'Hotel', dot:'#006461', parent:'mp_'+p.key, mpKey:p.key});
     });
     grp.g_meals.push({type:'sect', id:'mp_sum',  label:'Summary',         parent:'g_meals'});
   }
@@ -5056,7 +5220,7 @@ function buildDailyBView(days, month, activeDay) {
   if (wvMetricState.bizMix) {
     grp.g_biz.push({type:'top',  id:'g_biz',    label:'Business Mix'});
     grp.g_biz.push({type:'sect', id:'biz',       label:'Business Mix', parent:'g_biz'});
-    grp.g_biz.push({type:'sub',  id:'biz_to',    label:'TO',          dot:'#004948', parent:'biz'});
+    grp.g_biz.push({type:'sub',  id:'biz_to',    label:'TO',          dot:'#5CEADE', parent:'biz'});
     grp.g_biz.push({type:'sub',  id:'biz_dir',   label:'Direct',      dot:'#52d9ce', parent:'biz'});
     grp.g_biz.push({type:'sub',  id:'biz_ota',   label:'OTA',         dot:'#D97706', parent:'biz'});
     grp.g_biz.push({type:'sub',  id:'biz_other', label:'Other',       dot:'#9ca3af', parent:'biz'});
@@ -5067,7 +5231,7 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_avail.push({type:'top', id:'g_avail', label:'Room Availability'});
     RT_NAMES.forEach(function(name, i) {
       grp.g_avail.push({type:'sect', id:'avrt'+i,       label:name,        parent:'g_avail', rtIdx:i});
-      grp.g_avail.push({type:'sub',  id:'avrt'+i+'_to', label:'TO Sold',   dot:'#004948', parent:'avrt'+i, rtIdx:i, rtSub:'to'});
+      grp.g_avail.push({type:'sub',  id:'avrt'+i+'_to', label:'TO Sold',   dot:'#5CEADE', parent:'avrt'+i, rtIdx:i, rtSub:'to'});
       grp.g_avail.push({type:'sub',  id:'avrt'+i+'_ot', label:'Other Segments', dot:'#52d9ce', parent:'avrt'+i, rtIdx:i, rtSub:'other'});
       grp.g_avail.push({type:'sub',  id:'avrt'+i+'_tn', label:'Tentative Sold (Group)',    dot:'#967EF3', parent:'avrt'+i, rtIdx:i, rtSub:'tentative'});
       grp.g_avail.push({type:'sub',  id:'avrt'+i+'_oo', label:'Out-of-Order',             dot:'#ef4444', parent:'avrt'+i, rtIdx:i, rtSub:'ooo'});
@@ -5145,8 +5309,11 @@ function buildDailyBView(days, month, activeDay) {
   }
 
   function wbGrad(clr) {
-    if (clr==='#004948') return 'linear-gradient(to right,#004948,#007a75)';
-    if (clr==='#52d9ce') return 'linear-gradient(to right,#52d9ce,#8aeee8)';
+    if (clr===METRIC_COLOR_TO || clr==='#004948') return 'linear-gradient(to right,'+METRIC_COLOR_TO+',#3dbdb4)';
+    if (clr===METRIC_COLOR_HOTEL || clr==='#52d9ce') return 'linear-gradient(to right,'+METRIC_COLOR_HOTEL+',#008f87)';
+    if (clr===WV_COLOR_OCC_OTHER) return 'linear-gradient(to right,'+WV_COLOR_OCC_OTHER+',#a78bfa)';
+    if (clr===WV_COLOR_ONLINE) return 'linear-gradient(to right,'+WV_COLOR_ONLINE+',#60a5fa)';
+    if (clr===WV_COLOR_OFFLINE) return 'linear-gradient(to right,'+WV_COLOR_OFFLINE+',#fb923c)';
     if (clr==='#445e0d') return 'linear-gradient(to right,#445e0d,#6a9014)';
     if (clr==='#D97706') return 'linear-gradient(to right,#D97706,#F59E0B)';
     if (clr==='#967EF3') return 'linear-gradient(to right,#967EF3,#a78bfa)';
@@ -5346,8 +5513,8 @@ function buildDailyBView(days, month, activeDay) {
             var _cv0 = wvCompare.has('stly')?d.sdlyH:wvCompare.has('ly')?d.lyH:wvCompare.has('fcst')?d.fcstH:null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.hotel+'%</span>'+trendBadge(d.hotel,d.sdlyH,d.lyH,d.fcstH)+'</div>'
               + wbBarMark('<div class="wv-occ-bar-track">'
-                + '<div style="width:'+d.to+'%;background:'+wbGrad('#004948')+';height:6px"></div>'
-                + '<div style="width:'+d.otherPct+'%;background:'+wbGrad('#52d9ce')+';height:6px"></div>'
+                + '<div style="width:'+d.to+'%;background:'+wbGrad(METRIC_COLOR_TO)+';height:6px"></div>'
+                + '<div style="width:'+d.otherPct+'%;background:'+wbGrad(WV_COLOR_OCC_OTHER)+';height:6px"></div>'
                 + '</div>', _cv0);
             break;
           }
@@ -5358,8 +5525,8 @@ function buildDailyBView(days, month, activeDay) {
             var _onFcst = Math.min(90, d.onlinePct + 2 + _onSeed/2);
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.onlinePct+'%</span>'+trendBadge(d.onlinePct,_onStly,_onLy,_onFcst)+'</div>'
               + '<div class="wv-occ-bar-track">'
-              + '<div style="width:'+d.onlinePct+'%;background:'+wbGrad('#004948')+';height:6px"></div>'
-              + '<div style="width:'+(100-d.onlinePct)+'%;background:'+wbGrad('#52d9ce')+';height:6px"></div>'
+              + '<div style="width:'+d.onlinePct+'%;background:'+wbGrad(WV_COLOR_ONLINE)+';height:6px"></div>'
+              + '<div style="width:'+(100-d.onlinePct)+'%;background:'+wbGrad(WV_COLOR_OFFLINE)+';height:6px"></div>'
               + '</div>';
             break;
           }
@@ -5367,14 +5534,14 @@ function buildDailyBView(days, month, activeDay) {
             var _cv0 = wvCompare.has('stly')?d.sdlyA:wvCompare.has('ly')?d.lyA:wvCompare.has('fcst')?d.fcstA:null;
             var cvPct = _cv0!=null?Math.min(90,Math.round(_cv0/280*100)):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">$'+d.toAdr+'</span>'+trendBadge(d.toAdr,d.sdlyA,d.lyA,d.fcstA)+'</div>'
-              + wbBarMark(wbBar(d.adrBar, '#004948'), cvPct);
+              + wbBarMark(wbBar(d.adrBar, METRIC_COLOR_TO), cvPct);
             break;
           }
           case 'rev': {
             var _cv0 = wvCompare.has('stly')?d.sdlyR:wvCompare.has('ly')?d.lyR:wvCompare.has('fcst')?d.fcstR:null;
             var cvPct = _cv0!=null?Math.min(90,Math.round(_cv0/4500000*100)):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.fR(d.toRev)+'</span>'+trendBadge(d.toRev,d.sdlyR,d.lyR,d.fcstR)+'</div>'
-              + wbBarMark(wbBar(d.revBar, '#004948'), cvPct);
+              + wbBarMark(wbBar(d.revBar, METRIC_COLOR_TO), cvPct);
             break;
           }
           // ── More Metrics ───────────────────────────────────────────────────
@@ -5382,43 +5549,43 @@ function buildDailyBView(days, month, activeDay) {
             var _cv0 = wvCompare.has('stly')?d.sdlyRn:wvCompare.has('ly')?d.lyRn:wvCompare.has('fcst')?d.fcstRn:null;
             var cvPct = _cv0!=null?Math.round(_cv0/WV_CAP*100):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.toRn+'</span>'+trendBadge(d.toRn,d.sdlyRn,d.lyRn,d.fcstRn)+'</div>'
-              + wbBarMark(wbBar(Math.round(d.toRn/WV_CAP*100), '#004948'), cvPct) + wbBar(Math.round(d.hnRn/WV_CAP*100), '#52d9ce');
+              + wbBarMark(wbBar(Math.round(d.toRn/WV_CAP*100), METRIC_COLOR_TO), cvPct) + wbBar(Math.round(d.hnRn/WV_CAP*100), METRIC_COLOR_HOTEL);
             break;
           }
           case 'revpar_s': {
             var _cv0 = wvCompare.has('stly')?d.sdlyRevpar:wvCompare.has('ly')?d.lyRevpar:null;
             var cvPct = _cv0!=null?Math.min(90,Math.round(_cv0/4)):null;
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">$'+d.hRevpar+'</span>'+trendBadge(d.hRevpar,d.sdlyRevpar,d.lyRevpar,null)+'</div>'
-              + wbBarMark(wbBar(Math.min(90,Math.round(d.hRevpar/4)), '#004948'), cvPct);
+              + wbBarMark(wbBar(Math.min(90,Math.round(d.hRevpar/4)), METRIC_COLOR_TO), cvPct);
             break;
           }
           case 'avga_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgA+'</span></div>'
-              + wbBar(Math.min(90,parseFloat(d.avgA)/3*100), '#004948') + wbBar(Math.min(90,parseFloat(d.hAvgA)/3*100), '#52d9ce');
+              + wbBar(Math.min(90,parseFloat(d.avgA)/3*100), METRIC_COLOR_TO) + wbBar(Math.min(90,parseFloat(d.hAvgA)/3*100), METRIC_COLOR_HOTEL);
             break;
           case 'avgc_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgC+'</span></div>'
-              + wbBar(Math.min(90,parseFloat(d.avgC)/2*100), '#004948') + wbBar(Math.min(90,parseFloat(d.hAvgC)/2*100), '#52d9ce');
+              + wbBar(Math.min(90,parseFloat(d.avgC)/2*100), METRIC_COLOR_TO) + wbBar(Math.min(90,parseFloat(d.hAvgC)/2*100), METRIC_COLOR_HOTEL);
             break;
           case 'tota_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.totAT+'</span></div>'
-              + wbBar(Math.min(90,Math.round(d.totAT/500*100)), '#004948') + wbBar(Math.min(90,Math.round(d.totAH/500*100)), '#52d9ce');
+              + wbBar(Math.min(90,Math.round(d.totAT/500*100)), METRIC_COLOR_TO) + wbBar(Math.min(90,Math.round(d.totAH/500*100)), METRIC_COLOR_HOTEL);
             break;
           case 'totc_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.totCT+'</span></div>'
-              + wbBar(Math.min(90,Math.round(d.totCT/100*100)), '#004948') + wbBar(Math.min(90,Math.round(d.totCH/100*100)), '#52d9ce');
+              + wbBar(Math.min(90,Math.round(d.totCT/100*100)), METRIC_COLOR_TO) + wbBar(Math.min(90,Math.round(d.totCH/100*100)), METRIC_COLOR_HOTEL);
             break;
           case 'totg_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.totG+'</span></div>'
-              + wbBar(Math.min(90,Math.round(d.totG/600*100)), '#004948') + wbBar(Math.min(90,Math.round(d.hTotG/600*100)), '#52d9ce');
+              + wbBar(Math.min(90,Math.round(d.totG/600*100)), METRIC_COLOR_TO) + wbBar(Math.min(90,Math.round(d.hTotG/600*100)), METRIC_COLOR_HOTEL);
             break;
           case 'los_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgLos+'</span></div>'
-              + wbBar(Math.min(90,parseFloat(d.avgLos)/10*100), '#004948') + wbBar(Math.min(90,parseFloat(d.hLos)/10*100), '#52d9ce');
+              + wbBar(Math.min(90,parseFloat(d.avgLos)/10*100), METRIC_COLOR_TO) + wbBar(Math.min(90,parseFloat(d.hLos)/10*100), METRIC_COLOR_HOTEL);
             break;
           case 'lead_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgLead+'</span></div>'
-              + wbBar(Math.min(90,parseInt(d.avgLead)/90*100), '#004948') + wbBar(Math.min(90,parseInt(d.hLead)/90*100), '#52d9ce');
+              + wbBar(Math.min(90,parseInt(d.avgLead)/90*100), METRIC_COLOR_TO) + wbBar(Math.min(90,parseInt(d.hLead)/90*100), METRIC_COLOR_HOTEL);
             break;
           case 'avail_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.availRooms+' rm</span></div>'
@@ -5426,7 +5593,7 @@ function buildDailyBView(days, month, activeDay) {
             break;
           case 'availg_s':
             cellContent = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.availGuar+' rm</span></div>'
-              + wbBar(Math.min(90,Math.round(d.availGuar/20*100)), '#004948');
+              + wbBar(Math.min(90,Math.round(d.availGuar/20*100)), METRIC_COLOR_TO);
             break;
           // ── Meal Plans Summary ────────────────────────────────────────────
           case 'mp_sum':
@@ -5709,7 +5876,7 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   });
 
   // ── Render helpers ────────────────────────────────────────────────────────
-  var C1='#004948', C2='#52d9ce', C3='#D97706', C4='#d7f7ed', CSTLY='#C4FF45', CREM='#445e0d';
+  var C1=METRIC_COLOR_TO, C2=METRIC_COLOR_HOTEL, C3='#D97706', C4='#d7f7ed', CSTLY='#C4FF45', CREM='#445e0d';
   function cmpSfx(s, curr, comp) {
     if (!s || wvCompare.size === 0) return '';
     var cls = 'wv-cmp-neutral';
@@ -5721,8 +5888,11 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
     return '<span class="wv-cmp-sep"> / </span><span class="wv-cmp-val-txt '+cls+'">'+s+'</span>';
   }
   function wbGrad2(clr) {
-    if (clr==='#004948') return 'linear-gradient(to right,#004948,#007a75)';
-    if (clr==='#52d9ce') return 'linear-gradient(to right,#52d9ce,#8aeee8)';
+    if (clr===METRIC_COLOR_TO || clr==='#004948') return 'linear-gradient(to right,'+METRIC_COLOR_TO+',#3dbdb4)';
+    if (clr===METRIC_COLOR_HOTEL || clr==='#52d9ce') return 'linear-gradient(to right,'+METRIC_COLOR_HOTEL+',#008f87)';
+    if (clr===WV_COLOR_OCC_OTHER) return 'linear-gradient(to right,'+WV_COLOR_OCC_OTHER+',#a78bfa)';
+    if (clr===WV_COLOR_ONLINE) return 'linear-gradient(to right,'+WV_COLOR_ONLINE+',#60a5fa)';
+    if (clr===WV_COLOR_OFFLINE) return 'linear-gradient(to right,'+WV_COLOR_OFFLINE+',#fb923c)';
     if (clr==='#445e0d') return 'linear-gradient(to right,#445e0d,#6a9014)';
     if (clr==='#967EF3') return 'linear-gradient(to right,#967EF3,#a78bfa)';
     if (clr==='#D97706') return 'linear-gradient(to right,#D97706,#F59E0B)';
@@ -5802,14 +5972,15 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
   // ── Daily Metrics ─────────────────────────────────────────────────────────
   grp('Daily Metrics', C1);
   if (wvMetricState.capacity) {
-    sect('Occupancy', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.hotel,d.sdlyH,d.lyH,d.fcstH,function(v){return v+'%';}); return sCell(d.hotel+'%'+cs, sBar([{p:d.to,c:C1},{p:d.hotel,c:C2}])); });
-    sub('Tour Operator', C1, false, function(d){ return rCell(d.toRn+' RN', d.to+'%'+_wbCmpChip(d.to, 1, d)); });
-    sub('Hotel', C2, false, function(d){ return rCell(d.freeRms+' RN',d.hotel+'%'); });
+    sect('Occupancy', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.hotel,d.sdlyH,d.lyH,d.fcstH,function(v){return v+'%';}); return sCell(d.hotel+'%'+cs, sBar([{p:d.to,c:C1},{p:d.otherPct,c:WV_COLOR_OCC_OTHER}])); });
+    sub('TO', C1, false, function(d){ return rCell(d.toRn+' RN', d.to+'%'+_wbCmpChip(d.to, 1, d)); });
+    sub('Other Segments', WV_COLOR_OCC_OTHER, false, function(d){ return rCell(d.otherRms+' RN', d.otherPct+'%'); });
+    sub('Total Hotel Occupancy', CREM, true, function(d){ return rCell(d.freeRms+' RN', d.hotel+'%'); });
   }
   if (wvMetricState.onlineOffline) {
-    sect('Online / Offline', C1, C1, function(d){ return sCell(d.onlinePct+'%', sBar([{p:d.onlinePct,c:C1},{p:100-d.onlinePct,c:C2}])); });
-    sub('Online',  C1, false, function(d){ return rCell(d.onlinePct+'%'); });
-    sub('Offline', C2, false, function(d){ return rCell((100-d.onlinePct)+'%'); });
+    sect('Online / Offline', WV_COLOR_ONLINE, WV_COLOR_ONLINE, function(d){ return sCell(d.onlinePct+'%', sBar([{p:d.onlinePct,c:WV_COLOR_ONLINE},{p:100-d.onlinePct,c:WV_COLOR_OFFLINE}])); });
+    sub('Online',  WV_COLOR_ONLINE, false, function(d){ return rCell(d.onlinePct+'%'); });
+    sub('Offline', WV_COLOR_OFFLINE, false, function(d){ return rCell((100-d.onlinePct)+'%'); });
   }
   if (wvMetricState.adr) {
     sect('ADR', C1, C1, function(d){ var cs=_wvMultiCmpSfx(d.toAdr,d.sdlyA,d.lyA,d.fcstA,function(v){return '$'+v;}); return sCell('$'+d.toAdr+cs, bar(d.adrBar,C1)); });
@@ -6527,17 +6698,17 @@ window._buildWv7dSummaryHtml = function(d) {
 
   rows.push({type:'top', id:'wv7d_daily', label:'Daily Metrics'});
   rows.push({type:'sect', id:'mos_occ', label:'Occupancy', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_occ_to',   label:'TO',    dot:'#004948', parent:'mos_occ', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_occ_htl',  label:'Hotel', dot:'#52d9ce', parent:'mos_occ', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_occ_to',   label:'TO',    dot:'#5CEADE', parent:'mos_occ', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_occ_htl',  label:'Hotel', dot:'#006461', parent:'mos_occ', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_adr', label:'ADR', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_adr_to',  label:'TO ADR',    dot:'#004948', parent:'mos_adr', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_adr_htl', label:'Hotel ADR', dot:'#52d9ce', parent:'mos_adr', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_adr_to',  label:'TO',    dot:'#5CEADE', parent:'mos_adr', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:'#006461', parent:'mos_adr', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_rev', label:'Revenue', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_rev_to',  label:'TO Revenue',    dot:'#004948', parent:'mos_rev', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_rev_htl', label:'Hotel Revenue', dot:'#52d9ce', parent:'mos_rev', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_rev_to',  label:'TO',    dot:'#5CEADE', parent:'mos_rev', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:'#006461', parent:'mos_rev', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_revpar_to',  label:'TO',    dot:'#004948', parent:'mos_revpar', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_revpar', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_revpar_to',  label:'TO',    dot:'#5CEADE', parent:'mos_revpar', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#006461', parent:'mos_revpar', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_pickup', label:'Pickup', parent:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_onoff', label:'Online / Offline', parent:'wv7d_daily'});
   rows.push({type:'sub', id:'mos_onoff_on',  label:'Online',  dot:'#3b82f6', parent:'mos_onoff', gp:'wv7d_daily'});
@@ -6558,8 +6729,8 @@ window._buildWv7dSummaryHtml = function(d) {
 
   rows.push({type:'top', id:'wv7d_meals', label:'Meal Plans'});
   rows.push({type:'sect', id:'mos_mpsum', label:'Summary', parent:'wv7d_meals'});
-  rows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_mpsum', gp:'wv7d_meals'});
-  rows.push({type:'sub', id:'mos_mpsum_to',  label:'TO',    dot:'#004948', parent:'mos_mpsum', gp:'wv7d_meals'});
+  rows.push({type:'sub', id:'mos_mpsum_to',  label:'TO',    dot:'#5CEADE', parent:'mos_mpsum', gp:'wv7d_meals'});
+  rows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:'#006461', parent:'mos_mpsum', gp:'wv7d_meals'});
   rows.push({type:'sub', id:'mos_mp_ai', label:'All Inclusive',  dot:'#006461', parent:'mos_mpsum', gp:'wv7d_meals'});
   rows.push({type:'sub', id:'mos_mp_bb', label:'Bed & Breakfast',dot:'#3b82f6', parent:'mos_mpsum', gp:'wv7d_meals'});
   rows.push({type:'sub', id:'mos_mp_hb', label:'Half Board',     dot:'#967EF3', parent:'mos_mpsum', gp:'wv7d_meals'});
@@ -6567,8 +6738,8 @@ window._buildWv7dSummaryHtml = function(d) {
 
   rows.push({type:'top', id:'wv7d_biz', label:'Business Mix'});
   rows.push({type:'sect', id:'mos_bizbar', label:'Summary', parent:'wv7d_biz'});
-  rows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:'#52d9ce', parent:'mos_bizbar', gp:'wv7d_biz'});
-  rows.push({type:'sub', id:'mos_biz_to',  label:'TO',     dot:'#004948', parent:'mos_bizbar', gp:'wv7d_biz'});
+  rows.push({type:'sub', id:'mos_biz_to',  label:'TO',     dot:'#5CEADE', parent:'mos_bizbar', gp:'wv7d_biz'});
+  rows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:'#006461', parent:'mos_bizbar', gp:'wv7d_biz'});
   rows.push({type:'sub', id:'mos_biz_dir', label:'Direct', dot:'#0284c7', parent:'mos_bizbar', gp:'wv7d_biz'});
   rows.push({type:'sub', id:'mos_biz_ota', label:'OTA',    dot:'#D97706', parent:'mos_bizbar', gp:'wv7d_biz'});
   rows.push({type:'sub', id:'mos_biz_oth', label:'Other',  dot:'#9ca3af', parent:'mos_bizbar', gp:'wv7d_biz'});
@@ -6631,12 +6802,12 @@ window._buildWv7dSummaryHtml = function(d) {
           break;
         case 'mos_occ':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgHotel+'%</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+d.avgTo+'%;background:#004948;height:6px"></div><div style="width:'+Math.max(0,d.avgHotel-d.avgTo)+'%;background:#52d9ce;height:6px"></div></div>'
+             +'<div class="wv-occ-bar-track"><div style="width:'+d.avgTo+'%;background:'+METRIC_COLOR_TO+';height:6px"></div><div style="width:'+Math.max(0,d.avgHotel-d.avgTo)+'%;background:'+WV_COLOR_OCC_OTHER+';height:6px"></div></div>'
              +refChips([{k:'stly',l:'STLY',v:d.sdlyTo+'%'},{k:'ly',l:'LY',v:d.lyTo+'%'},{k:'fcst',l:'Fcst',v:d.fcstTo+'%'}]);
           break;
         case 'mos_adr':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">$'+d.avgToAdr+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.round(d.avgToAdr/3.5)+'%;background:#004948;height:6px"></div></div>'
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.round(d.avgToAdr/3.5)+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>'
              +refChips([{k:'stly',l:'STLY',v:'$'+d.sdlyAdr},{k:'ly',l:'LY',v:'$'+d.lyAdr},{k:'fcst',l:'Fcst',v:'$'+d.fcstAdr}]);
           break;
         case 'mos_rev':
@@ -6645,16 +6816,16 @@ window._buildWv7dSummaryHtml = function(d) {
           break;
         case 'mos_revpar':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">$'+d.avgRevpar+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.round(d.avgRevpar/4)+'%;background:#004948;height:6px"></div></div>'
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.round(d.avgRevpar/4)+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>'
              +refChips([{k:'stly',l:'STLY',v:'$'+d.sdlyRevpar},{k:'ly',l:'LY',v:'$'+d.lyRevpar}]);
           break;
         case 'mos_pickup':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">+'+d.sumPickup+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: +'+d.sumHotelPickup+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,d.sumPickup/10)+'%;background:#004948;height:6px"></div></div>';
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,d.sumPickup/10)+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>';
           break;
         case 'mos_onoff':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgOnline+'% online</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+d.avgOnline+'%;background:#004948;height:6px"></div><div style="width:'+(100-d.avgOnline)+'%;background:#52d9ce;height:6px"></div></div>';
+             +'<div class="wv-occ-bar-track"><div style="width:'+d.avgOnline+'%;background:'+WV_COLOR_ONLINE+';height:6px"></div><div style="width:'+(100-d.avgOnline)+'%;background:'+WV_COLOR_OFFLINE+';height:6px"></div></div>';
           break;
         case 'mos_segbar':
           cc = stackBar([{p:d.avgFitPct,c:'#006461'},{p:d.avgDynPct,c:'#0891b2'},{p:d.avgSerPct,c:'#6366f1'},{p:d.avgOtherPct,c:'#5883ed'},{p:d.avgFreePct,c:'#e5e7eb'}])
@@ -6665,12 +6836,12 @@ window._buildWv7dSummaryHtml = function(d) {
           break;
         case 'mos_rn':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.sumRn+' rn</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+d.avgRnH+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(92,Math.round(d.sumRn/WV*100))+'%;background:#004948;height:6px"></div></div>'
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(92,Math.round(d.sumRn/WV*100))+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>'
              +refChips([{k:'stly',l:'STLY',v:d.sdlyRn+' RN'},{k:'ly',l:'LY',v:d.lyRn+' RN'},{k:'fcst',l:'Fcst',v:d.fcstRn+' RN'}]);
           break;
         case 'mos_avga':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+(d.avgTotAdults/Math.max(1,d.sumRn)).toFixed(1)+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+(d.avgHotelTotAdults/Math.max(1,d.avgRnH*d.n7)).toFixed(1)+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,(d.avgTotAdults/Math.max(1,d.sumRn))/3*100)+'%;background:#004948;height:6px"></div></div>';
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,(d.avgTotAdults/Math.max(1,d.sumRn))/3*100)+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>';
           break;
         case 'mos_avgc':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+(d.avgTotChildren/Math.max(1,d.sumRn)).toFixed(1)+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+(d.avgHotelTotChildren/Math.max(1,d.avgRnH*d.n7)).toFixed(1)+'</span></div>'
@@ -6684,16 +6855,16 @@ window._buildWv7dSummaryHtml = function(d) {
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgTotGuests+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+d.avgHotelTotGuests+'</span></div>'; break;
         case 'mos_los':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgLos+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+d.avgHotelLos+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,parseFloat(d.avgLos)/10*100)+'%;background:#004948;height:6px"></div></div>'; break;
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,parseFloat(d.avgLos)/10*100)+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>'; break;
         case 'mos_lead':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgLead+'</span><span style="font-size:11px;color:#9ca3af;margin-left:6px">H: '+d.avgHotelLead+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,parseInt(d.avgLead)/90*100)+'%;background:#004948;height:6px"></div></div>'; break;
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,parseInt(d.avgLead)/90*100)+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>'; break;
         case 'mos_avail':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgAvailRooms+' rm</span></div>'
              +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round(d.avgAvailRooms/WV*100))+'%;background:#16a34a;height:6px"></div></div>'; break;
         case 'mos_availg':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total">'+d.avgAvailGuar+' rm</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round(d.avgAvailGuar/20*100))+'%;background:#004948;height:6px"></div></div>'; break;
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round(d.avgAvailGuar/20*100))+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>'; break;
         case 'mos_mpsum':
           { var _7sGPR=d.avgHotelTotGuests/Math.max(1,d.avgRnH*d.n7);
             var _7sAiR=Math.round(d.avgRnH*d.avgAiPct/100),_7sAiSt=Math.round(_7sAiR*_7sGPR);
@@ -6716,7 +6887,7 @@ window._buildWv7dSummaryHtml = function(d) {
           break;
         case 'mos_tcbase':
           cc = '<div class="wb-sect-val"><span class="wv-occ-total" style="font-weight:700;color:#1C1C1C">$'+(d.avgHotelAdr+8)+'</span></div>'
-             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round((d.avgHotelAdr+8)/280*100))+'%;background:#004948;height:6px"></div></div>';
+             +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round((d.avgHotelAdr+8)/280*100))+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>';
           break;
         default:
           if(row.toIdx!==undefined){
@@ -6724,7 +6895,7 @@ window._buildWv7dSummaryHtml = function(d) {
                +'<span class="wv-occ-total" style="color:#1C1C1C">$'+d.avgTcRates[row.toIdx]+'</span>'
                +'<span style="font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+promoClr+'22;color:'+promoClr+';border:1px solid '+promoClr+'44">'+promoLabel+'</span>'
                +'</div>'
-               +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round(d.avgTcRates[row.toIdx]/280*100))+'%;background:#004948;height:6px"></div></div>';
+               +'<div class="wv-occ-bar-track"><div style="width:'+Math.min(90,Math.round(d.avgTcRates[row.toIdx]/280*100))+'%;background:'+METRIC_COLOR_TO+';height:6px"></div></div>';
           }
           break;
       }
@@ -8299,10 +8470,12 @@ function buildWeekGrid(month, weekStart, activeDay) {
   const days = getWeekDays(2026, month, weekStart);
   const rangeEl = document.getElementById('wvRange');
   const m0 = days[0], m6 = days[6];
-  const MNAMES = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  rangeEl.textContent = m0.month === m6.month
-    ? `${MNAMES[m0.month]} ${m0.day} – ${m6.day}, 2026`
-    : `${MNAMES[m0.month]} ${m0.day} – ${MNAMES[m6.month]} ${m6.day}, 2026`;
+  if (rangeEl) {
+    rangeEl.textContent = wvFormatDateRangeLong(
+      new Date(wvYear || 2026, m0.month - 1, m0.day),
+      new Date(wvYear || 2026, m6.month - 1, m6.day)
+    );
+  }
 
   const grid = document.getElementById('weekGrid');
 
@@ -8815,15 +8988,15 @@ function buildWeekGrid(month, weekStart, activeDay) {
                 +_opCmp(dynPct, sdlyDyn, lyDyn, fcstDyn, function(v){return v+'%';})
                 +brRow('#6366f1','Tour Series',serRms,serPct)
                 +_opCmp(serPct, sdlySer, lySer, fcstSer, function(v){return v+'%';})
-                +brRow('#47c5bc','Other Segments',otherRms,otherPct)
+                +brRow(WV_COLOR_OCC_OTHER,'Other Segments',otherRms,otherPct)
                 +brRow('#388C3F','Remaining',freeRms,freePct,'wv-occ-br-remain','wv-remain-count');
             } else {
               function brRow(clr,lbl,rms,pct,extra,rmsCls){
                 return '<div class="wv-occ-br-row'+(extra?' '+extra:'')+'"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+clr+'"></span><span class="wv-occ-br-lbl">'+lbl+'</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms'+(rmsCls?' '+rmsCls:'')+'">'+rms+' RN</span><span class="wv-occ-br-pct">'+pct+'%</span></div></div>';
               }
-              bdRows = brRow('#006461','Travel Distribution Hubs',toRms,to)
+              bdRows = brRow(METRIC_COLOR_TO,'TO',toRms,to)
                 +_opCmp(to, sdlyTo, lyTo, fcstTo, function(v){return v+'%';})
-                +brRow('#47c5bc','Other Segments',otherRms,otherPct)
+                +brRow(WV_COLOR_OCC_OTHER,'Other Segments',otherRms,otherPct)
                 +brRow('#388C3F','Remaining',freeRms,freePct,'wv-occ-br-remain','wv-remain-count');
             }
 
@@ -8833,7 +9006,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
               +'<div class="wv-occ-breakdown">'+bdRows+'</div>'
               +'</div>';
           })() : ''}
-          ${wvMetricState.onlineOffline ? `<div><div class="wv-occ-bar-labels"><span class="wv-q-label">Online / Offline</span><span class="wv-occ-total">${onlinePct}%</span></div><div class="wv-occ-bar-track"><div style="width:${onlinePct}%;background:#3b82f6;height:7px"></div><div style="width:${100-onlinePct}%;background:#f97316;height:7px"></div></div><div class="wv-occ-breakdown"><div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#3b82f6"></span><span class="wv-occ-br-lbl">Online</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">${onlinePct}%</span></div></div><div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#f97316"></span><span class="wv-occ-br-lbl">Offline</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">${100-onlinePct}%</span></div></div></div></div>` : ''}
+          ${wvMetricState.onlineOffline ? `<div><div class="wv-occ-bar-labels"><span class="wv-q-label">Online / Offline</span><span class="wv-occ-total">${onlinePct}%</span></div><div class="wv-occ-bar-track"><div style="width:${onlinePct}%;background:${WV_COLOR_ONLINE};height:7px"></div><div style="width:${100-onlinePct}%;background:${WV_COLOR_OFFLINE};height:7px"></div></div><div class="wv-occ-breakdown"><div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:${WV_COLOR_ONLINE}"></span><span class="wv-occ-br-lbl">Online</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">${onlinePct}%</span></div></div><div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:${WV_COLOR_OFFLINE}"></span><span class="wv-occ-br-lbl">Offline</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">${100-onlinePct}%</span></div></div></div></div>` : ''}
           ${wvMetricState.adr ? (function(){
             const toAdrV    = Math.max(80, adr - 20 - Math.abs((dm*3+dd*7)%15));
             const hotelAdrV = adr;
@@ -9144,13 +9317,13 @@ function buildWeekGrid(month, weekStart, activeDay) {
           const availPct     = Math.max(0, 100 - toSoldPct - otherSoldPct - toAllocPct);
           const capBar = '<div class="wv-cap-bar-wrap">'
             +'<div class="wv-cap-bar">'
-            +'<div style="width:'+toSoldPct+'%;background:#006461;height:100%" title="TO Sold"></div>'
+            +'<div style="width:'+toSoldPct+'%;background:'+METRIC_COLOR_TO+';height:100%" title="TO Sold"></div>'
             +'<div style="width:'+otherSoldPct+'%;background:#3b82f6;height:100%" title="Other Sold"></div>'
             +'<div style="width:'+toAllocPct+'%;background:#fb923c;opacity:0.6;height:100%" title="T Alloc Remaining"></div>'
             +'<div style="width:'+availPct+'%;background:#d1fae5;height:100%" title="Available"></div>'
             +'</div>'
             +'<div class="wv-cap-legend">'
-            +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#006461"></span>TO Sold<b>'+totalToSold+'</b></span>'
+            +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:'+METRIC_COLOR_TO+'"></span>TO Sold<b>'+totalToSold+'</b></span>'
             +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#3b82f6"></span>Other <b>'+totalOtherSold+'</b></span>'
             +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#fb923c"></span>T Alloc Rem. <b>'+totalToAllocRem+'</b></span>'
             +'<span class="wv-cap-leg-item"><span class="wv-cap-leg-dot" style="background:#16a34a"></span>Avail <b>'+totalAvail+'</b></span>'
@@ -9160,7 +9333,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
           const tblHdr = '<div class="wv-cap-tbl-hdr">'
             +'<span class="wv-cap-th-type">Room Type</span>'
             +'<span class="wv-cap-th">Cap</span>'
-            +'<span class="wv-cap-th" style="color:#006461">TO</span>'
+            +'<span class="wv-cap-th" style="color:'+METRIC_COLOR_TO+'">TO</span>'
             +'<span class="wv-cap-th" style="color:#3b82f6">Other</span>'
             +'<span class="wv-cap-th" style="color:#fb923c">Alloc↑</span>'
             +'<span class="wv-cap-th" style="color:#16a34a">Avail</span>'
@@ -9960,7 +10133,7 @@ window.goToMonthView = function() {
   if (hdrCtr) hdrCtr.style.display = 'none';
   // Show monthly tab bar and reset "Monthly" as active tab
   var moBar = document.getElementById('moGroupbyBar');
-  if (moBar) moBar.style.display = (calDisplayView <= 3) ? '' : 'none';
+  if (moBar) moBar.style.display = '';
   document.querySelectorAll('.mo-grp-btn').forEach(function(b) {
     b.classList.toggle('active', b.dataset.mogroupby === 'monthly');
   });
@@ -9997,15 +10170,15 @@ document.getElementById('wvNext')?.addEventListener('click', () => {
     return d > s && d < e;
   }
   function fmtDate(d) {
-    return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+    return wvFormatDateLong(d);
   }
   function fmtWeekRange() {
-    var days = getWeekDays(2026, wvMonth, wvWeekStart);
+    var days = getWeekDays(wvYear || 2026, wvMonth, wvWeekStart);
     var m0 = days[0], m6 = days[6];
-    var MN = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return m0.month === m6.month
-      ? MN[m0.month] + ' ' + m0.day + ' \u2013 ' + m6.day + ', 2026'
-      : MN[m0.month] + ' ' + m0.day + ' \u2013 ' + MN[m6.month] + ' ' + m6.day + ', 2026';
+    return wvFormatDateRangeLong(
+      new Date(wvYear || 2026, m0.month - 1, m0.day),
+      new Date(wvYear || 2026, m6.month - 1, m6.day)
+    );
   }
 
   function renderMonth(year, month, daysId, titleId) {
@@ -10043,9 +10216,15 @@ document.getElementById('wvNext')?.addEventListener('click', () => {
     renderMonth(y2, m2, 'wvWpDays2', 'wvWpTitle2');
     var foot = document.getElementById('wvWpRangeText');
     if (foot) {
-      if (pickStart && pickEnd) foot.textContent = fmtDate(pickStart) + ' \u2013 ' + fmtDate(pickEnd);
-      else if (pickStart) foot.textContent = fmtDate(pickStart) + ' \u2013 ...';
+      if (pickStart && pickEnd) foot.textContent = wvFormatDateRangeLong(pickStart, pickEnd);
+      else if (pickStart) foot.textContent = wvFormatDateLong(pickStart) + ' - ...';
       else foot.textContent = 'Select start date, then end date';
+    }
+    var panel = document.getElementById('wvWeekPickPanel');
+    var wvLbl = document.getElementById('wvRange');
+    if (wvLbl && panel && panel.style.display !== 'none') {
+      if (pickStart && pickEnd) wvLbl.textContent = wvFormatDateRangeLong(pickStart, pickEnd);
+      else if (pickStart) wvLbl.textContent = wvFormatDateLong(pickStart) + ' - ...';
     }
   }
 
@@ -10054,6 +10233,8 @@ document.getElementById('wvNext')?.addEventListener('click', () => {
     var btn = document.getElementById('wvWeekPickBtn');
     if (panel) panel.style.display = 'none';
     if (btn) btn.classList.remove('active');
+    var wvLbl = document.getElementById('wvRange');
+    if (wvLbl) wvLbl.textContent = fmtWeekRange();
   }
 
   window.wvWeekPickToggle = function(e) {
@@ -10069,9 +10250,7 @@ document.getElementById('wvNext')?.addEventListener('click', () => {
     selecting = false;
     renderBoth();
     var btn = document.getElementById('wvWeekPickBtn');
-    var rect = btn.getBoundingClientRect();
-    panel.style.left = Math.max(8, rect.left + rect.width / 2 - 290) + 'px';
-    panel.style.top = (rect.bottom + 6) + 'px';
+    if (btn) positionFixedDropdown(panel, btn, { align: 'center' });
     panel.style.display = 'block';
     if (btn) btn.classList.add('active');
   };
@@ -10768,15 +10947,8 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
     s.pickingTo=false;s.hover=null;
     var panel=document.getElementById('coDRPanel');
     if(!panel) return;
-    var rect=triggerEl.getBoundingClientRect();
     var panelW=Math.min(720,window.innerWidth*0.95);
-    var left=rect.left;
-    if(left+panelW>window.innerWidth-8) left=Math.max(8,window.innerWidth-panelW-8);
-    var top=rect.bottom+6;
-    if(top+400>window.innerHeight) top=Math.max(8,rect.top-410);
-    panel.style.left=left+'px';
-    panel.style.top=top+'px';
-    panel.style.width=panelW+'px';
+    positionFixedDropdown(panel, triggerEl, { align: 'left', width: panelW });
     panel.style.display='block';
     _coDRRender();
   }
@@ -12731,10 +12903,11 @@ var _tourOpsGridApi = null;
   }
 
   function openDropdown() {
-    dropdown.style.display = '';
-    trigger.classList.add('active');
     renderBoth();
     updateFooter();
+    positionFixedDropdown(dropdown, trigger, { align: 'right' });
+    dropdown.style.display = '';
+    trigger.classList.add('active');
   }
   function closeDropdown() {
     dropdown.style.display = 'none';
@@ -15298,20 +15471,14 @@ setTimeout(function() {
     if (foot) {
       if (drPhase === 0 || drSelStartIdx === null) {
         foot.textContent = 'Select a start month';
-      } else if (drPhase === 1) {
-        var b = getRangeBounds();
-        var startM = b ? ALL_MONTHS[b.lo] : null;
-        var endM   = b ? ALL_MONTHS[b.hi] : null;
-        if (startM && endM && b.lo !== b.hi) {
-          foot.textContent = startM.name + ' \u2013 ' + endM.name;
-        } else {
-          foot.textContent = (startM ? startM.name : '') + ' \u2013 ?  (select end month)';
-        }
       } else {
-        var b2 = getRangeBounds();
-        var startM = b2 ? ALL_MONTHS[b2.lo] : null;
-        var endM   = b2 ? ALL_MONTHS[b2.hi] : null;
-        foot.textContent = (startM ? startM.name : '') + ' \u2013 ' + (endM ? endM.name : '');
+        var b = getRangeBounds();
+        if (b) {
+          foot.textContent = formatMonthRangeLabel(b.lo, b.hi, drPhase === 1 && drSelEndIdx === null);
+          if (drPhase === 1 && drSelEndIdx === null && foot.textContent.indexOf('\u2026') < 0) {
+            foot.textContent += ' (select end month)';
+          }
+        }
       }
     }
     /* Dim Apply when range not complete */
@@ -15320,6 +15487,14 @@ setTimeout(function() {
       var ready = drPhase === 2;
       applyBtn.classList.toggle('is-disabled', !ready);
       applyBtn.disabled = !ready;
+    }
+    /* Live range on trigger + footer while picker is open */
+    var panel = document.getElementById('calDRPanel');
+    var panelOpen = panel && panel.style.display !== 'none';
+    var lbl = document.getElementById('calDRLabel');
+    var b = getRangeBounds();
+    if (panelOpen && lbl && b) {
+      lbl.textContent = formatMonthRangeLabel(b.lo, b.hi, drPhase === 1 && drSelEndIdx === null);
     }
   }
 
@@ -15377,11 +15552,7 @@ setTimeout(function() {
     drHoverIdx    = null;
     drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
     renderBothGrids();
-    if (trigger) {
-      var rect = trigger.getBoundingClientRect();
-      panel.style.left = Math.max(8, rect.left + rect.width / 2 - 340) + 'px';
-      panel.style.top = (rect.bottom + 6) + 'px';
-    }
+    if (trigger) positionFixedDropdown(panel, trigger, { align: 'center' });
     panel.style.display = 'block';
     if (trigger) trigger.classList.add('active');
   };
@@ -15391,6 +15562,7 @@ setTimeout(function() {
     var trigger = document.getElementById('calDRTrigger');
     if (panel) panel.style.display = 'none';
     if (trigger) trigger.classList.remove('active');
+    if (typeof calDRSyncToNav === 'function') calDRSyncToNav();
   };
 
   window.calDRApply = function() {
@@ -15399,10 +15571,10 @@ setTimeout(function() {
     var trigger = document.getElementById('calDRTrigger');
     if (panel) panel.style.display = 'none';
     if (trigger) trigger.classList.remove('active');
-    var startM = ALL_MONTHS[drSelStartIdx];
-    var endM   = ALL_MONTHS[drSelEndIdx];
+    var lo = Math.min(drSelStartIdx, drSelEndIdx);
+    var hi = Math.max(drSelStartIdx, drSelEndIdx);
     var lbl = document.getElementById('calDRLabel');
-    if (lbl) lbl.textContent = (startM ? startM.name : '') + ' \u2013 ' + (endM ? endM.name : '');
+    if (lbl) lbl.textContent = formatMonthRangeLabel(lo, hi, false);
     calStartIdx = drSelStartIdx;
     /* Derive view length from selected range */
     var viewLen = drSelEndIdx - drSelStartIdx + 1;
@@ -15421,6 +15593,7 @@ setTimeout(function() {
     if (wrap && wrap.contains(e.target)) return;
     panel.style.display = 'none';
     if (trigger) trigger.classList.remove('active');
+    if (typeof calDRSyncToNav === 'function') calDRSyncToNav();
   }, true);
 
   /* ── Sync picker state to current nav position (called after arrow nav) ── */
@@ -15429,12 +15602,10 @@ setTimeout(function() {
     drSelEndIdx   = Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1);
     drPhase       = 2;
     drLeftYear    = ALL_MONTHS[calStartIdx] ? ALL_MONTHS[calStartIdx].year : 2026;
-    var visible = ALL_MONTHS.slice(calStartIdx, calStartIdx + calView);
-    var rangeLabel = calView <= 2 && visible[0]
-      ? visible[0].name
-      : (visible[0] ? visible[0].name.split(' ')[0] + ' – ' + visible[visible.length - 1].name : '');
+    var lo = drSelStartIdx;
+    var hi = Math.min(calStartIdx + calDisplayView - 1, ALL_MONTHS.length - 1);
     var lbl = document.getElementById('calDRLabel');
-    if (lbl) lbl.textContent = rangeLabel;
+    if (lbl) lbl.textContent = formatMonthRangeLabel(lo, hi, false);
   };
 
   /* ── Compatibility no-ops ── */
@@ -15448,7 +15619,7 @@ setTimeout(function() {
     drSelEndIdx   = Math.min(1, ALL_MONTHS.length - 1);
     drPhase       = 2;
     var lbl = document.getElementById('calDRLabel');
-    if (lbl) lbl.textContent = ALL_MONTHS[0].name + ' \u2013 ' + ALL_MONTHS[Math.min(1, ALL_MONTHS.length-1)].name;
+    if (lbl) lbl.textContent = formatMonthRangeLabel(0, Math.min(1, ALL_MONTHS.length - 1), false);
     if (typeof calSetDisplayView === 'function') calSetDisplayView(2);
     else { calView = 2; calDisplayView = 2; renderCalendar(); }
     renderCalMonthlySummary();

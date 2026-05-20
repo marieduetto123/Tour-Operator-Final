@@ -1040,7 +1040,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 }
 /* Hotel / TO default (overridden by cal-on-dark / cal-on-light when contrast runs) */
 .cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #1C1C1C; }
-.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #47c5bc; }
+.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #5CEADE; }
 
 /* Contrast-aware text — white on dark fills, black on light (heatmap + occ) */
 .cal-day.cal-on-dark .day-num,
@@ -2593,7 +2593,6 @@ body.dark .btn-sel-range:hover, body.dark .btn-sel-range.picking { background: r
 .cal-header-right.range-mode #calBulkBtn,
 .cal-header-right.range-mode #calMetricTabs,
 .cal-header-right.range-mode #calViewToggleWrap,
-#moGroupbyBar.range-mode #calDRWrap { display: none !important; }
 
 /* Re-open button — hidden by default, shown only in range-mode */
 .cal-hdr-reopen { display: none !important; }
@@ -2894,7 +2893,7 @@ body.dark .wv-groupby-btn.active { background: #1a2f31; color: #5ceade; }
 
 /* ── Group accordion ── */
 .wv-group-acc .wv-acc-hdr { padding: 5px 8px; gap: 5px; }
-.wv-group-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.wv-group-swatch { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
 .wv-group-occ-badge {
   margin-left: auto; font-size: 9px; font-weight: 700;
   color: #006461; background: #f0fdf4; border: 1px solid #bbf7d0;
@@ -3024,7 +3023,7 @@ body.dark .wv-date-nav { border-bottom-color: var(--border); }
   display: flex; align-items: center; gap: 10px; padding-bottom: 4px;
 }
 .wv-date-shuffler .wv-date-acc-controls {
-  margin-left: 4px;
+  margin-right: 4px;
   padding-bottom: 0;
 }
 .wv-week-nav-center {
@@ -3035,15 +3034,89 @@ body.dark .wv-date-nav { border-bottom-color: var(--border); }
   margin-left: auto;
 }
 .wv-week-range-trigger {
-  min-width: 280px;
+  min-width: 0;
+  max-width: 168px;
+  padding: 0 8px;
   justify-content: center;
+}
+.wv-week-range-trigger .wv-range {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .wv-week-pick-panel {
   position: fixed;
   z-index: 9999;
 }
-.wv-cmp-select-wrap { position: relative; }
-.wv-cmp-selector { min-width: 100px; }
+/* Compare select — Figma MELIA node 1315:38117 (Selector) */
+.cmp-select-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.cmp-select-trigger {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 4px 6px 8px;
+  border: 1px solid #dde1e2;
+  border-radius: 4px;
+  background: #fff;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  color: #1c1c1c;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  transition: border-color .12s;
+}
+.cmp-select-trigger:hover { border-color: #aeb4ba; }
+.cmp-select-trigger.open,
+.cmp-select-trigger:focus { border-color: #006461; outline: none; }
+.cmp-select-trigger:disabled {
+  background: #f5f5f5;
+  border-color: #dde1e2;
+  color: #aeb4ba;
+  cursor: not-allowed;
+}
+.cmp-select-label {
+  flex: 1 0 0;
+  min-width: 0;
+  padding-top: 4px;
+  white-space: nowrap;
+  text-align: left;
+}
+.cmp-select-arrow {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  font-size: 24px !important;
+  line-height: 24px;
+  color: #4f5b60;
+  transition: transform .15s;
+}
+.cmp-select-trigger.open .cmp-select-arrow { transform: rotate(180deg); }
+/* Menu coords set in JS (openCmpSelectMenu); do not inherit .ds-select-menu left:0 */
+.cmp-select-menu.ds-select-menu {
+  position: fixed;
+  z-index: 10001;
+  top: auto;
+  left: auto;
+  min-width: 0;
+}
+body.dark .cmp-select-trigger {
+  background: var(--surface-2, #1a2b2e);
+  border-color: var(--border, #2a3d40);
+  color: var(--text-primary, #e5e7eb);
+}
+body.dark .cmp-select-arrow { color: #9ca3af; }
 .ds-select-menu {
   position: absolute;
   top: calc(100% + 4px);
@@ -3768,8 +3841,8 @@ body.dark .wv-cmp-val-txt.wv-cmp-neutral { color: #7aabad; }
 /* Daily B — slimmer bars, less rounded */
 .wb-row .wv-occ-bar-track { height: 6px; border-radius: 2px; }
 .wv-occ-seg { height: 100%; transition: width 0.2s; }
-.wv-occ-to    { background: #006461; }
-.wv-occ-other { background: #47c5bc; }
+.wv-occ-to    { background: #5CEADE; }
+.wv-occ-other { background: #967EF3; }
 .wv-occ-bar-legend {
   display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap;
   font-size: 7px; color: #6b7280;
@@ -8524,6 +8597,11 @@ body.dark .cal-mfilt-btn.active { background: #1a3535; }
   z-index: 9999;
 }
 .mo-month-nav-center { margin-left: auto; }
+/* Keep month picker visible when parent bar is shown (not in week view) */
+#moGroupbyBar .mo-month-nav-center,
+#moGroupbyBar #calDRWrap {
+  display: flex !important;
+}
 .mo-month-pick-wrap { position: relative; }
 .mo-month-range-trigger { min-width: 140px; justify-content: center; }
 #calDRWrap .drp-trigger { min-width: 140px; white-space: nowrap; }
@@ -8787,7 +8865,7 @@ body.dark .cal-cap-tip-line--avail.cal-cap-tip-line--ok { color: #dde1e2; }
 }
 .leg-color-swatch {
   display: inline-block;
-  width: 10px; height: 10px; border-radius: 50%;
+  width: 10px; height: 10px; border-radius: 3px;
   flex-shrink: 0;
 }
 
@@ -9205,7 +9283,7 @@ body.dark .cal-cap-tip-line--avail.cal-cap-tip-line--ok { color: #dde1e2; }
 .wb-sub-dot {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 .wb-sub-label {

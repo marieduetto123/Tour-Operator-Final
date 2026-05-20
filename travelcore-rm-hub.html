@@ -107,7 +107,7 @@
     <span class="bc-sep">
       <span class="material-icons" style="font-size:12px;color:#585858">chevron_right</span>
     </span>
-    <span class="bc-current">Travel Distribution Hubs</span>
+    <span class="bc-current">tour operator</span>
   </div>
   <div class="property-picker">
     <span class="material-icons" style="font-size:20px;color:#19393E">home</span>
@@ -126,7 +126,7 @@
         <span class="material-icons">dashboard</span>
         Dashboard
       </a>
-      <a class="nav-item" href="#" data-label="Travel Distribution Hubs & Contracts">
+      <a class="nav-item" href="#" data-label="tour operator & Contracts">
         <span class="material-icons">people</span>
         Contacts &amp; Contracts
       </a>
@@ -676,15 +676,18 @@
               </div>
 
                 </div>
-            <!-- Compare dropdown -->
-            <div style="position:relative;order:6" id="calCompareWrap">
-              <select class="wv-cmp-select" id="calCompare" onchange="calSetCompare(this.value)">
-                <option value="ly">vs LY</option>
-                <option value="stly">vs STLY</option>
-                <option value="fcst">vs Locked Forecast</option>
-                <option value="budget">vs Locked Budget</option>
-                <option value="none" selected>No Compare</option>
-              </select>
+            <!-- Compare — Figma Selector (1315:38117) -->
+            <div class="cmp-select-wrap" id="calCompareWrap" style="order:6">
+              <button type="button" class="cmp-select-trigger" id="calCmpSelector" onclick="calCmpSelectToggle(event)" aria-haspopup="listbox" aria-expanded="false">
+                <span class="cmp-select-label" id="calCmpSelectLabel">Compare</span>
+                <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
+              </button>
+              <div class="cmp-select-menu ds-select-menu" id="calCmpSelectMenu" role="listbox" style="display:none">
+                <button type="button" class="ds-select-opt active" data-cmp="none" onclick="calPickCompare('none', event)">None</button>
+                <button type="button" class="ds-select-opt" data-cmp="stly" onclick="calPickCompare('stly', event)">STLY</button>
+                <button type="button" class="ds-select-opt" data-cmp="ly" onclick="calPickCompare('ly', event)">LY</button>
+                <button type="button" class="ds-select-opt" data-cmp="fcst" onclick="calPickCompare('fcst', event)">Forecast</button>
+              </div>
             </div>
             <!-- Filters (moved next to Cell Metrics) -->
             <div class="cal-filters-wrap" id="calFiltersWrap" style="position:relative;order:3">
@@ -928,12 +931,12 @@
             <span>Event</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#1C1C1C"></span>
+            <span class="leg-color-swatch" style="background:#006461"></span>
             <span>Hotel</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#47c5bc"></span>
-            <span>Tour Operator</span>
+            <span class="leg-color-swatch" style="background:#5CEADE"></span>
+            <span>TO</span>
           </div>
         </div>
 
@@ -1090,13 +1093,13 @@
                 <label class="wv-ms-item"><span class="wv-ms-cb checked" data-key="cmp_hotel"></span><span class="wv-ms-label"><span class="wv-ref-dot" style="background:#7c3aed"></span>Hotel</span></label>
               </div>
             </div>
-            <!-- Compare — DS Select pattern -->
-            <div class="wv-cmp-select-wrap" id="wvCmpSelectWrap">
-              <button type="button" class="ds-selector wv-cmp-selector" id="wvCmpSelector" onclick="wvCmpSelectToggle(event)" aria-haspopup="listbox" aria-expanded="false">
-                <span id="wvCmpSelectLabel">Compare</span>
-                <span class="material-icons ds-sel-arrow">expand_more</span>
+            <!-- Compare — Figma Selector (1315:38117) -->
+            <div class="cmp-select-wrap" id="wvCmpSelectWrap">
+              <button type="button" class="cmp-select-trigger" id="wvCmpSelector" onclick="wvCmpSelectToggle(event)" aria-haspopup="listbox" aria-expanded="false">
+                <span class="cmp-select-label" id="wvCmpSelectLabel">Compare</span>
+                <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
               </button>
-              <div class="ds-select-menu" id="wvCmpSelectMenu" role="listbox" style="display:none">
+              <div class="cmp-select-menu ds-select-menu" id="wvCmpSelectMenu" role="listbox" style="display:none">
                 <button type="button" class="ds-select-opt active" data-cmp="none" onclick="wvSetCompare('none')">None</button>
                 <button type="button" class="ds-select-opt" data-cmp="stly" onclick="wvSetCompare('stly')">STLY</button>
                 <button type="button" class="ds-select-opt" data-cmp="ly" onclick="wvSetCompare('ly')">LY</button>
@@ -1154,8 +1157,18 @@
               <span class="material-icons" style="font-size:16px">tune</span>
               Columns
             </button>
-            <!-- Week nav — range centred between arrows; Open/Close All beside nav -->
+            <!-- Week nav — Open/Close All, then arrows + date picker -->
             <div class="wv-date-shuffler wv-week-nav-center">
+              <div class="wv-date-acc-controls">
+                <button class="wv-acc-action-btn" id="wvRtCloseAll">
+                  <span class="material-icons" style="font-size:16px">unfold_less</span>
+                  Close All
+                </button>
+                <button class="wv-acc-action-btn" id="wvRtOpenAll">
+                  <span class="material-icons" style="font-size:16px">unfold_more</span>
+                  Open All
+                </button>
+              </div>
               <button class="wv-nav-btn" id="wvPrev" title="Previous week"><span class="material-icons" style="font-size:18px">chevron_left</span></button>
               <div class="wv-week-pick-wrap" id="wvWeekPickWrap">
                 <button type="button" class="drp-trigger wv-week-range-trigger" id="wvWeekPickBtn" onclick="wvWeekPickToggle(event)">
@@ -1193,16 +1206,6 @@
                 </div>
               </div>
               <button class="wv-nav-btn" id="wvNext" title="Next week"><span class="material-icons" style="font-size:18px">chevron_right</span></button>
-              <div class="wv-date-acc-controls">
-                <button class="wv-acc-action-btn" id="wvRtCloseAll">
-                  <span class="material-icons" style="font-size:16px">unfold_less</span>
-                  Close All
-                </button>
-                <button class="wv-acc-action-btn" id="wvRtOpenAll">
-                  <span class="material-icons" style="font-size:16px">unfold_more</span>
-                  Open All
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -1213,6 +1216,14 @@
           <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#D32F2F">lock</span><span>Full close out</span></div>
           <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#FFB90F">lock</span><span>Partial close out</span></div>
           <div class="leg-item leg-item-event"><span class="material-icons" style="font-size:18px;color:#006461">today</span><span>Event</span></div>
+          <div class="leg-item">
+            <span class="leg-color-swatch" style="background:#006461"></span>
+            <span>Hotel</span>
+          </div>
+          <div class="leg-item">
+            <span class="leg-color-swatch" style="background:#5CEADE"></span>
+            <span>TO</span>
+          </div>
         </div>
         <div class="wv-cal-scroll-area">
           <div class="wv-week-layout">
@@ -1233,7 +1244,7 @@
         <div class="section-header">
           <div>
             <h3 class="section-title">Room type sales by segment</h3>
-            <p class="section-sub">Comparing Travel Distribution Hubs to Other Booking Segments</p>
+            <p class="section-sub">Comparing tour operator to Other Booking Segments</p>
           </div>
           <button class="btn btn-outline">
             <span class="material-icons" style="font-size:14px">info</span>
@@ -2124,7 +2135,7 @@
   <!-- Tabs — outside section-card, matching Contacts & Contracts -->
   <div class="to-tabs to-page-tabs">
     <div class="st-tabs-inner">
-      <button class="st-tab active" data-stab="operators">Travel Distribution Hubs</button>
+      <button class="st-tab active" data-stab="operators">tour operator</button>
       <button class="st-tab" data-stab="stopsales">Stop Sales &amp; Alerts</button>
       <button class="st-tab" data-stab="autopilot">Autopilot</button>
     </div>
