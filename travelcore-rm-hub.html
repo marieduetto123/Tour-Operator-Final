@@ -1100,10 +1100,10 @@
                 <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
               </button>
               <div class="cmp-select-menu ds-select-menu" id="wvCmpSelectMenu" role="listbox" style="display:none">
-                <button type="button" class="ds-select-opt active" data-cmp="none" onclick="wvSetCompare('none')">None</button>
-                <button type="button" class="ds-select-opt" data-cmp="stly" onclick="wvSetCompare('stly')">STLY</button>
-                <button type="button" class="ds-select-opt" data-cmp="ly" onclick="wvSetCompare('ly')">LY</button>
-                <button type="button" class="ds-select-opt" data-cmp="fcst" onclick="wvSetCompare('fcst')">Forecast</button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="none" onclick="wvPickCompare('none', event)"><span class="wv-ms-cb"></span><span>None</span></button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="stly" onclick="wvPickCompare('stly', event)"><span class="wv-ms-cb"></span><span>STLY</span></button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="ly" onclick="wvPickCompare('ly', event)"><span class="wv-ms-cb"></span><span>LY</span></button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="fcst" onclick="wvPickCompare('fcst', event)"><span class="wv-ms-cb"></span><span>Forecast</span></button>
               </div>
             </div>
 

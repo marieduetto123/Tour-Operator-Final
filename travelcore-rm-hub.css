@@ -1075,21 +1075,36 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 }
 
 /* Inline compare delta — hidden until cell is wide enough (container query + JS class) */
-.cell-m-cmp {
+.cell-m-cmp-wrap {
   grid-column: 3;
   justify-self: start;
   display: none;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+}
+.cell-m-cmp {
+  justify-self: start;
+  display: inline-flex;
   align-items: center;
   gap: 2px;
   white-space: nowrap;
   font-size: 11px; font-weight: 700; line-height: 1.15;
   font-family: 'Lato', sans-serif;
 }
-.cal-months-grid.cal-cmp-visible .cell-content.cmp-active .cell-m-cmp {
+.cal-months-grid.cal-cmp-visible .cell-content.cmp-active .cell-m-cmp-wrap {
   display: inline-flex;
 }
 @container cal-cell (min-width: 108px) {
-  .cell-content.cmp-active .cell-m-cmp { display: inline-flex; }
+  .cell-content.cmp-active .cell-m-cmp-wrap { display: inline-flex; }
+}
+.cell-m-cmp-tag {
+  font-size: 9px;
+  font-weight: 600;
+  opacity: 0.75;
+  letter-spacing: 0.02em;
 }
 .cell-m-cmp-arrow {
   font-size: 14px !important;
@@ -1104,7 +1119,7 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   .cell-content.cmp-active .cell-m-row:not(.cell-m-row-stacked) {
     grid-template-columns: minmax(0, 1fr) auto;
   }
-  .cell-m-cmp { display: none !important; }
+  .cell-m-cmp-wrap { display: none !important; }
   .cell-content.cmp-active .cell-m-val { font-weight: 400; }
 }
 /* Comparison value styling - badge style */
@@ -1160,7 +1175,7 @@ body.dark .cell-cmp-label { color: #9ca3af; }
 .cell-cmp { white-space: nowrap; }
 @media (max-width: 2100px) { .cal-view-3 .cell-cmp { display: none; } }
 @media (max-width: 1537px) { .cal-view-2 .cell-cmp { display: none; } }
-.cal-months-grid:not(.cal-cmp-visible) .cell-m-cmp { display: none !important; }
+.cal-months-grid:not(.cal-cmp-visible) .cell-m-cmp-wrap { display: none !important; }
 .cal-months-grid:not(.cal-cmp-visible) .cell-content.cmp-active .cell-m-val { font-weight: 400; }
 /* Disabled compare dropdown */
 .cmp-disabled { opacity: .4; pointer-events: none; }
@@ -3141,6 +3156,15 @@ body.dark .cmp-select-arrow { color: #9ca3af; }
   font-family: 'Lato', sans-serif;
   color: #1c1c1c;
   cursor: pointer;
+}
+.cmp-select-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cmp-select-opt .wv-ms-cb {
+  pointer-events: none;
+  flex-shrink: 0;
 }
 .ds-select-opt:hover { background: #f5f5f5; }
 .ds-select-opt.active { color: #006461; font-weight: 600; background: #f0fafa; }
