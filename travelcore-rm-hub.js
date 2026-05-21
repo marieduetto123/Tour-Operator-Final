@@ -1431,14 +1431,15 @@ let calSelPicking = false; // true after first click, waiting for end
 // Filter bar state
 const TO_FILTER_MULT = { all:1.0, sunwing:0.82, tui:1.18, 'thomas-cook':0.71, 'club-med':1.08 };
 let calFiltTO = 'all';
-let calCompareMode = 'none'; // 'ly', 'stly', 'fcst', 'budget', 'none'
+let calCompareMode = 'none'; // 'stly' | 'ly' | 'fcst' | 'none'
 
 function calSyncCmpDd() {
-  var _names = { none: 'Compare', stly: 'STLY', ly: 'LY', fcst: 'Forecast', budget: 'Budget' };
+  var _names = { none: 'Compare', stly: 'STLY', ly: 'LY', fcst: 'Forecast' };
   var menu = document.getElementById('calCmpSelectMenu');
   if (menu) {
     menu.querySelectorAll('.ds-select-opt').forEach(function(item) {
-      item.classList.toggle('active', item.dataset.cmp === calCompareMode);
+      var active = (item.dataset.cmp === 'none') ? calCompareMode === 'none' : item.dataset.cmp === calCompareMode;
+      item.classList.toggle('active', active);
     });
   }
   var lbl = document.getElementById('calCmpSelectLabel');
@@ -1446,7 +1447,7 @@ function calSyncCmpDd() {
 }
 
 function calSetCompare(val) {
-  calCompareMode = val || 'none';
+  calCompareMode = (val === 'none' || !val) ? 'none' : val;
   calSyncCmpDd();
   renderCalendar();
 }
@@ -1988,11 +1989,9 @@ function renderCalendar() {
         // Compare multipliers
         var _stlyF = 0.85 + Math.abs((m.month * 5 + d * 3) % 10) * 0.006;
         var _fcstF = 1.04 + Math.abs((m.month * 5 + d * 11) % 6) * 0.005;
-        var _budgF = 0.95 + Math.abs((m.month * 9 + d * 4) % 8) * 0.004;
         var _cmpMult = calCompareMode === 'ly' ? lyF
           : calCompareMode === 'stly' ? _stlyF
-          : calCompareMode === 'fcst' ? _fcstF
-          : calCompareMode === 'budget' ? _budgF : 0;
+          : calCompareMode === 'fcst' ? _fcstF : 0;
 
         var _hasCmp = !!_cmpMult;
         return rows.map(function(r, _ri, _ra) {
@@ -2013,32 +2012,32 @@ function renderCalendar() {
           var _isDollarK = _v.indexOf('$') >= 0 && _v.indexOf('k') >= 0;
           var _isDollar = !_isDollarK && (_v.indexOf('$') >= 0 || (!_hasUnit && (_sl.indexOf('adr') >= 0 || (_sl.indexOf('rev') >= 0 && _sl.indexOf('revpar') < 0) || _sl.indexOf('revpar') >= 0 || _sl.indexOf('rate') >= 0 || _sl === 'base')));
 
-          // Inline compare: difference vs LY / STLY / Fcst / Budget + arrow
+          // Inline compare: difference vs LY / STLY / Fcst + arrow
           var cmpHtml = '';
           if (_hasCmp && _cmpMult && r.raw != null && !isNaN(r.raw)) {
             var cmpRaw = calCmpRefValue(r.raw, _cmpMult, _ri, m.month, d, shortLabel);
             var diff = r.raw - cmpRaw;
-            var absDiff = Math.abs(diff);
-            var diffStr;
-            if (_isDollarK || _isDollar) {
-              diffStr = calFmtCellMoney(absDiff);
-            } else if (_isPercent) {
-              diffStr = Math.round(absDiff) + '%';
-            } else if (_v.indexOf('RN') >= 0 || _sl.indexOf('rn') >= 0) {
-              diffStr = Math.round(absDiff) + ' RN';
-            } else if (_v.indexOf('n') >= 0 && _sl.indexOf('los') >= 0) {
-              diffStr = (Math.round(absDiff * 10) / 10).toFixed(1) + (_useFullMetrics ? ' nights' : 'n');
-            } else if (_v.indexOf('d') >= 0 && _sl.indexOf('lead') >= 0) {
-              diffStr = Math.round(absDiff) + (_useFullMetrics ? ' days' : 'd');
-            } else {
-              diffStr = String(Math.round(absDiff));
-            }
             if (diff !== 0) {
+              var absDiff = Math.abs(diff);
+              var diffStr;
+              if (_isDollarK || _isDollar) {
+                diffStr = calFmtCellMoney(absDiff);
+              } else if (_isPercent) {
+                diffStr = Math.round(absDiff) + '%';
+              } else if (_v.indexOf('RN') >= 0 || _sl.indexOf('rn') >= 0) {
+                diffStr = Math.round(absDiff) + ' RN';
+              } else if (_v.indexOf('n') >= 0 && _sl.indexOf('los') >= 0) {
+                diffStr = (Math.round(absDiff * 10) / 10).toFixed(1) + (_useFullMetrics ? ' nights' : 'n');
+              } else if (_v.indexOf('d') >= 0 && _sl.indexOf('lead') >= 0) {
+                diffStr = Math.round(absDiff) + (_useFullMetrics ? ' days' : 'd');
+              } else {
+                diffStr = String(Math.round(absDiff));
+              }
               var cmpClr = diff > 0 ? '#388C3F' : '#D32F2F';
               var arrow = diff > 0 ? 'arrow_upward' : 'arrow_downward';
-              cmpHtml = '<span class="cell-m-cmp" style="color:' + cmpClr + '">'
+              cmpHtml = '<span class="cell-m-cmp-wrap"><span class="cell-m-cmp" style="color:' + cmpClr + '">'
                 + '<span class="material-icons cell-m-cmp-arrow">' + arrow + '</span>'
-                + '<span class="cell-m-cmp-amt">' + diffStr + '</span></span>';
+                + '<span class="cell-m-cmp-amt">' + diffStr + '</span></span></span>';
             }
           }
 
@@ -3507,12 +3506,11 @@ function clearCalSelection() {
     var _C1=METRIC_COLOR_TO,_C2=METRIC_COLOR_HOTEL,_C_OTHER=WV_COLOR_OCC_OTHER,_C_ON=WV_COLOR_ONLINE,_C_OFF=WV_COLOR_OFFLINE,_C3='#D97706',_CSTLY='#C4FF45',_CREM='#445e0d';
     var _hasCmp = calCompareMode !== 'none';
     var _cm = (function(){
-      switch(calCompareMode) {
-        case 'stly':   return {occD:-(3+v%5), adrD:-8, rev:0.90, rn:0.88, revpar:0.92, pu:0.88, avgA:0.92, avgC:0.90, tot:0.90};
-        case 'ly':     return {occD:-(4+v%6), adrD:-12, rev:0.87, rn:0.85, revpar:0.89, pu:0.85, avgA:0.89, avgC:0.87, tot:0.87};
-        case 'fcst':   return {occD:(2+v%3), adrD:5, rev:1.04, rn:1.03, revpar:1.05, pu:1.06, avgA:1.03, avgC:1.02, tot:1.03};
-        case 'budget': return {occD:(1+v%2), adrD:3, rev:1.02, rn:1.01, revpar:1.03, pu:1.02, avgA:1.01, avgC:1.01, tot:1.01};
-        default:       return null;
+      switch (calCompareMode) {
+        case 'stly': return {occD:-(3+v%5), adrD:-8, rev:0.90, rn:0.88, revpar:0.92, pu:0.88, avgA:0.92, avgC:0.90, tot:0.90};
+        case 'ly':   return {occD:-(4+v%6), adrD:-12, rev:0.87, rn:0.85, revpar:0.89, pu:0.85, avgA:0.89, avgC:0.87, tot:0.87};
+        case 'fcst': return {occD:(2+v%3), adrD:5, rev:1.04, rn:1.03, revpar:1.05, pu:1.06, avgA:1.03, avgC:1.02, tot:1.03};
+        default:     return null;
       }
     })();
     // Inline compare: difference amount + arrow (monthly eye popup)
@@ -4189,6 +4187,8 @@ function wvSyncCmpDd() {
       var k = item.dataset.cmp;
       var active = (k === 'none') ? wvCompare.size === 0 : wvCompare.has(k);
       item.classList.toggle('active', active);
+      var cb = item.querySelector('.wv-ms-cb');
+      if (cb) cb.classList.toggle('checked', active);
     });
   }
   var lbl = document.getElementById('wvCmpSelectLabel');
@@ -4202,12 +4202,12 @@ function wvSetCompare(val) {
     else wvCompare.add(val);
   }
   wvSyncCmpDd();
-  var menu = document.getElementById('wvCmpSelectMenu');
-  var btn  = document.getElementById('wvCmpSelector');
-  closeCmpSelectMenu(menu);
-  if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
   buildWeekGrid(wvMonth, wvWeekStart, wvWeekStart);
 }
+window.wvPickCompare = function(val, e) {
+  if (e) e.stopPropagation();
+  wvSetCompare(val);
+};
 
 // "/ compareVal" inline suffix appended to main value text
 function wvCmpValSuffix(stlyStr, lyStr, fcstStr) {
@@ -10726,6 +10726,7 @@ initTargetsGrid();
 updateChart();
 buildRoomTypeTable();
 buildCalendar();
+calSyncCmpDd();
 updateRevStats();
 updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
 
