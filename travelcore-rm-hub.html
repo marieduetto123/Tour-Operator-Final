@@ -588,74 +588,80 @@
                     </div>
 
                     <div class="cm-menu-group" data-cm-search="other metrics">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
                         <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
                         <span class="cm-menu-label">Other Metrics</span>
                       </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
+                      <div class="cm-menu-children" style="display:block">
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="true"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span><span class="cm-menu-label">Pickup</span></button>
+                        <div class="cm-menu-children" style="display:block">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
                         </div>
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="true"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span><span class="cm-menu-label">Avg LOS</span></button>
+                        <div class="cm-menu-children" style="display:block">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                        </div>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="true"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span><span class="cm-menu-label">Lead Time</span></button>
+                        <div class="cm-menu-children" style="display:block">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                        </div>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="true"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span><span class="cm-menu-label">Avg Adults</span></button>
+                        <div class="cm-menu-children" style="display:block">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                        </div>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="true"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span><span class="cm-menu-label">Avg Children</span></button>
+                        <div class="cm-menu-children" style="display:block">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                        </div>
+                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="true"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span><span class="cm-menu-label">Total Guests</span></button>
+                        <div class="cm-menu-children" style="display:block">
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
                         </div>
                       </div>
                     </div>
 
                     <div class="cm-menu-group" data-cm-search="availability">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
                         <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
                         <span class="cm-menu-label">Availability</span>
                       </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail rooms"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cm-menu-label">Avail Rooms</span></label>
-                        </div>
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail guaranteed"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cm-menu-label">Avail Guaranteed</span></label>
-                        </div>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="avail rooms"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cm-menu-label">Avail Rooms</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="avail guaranteed"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cm-menu-label">Avail Guaranteed</span></label>
                       </div>
                     </div>
 
                     <div class="cm-menu-group" data-cm-search="business mix">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
                         <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
                         <span class="cm-menu-label">Business Mix</span>
                       </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cm-menu-label">Tour Operator Mix %</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="direct mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cm-menu-label">Direct Mix %</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="ota mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cm-menu-label">OTA Mix %</span></label>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="tour operator mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cm-menu-label">Tour Operator Mix %</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="direct mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cm-menu-label">Direct Mix %</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="ota mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cm-menu-label">OTA Mix %</span></label>
                       </div>
                     </div>
 
                     <div class="cm-menu-group" data-cm-search="selling rates">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
                         <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
+                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
                         <span class="cm-menu-label">Selling Rates</span>
                       </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator contract rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cm-menu-label">Tour Operator Contract Rate</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="promotion"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cm-menu-label">Promotion %</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="base segment rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cm-menu-label">Base Segment Rate</span></label>
+                      <div class="cm-menu-children" style="display:block">
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="tour operator contract rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cm-menu-label">Tour Operator Contract Rate</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="promotion"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cm-menu-label">Promotion %</span></label>
+                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="base segment rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cm-menu-label">Base Segment Rate</span></label>
                       </div>
                     </div>
 
@@ -931,11 +937,11 @@
             <span>Event</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#006461"></span>
+            <span class="leg-color-swatch leg-color-hotel"></span>
             <span>Hotel</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#5CEADE"></span>
+            <span class="leg-color-swatch leg-color-to"></span>
             <span>TO</span>
           </div>
         </div>
@@ -1217,11 +1223,11 @@
           <div class="leg-item"><span class="material-icons" style="font-size:14px;color:#FFB90F">lock</span><span>Partial close out</span></div>
           <div class="leg-item leg-item-event"><span class="material-icons" style="font-size:18px;color:#006461">today</span><span>Event</span></div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#006461"></span>
+            <span class="leg-color-swatch leg-color-hotel"></span>
             <span>Hotel</span>
           </div>
           <div class="leg-item">
-            <span class="leg-color-swatch" style="background:#5CEADE"></span>
+            <span class="leg-color-swatch leg-color-to"></span>
             <span>TO</span>
           </div>
         </div>

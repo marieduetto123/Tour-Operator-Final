@@ -1038,9 +1038,9 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   display: flex;
   flex-direction: column; align-items: flex-start; gap: 1px;
 }
-/* Hotel / TO default (overridden by cal-on-dark / cal-on-light when contrast runs) */
-.cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #1C1C1C; }
-.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #5CEADE; }
+/* Hotel / TO default (overridden by cal-on-dark / cal-on-light when contrast runs) — Figma 1288-24558 */
+.cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #053C3C; }
+.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #38AAA3; }
 
 /* Contrast-aware text — white on dark fills, black on light (heatmap + occ) */
 .cal-day.cal-on-dark .day-num,
@@ -1057,13 +1057,17 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cal-day.cal-on-light .day-num,
 .cal-day.cal-on-light .cell-m-label,
 .cal-day.cal-on-light .cell-m-val,
-.cal-day.cal-on-light .cell-m-hotel .cell-m-label,
-.cal-day.cal-on-light .cell-m-hotel .cell-m-val,
-.cal-day.cal-on-light .cell-m-to .cell-m-label,
-.cal-day.cal-on-light .cell-m-to .cell-m-val,
 .cal-day.cal-on-light .cell-eye,
 .cal-day.cal-on-light .cell-eye .material-icons {
   color: #1C1C1C !important;
+}
+.cal-day.cal-on-light .cell-m-hotel .cell-m-label,
+.cal-day.cal-on-light .cell-m-hotel .cell-m-val {
+  color: #053C3C !important;
+}
+.cal-day.cal-on-light .cell-m-to .cell-m-label,
+.cal-day.cal-on-light .cell-m-to .cell-m-val {
+  color: #38AAA3 !important;
 }
 .cal-day .cell-content.cal-on-dark .cell-m-label,
 .cal-day .cell-content.cal-on-dark .cell-m-val {
@@ -1072,6 +1076,14 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cal-day .cell-content.cal-on-light .cell-m-label,
 .cal-day .cell-content.cal-on-light .cell-m-val {
   color: #1C1C1C !important;
+}
+.cal-day .cell-content.cal-on-light .cell-m-hotel .cell-m-label,
+.cal-day .cell-content.cal-on-light .cell-m-hotel .cell-m-val {
+  color: #053C3C !important;
+}
+.cal-day .cell-content.cal-on-light .cell-m-to .cell-m-label,
+.cal-day .cell-content.cal-on-light .cell-m-to .cell-m-val {
+  color: #38AAA3 !important;
 }
 
 /* Inline compare delta — hidden until cell is wide enough (container query + JS class) */
@@ -2156,7 +2168,7 @@ body.dark .cal-days { border-top-color: #1a3336; border-left-color: #1a3336; }
 body.dark .day-num { color: #c8e6e5; }
 body.dark .day-muted { color: #5a8a89; }
 body.dark .cell-m-hotel .cell-m-label, body.dark .cell-m-hotel .cell-m-val { color: #e0e4e4; }
-body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #5ceade; }
+body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #38AAA3; }
 body.dark .cal-dow span { color: #7aabad; }
 body.dark .cal-month-name:hover { color: var(--accent); }
 body.dark .cell-closed-label { background: rgba(211,47,47,.3); color: #ef9a9a; }
@@ -3865,7 +3877,7 @@ body.dark .wv-cmp-val-txt.wv-cmp-neutral { color: #7aabad; }
 /* Daily B — slimmer bars, less rounded */
 .wb-row .wv-occ-bar-track { height: 6px; border-radius: 2px; }
 .wv-occ-seg { height: 100%; transition: width 0.2s; }
-.wv-occ-to    { background: #5CEADE; }
+.wv-occ-to    { background: #38AAA3; }
 .wv-occ-other { background: #967EF3; }
 .wv-occ-bar-legend {
   display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap;
@@ -3948,7 +3960,7 @@ body.dark .wv-cmp-val-txt.wv-cmp-neutral { color: #7aabad; }
 .wv-meal-pct  { font-size: 7.5px; font-weight: 600; color: #1C1C1C; text-align: right; flex-shrink: 0; min-width: 28px; }
 .wv-meal-rooms { font-size: 7px; color: #9ca3af; text-align: right; }
 .wv-meal-hotel-rms { color: #6b7280; }
-.wv-meal-to-rms    { color: #006461; font-size: 7px; text-align: right; }
+.wv-meal-to-rms    { color: #38AAA3; font-size: 7px; text-align: right; }
 
 /* ── Promotions section ─────────────────────────────────────── */
 .wv-promos { border-top: 1px solid var(--border-sub); }
@@ -7544,7 +7556,7 @@ body.dark .figma-tb-opt:hover,
 body.dark .figma-tb-opt:has(input:checked) { background: #222; }
 body.dark .figma-tb-info-tag { background: #222; border-color: #2a2a2a; }
 
-/* ── Cell metrics dropdown — MELIA Figma 1176-24806 ── */
+/* ── Cell metrics dropdown — MELIA Figma 1176-27247 ── */
 .cal-metrics-wrap { position: relative; z-index: 1; }
 .cal-metrics-wrap.cal-metrics-open { z-index: 120; }
 #demand-calendar.cal-metrics-panel-open { overflow: visible; }
@@ -7593,7 +7605,7 @@ body.dark .cal-metrics-dropdown {
 }
 .cal-md-section-title {
   margin: 0 0 4px;
-  font-size: 14px; font-weight: 400; line-height: 20px;
+  font-size: 16px; font-weight: 400; line-height: 24px;
   color: #1C1C1C;
 }
 .cal-md-seg-row {
@@ -7646,10 +7658,10 @@ body.dark .cal-metrics-dropdown {
 /* Tree menu rows — Figma menu items */
 .cm-menu-row {
   display: flex; align-items: center; gap: 4px;
-  width: 100%; min-height: 32px;
+  width: 100%; min-height: 36px;
   padding: 6px 8px 6px 0;
   margin: 0; border: none; background: #fff;
-  font-family: inherit; font-size: 14px; line-height: 20px;
+  font-family: inherit; font-size: 16px; line-height: 24px;
   color: #1C1C1C; text-align: left; cursor: pointer;
   box-sizing: border-box;
 }
@@ -7664,8 +7676,8 @@ label.cm-menu-row { cursor: pointer; }
   transition: transform .2s ease;
 }
 .cm-menu-label { flex: 1; min-width: 0; }
-.cm-menu-row--indent-1 { padding-left: 22px; }
-.cm-menu-row--indent-2 { padding-left: 42px; }
+.cm-menu-row--indent-1 { padding-left: 26px; }
+.cm-menu-row--indent-2 { padding-left: 50px; }
 .cm-menu-children { display: block; }
 .cm-menu-group.cm-search-hidden,
 .cm-menu-row.cm-search-hidden { display: none !important; }
@@ -8892,6 +8904,8 @@ body.dark .cal-cap-tip-line--avail.cal-cap-tip-line--ok { color: #dde1e2; }
   width: 10px; height: 10px; border-radius: 3px;
   flex-shrink: 0;
 }
+.leg-color-hotel { background: #053C3C; }
+.leg-color-to    { background: #38AAA3; }
 
 
 
@@ -9318,6 +9332,15 @@ body.dark .cal-cap-tip-line--avail.cal-cap-tip-line--ok { color: #dde1e2; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Weekly grid — Hotel metric row colors (TO row text stays default black) */
+.wb-row[data-wb-id$="_hotel"] .wb-sub-label,
+.wb-row[data-wb-id$="_hotel"] .wb-sub-v1,
+.wb-row[data-wb-id$="_htl"] .wb-sub-label,
+.wb-row[data-wb-id$="_htl"] .wb-sub-v1,
+.wb-row[data-wb-id$="_h"] .wb-sub-label,
+.wb-row[data-wb-id$="_h"] .wb-sub-v1 {
+  color: #053C3C;
+}
 .wb-sub-lbl-rem { color: #388c3f; font-weight: 600; }
 
 /* ── Sub-row data cell ── */
@@ -9400,6 +9423,12 @@ body.dark .wb-row-top .wb-data-cell { background: #122a2d; border-top-color: #3a
 body.dark .wb-sect-lbl { background: #0E2124; }
 body.dark .wb-sect-label { color: #c8e6e5; }
 body.dark .wb-sub-label { color: #c8e6e5; }
+body.dark .wb-row[data-wb-id$="_hotel"] .wb-sub-label,
+body.dark .wb-row[data-wb-id$="_hotel"] .wb-sub-v1,
+body.dark .wb-row[data-wb-id$="_htl"] .wb-sub-label,
+body.dark .wb-row[data-wb-id$="_htl"] .wb-sub-v1,
+body.dark .wb-row[data-wb-id$="_h"] .wb-sub-label,
+body.dark .wb-row[data-wb-id$="_h"] .wb-sub-v1 { color: #053C3C; }
 body.dark .wb-sub-v1 { color: #e0e4e4; }
 body.dark .wb-sub-v2 { color: #7aabad; }
 body.dark .wb-sub-lbl-rem { color: #6ee7b7; }

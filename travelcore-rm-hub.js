@@ -1373,8 +1373,8 @@ function closeCmpSelectMenu(menu) {
   _cmpMenuRestore(menu);
 }
 
-const METRIC_COLOR_TO    = '#5CEADE';
-const METRIC_COLOR_HOTEL = '#006461';
+const METRIC_COLOR_TO    = '#38AAA3';
+const METRIC_COLOR_HOTEL = '#053C3C';
 const WV_COLOR_OCC_OTHER = '#967EF3'; /* weekly occupancy — other segments (not hotel teal) */
 const WV_COLOR_ONLINE    = '#3b82f6';
 const WV_COLOR_OFFLINE   = '#f97316';
@@ -2442,50 +2442,50 @@ function renderCalMonthlySummary() {
   // ── Daily Metrics group
   moRows.push({type:'top', id:'mo_daily', label:'Daily Metrics'});
   moRows.push({type:'sect', id:'mos_occ', label:'Occupancy', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_occ_to', label:'TO', dot:'#5CEADE', parent:'mos_occ', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_occ_htl', label:'Hotel', dot:'#006461', parent:'mos_occ', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_occ_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_occ', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_occ_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_occ', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_adr', label:'ADR', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_adr_to', label:'TO', dot:'#5CEADE', parent:'mos_adr', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:'#006461', parent:'mos_adr', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_adr_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_adr', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_adr', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_rev', label:'Revenue /day', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rev_to', label:'TO', dot:'#5CEADE', parent:'mos_rev', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:'#006461', parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rev_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_rev', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_rev', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_rn', label:'RN Sold /day', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rn_to', label:'TO', dot:'#5CEADE', parent:'mos_rn', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_rn_htl', label:'Hotel', dot:'#006461', parent:'mos_rn', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rn_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_rn', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_rn_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_rn', gp:'mo_daily'});
   moRows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_revpar_to', label:'TO', dot:'#5CEADE', parent:'mos_revpar', gp:'mo_daily'});
-  moRows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#006461', parent:'mos_revpar', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_revpar_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_revpar', gp:'mo_daily'});
+  moRows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_revpar', gp:'mo_daily'});
 
   // ── Segments group
 
   // ── Other Metrics group (metric → TO / Hotel)
   moRows.push({type:'top', id:'mo_more', label:'Other Metrics'});
   moRows.push({type:'sect', id:'mos_pickup', label:'Pickup', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_pickup_to', label:'TO', dot:'#5CEADE', parent:'mos_pickup', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_pickup_htl', label:'Hotel', dot:'#006461', parent:'mos_pickup', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_pickup_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_pickup', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_pickup_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_pickup', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_los', label:'Avg LOS', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_los_to', label:'TO', dot:'#5CEADE', parent:'mos_los', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_los_htl', label:'Hotel', dot:'#006461', parent:'mos_los', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_los_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_los', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_los_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_los', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_lead', label:'Lead Time', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_lead_to', label:'TO', dot:'#5CEADE', parent:'mos_lead', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_lead_htl', label:'Hotel', dot:'#006461', parent:'mos_lead', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_lead_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_lead', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_lead_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_lead', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_avga', label:'Avg Adults', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avga_to', label:'TO', dot:'#5CEADE', parent:'mos_avga', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avga_htl', label:'Hotel', dot:'#006461', parent:'mos_avga', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avga_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_avga', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avga_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_avga', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_avgc', label:'Avg Children', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avgc_to', label:'TO', dot:'#5CEADE', parent:'mos_avgc', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_avgc_htl', label:'Hotel', dot:'#006461', parent:'mos_avgc', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avgc_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_avgc', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_avgc_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_avgc', gp:'mo_more'});
   moRows.push({type:'sect', id:'mos_totg', label:'Total Guests', parent:'mo_more'});
-  moRows.push({type:'sub', id:'mos_totg_to', label:'TO', dot:'#5CEADE', parent:'mos_totg', gp:'mo_more'});
-  moRows.push({type:'sub', id:'mos_totg_htl', label:'Hotel', dot:'#006461', parent:'mos_totg', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_totg_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_totg', gp:'mo_more'});
+  moRows.push({type:'sub', id:'mos_totg_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_totg', gp:'mo_more'});
 
   // ── Availability group
   moRows.push({type:'top', id:'mo_avail', label:'Availability'});
   moRows.push({type:'sect', id:'mos_avail_to', label:'TO', parent:'mo_avail'});
-  moRows.push({type:'sub', id:'mos_availg_rooms', label:'Avail Guaranteed', dot:'#5CEADE', parent:'mos_avail_to', gp:'mo_avail'});
+  moRows.push({type:'sub', id:'mos_availg_rooms', label:'Avail Guaranteed', dot:METRIC_COLOR_TO, parent:'mos_avail_to', gp:'mo_avail'});
   moRows.push({type:'sect', id:'mos_avail_hotel', label:'Hotel', parent:'mo_avail'});
-  moRows.push({type:'sub', id:'mos_avail_rooms', label:'Avail Rooms', dot:'#006461', parent:'mos_avail_hotel', gp:'mo_avail'});
+  moRows.push({type:'sub', id:'mos_avail_rooms', label:'Avail Rooms', dot:METRIC_COLOR_HOTEL, parent:'mos_avail_hotel', gp:'mo_avail'});
 
   // ── Business Mix group
   moRows.push({type:'top', id:'mo_biz', label:'Business Mix'});
@@ -2502,8 +2502,8 @@ function renderCalMonthlySummary() {
   // ── Meal Plans group
   moRows.push({type:'top', id:'mo_meals', label:'Meal Plans'});
   moRows.push({type:'sect', id:'mos_mpsum', label:'Summary', parent:'mo_meals'});
-  moRows.push({type:'sub', id:'mos_mpsum_to', label:'TO', dot:'#5CEADE', parent:'mos_mpsum', gp:'mo_meals'});
-  moRows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:'#006461', parent:'mos_mpsum', gp:'mo_meals'});
+  moRows.push({type:'sub', id:'mos_mpsum_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_mpsum', gp:'mo_meals'});
+  moRows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_mpsum', gp:'mo_meals'});
   moRows.push({type:'sub', id:'mos_mp_ai', label:'All Inclusive', dot:'#006461', parent:'mos_mpsum', gp:'mo_meals'});
   moRows.push({type:'sub', id:'mos_mp_bb', label:'Bed & Breakfast', dot:'#3b82f6', parent:'mos_mpsum', gp:'mo_meals'});
   moRows.push({type:'sub', id:'mos_mp_hb', label:'Half Board', dot:'#967EF3', parent:'mos_mpsum', gp:'mo_meals'});
@@ -2512,8 +2512,8 @@ function renderCalMonthlySummary() {
   // ── Business Mix group
   moRows.push({type:'top', id:'mo_biz', label:'Business Mix'});
   moRows.push({type:'sect', id:'mos_bizbar', label:'Summary', parent:'mo_biz'});
-  moRows.push({type:'sub', id:'mos_biz_to', label:'TO', dot:'#5CEADE', parent:'mos_bizbar', gp:'mo_biz'});
-  moRows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:'#006461', parent:'mos_bizbar', gp:'mo_biz'});
+  moRows.push({type:'sub', id:'mos_biz_to', label:'TO', dot:METRIC_COLOR_TO, parent:'mos_bizbar', gp:'mo_biz'});
+  moRows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_bizbar', gp:'mo_biz'});
   moRows.push({type:'sub', id:'mos_biz_dir', label:'Direct', dot:'#0284c7', parent:'mos_bizbar', gp:'mo_biz'});
   moRows.push({type:'sub', id:'mos_biz_ota', label:'OTA', dot:'#D97706', parent:'mos_bizbar', gp:'mo_biz'});
   moRows.push({type:'sub', id:'mos_biz_oth', label:'Other', dot:'#9ca3af', parent:'mos_bizbar', gp:'mo_biz'});
@@ -2524,7 +2524,7 @@ function renderCalMonthlySummary() {
   var MO_RT_CAPS  = [51,36,27,12,15,9];
   MO_RT_NAMES.forEach(function(name, i) {
     moRows.push({type:'sect', id:'moavrt'+i,       label:name,                    parent:'mo_avail', rtIdx:i});
-    moRows.push({type:'sub',  id:'moavrt'+i+'_to', label:'TO Sold',               dot:'#5CEADE', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'to'});
+    moRows.push({type:'sub',  id:'moavrt'+i+'_to', label:'TO Sold',               dot:METRIC_COLOR_TO, parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'to'});
     moRows.push({type:'sub',  id:'moavrt'+i+'_ot', label:'Other Segments',        dot:'#52d9ce', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'other'});
     moRows.push({type:'sub',  id:'moavrt'+i+'_tn', label:'Tentative Sold (Group)',dot:'#967EF3', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'tentative'});
     moRows.push({type:'sub',  id:'moavrt'+i+'_oo', label:'Out-of-Order',          dot:'#ef4444', parent:'moavrt'+i, gp:'mo_avail', rtIdx:i, rtSub:'ooo'});
@@ -5126,13 +5126,13 @@ function buildDailyBView(days, month, activeDay) {
     }
     if (wvMetricState.adr) {
       grp.g_daily.push({type:'sect', id:'adr',       label:'ADR',          parent:'g_daily'});
-      grp.g_daily.push({type:'sub',  id:'adr_t',     label:'TO',            dot:'#5CEADE', parent:'adr'});
-      grp.g_daily.push({type:'sub',  id:'adr_hotel', label:'Hotel',         dot:'#006461', parent:'adr'});
+      grp.g_daily.push({type:'sub',  id:'adr_t',     label:'TO',            dot:METRIC_COLOR_TO, parent:'adr'});
+      grp.g_daily.push({type:'sub',  id:'adr_hotel', label:'Hotel',         dot:METRIC_COLOR_HOTEL, parent:'adr'});
     }
     if (wvMetricState.revenue) {
       grp.g_daily.push({type:'sect', id:'rev',       label:'Revenue',       parent:'g_daily'});
-      grp.g_daily.push({type:'sub',  id:'rev_t',     label:'TO',            dot:'#5CEADE', parent:'rev'});
-      grp.g_daily.push({type:'sub',  id:'rev_hotel', label:'Hotel',         dot:'#006461', parent:'rev'});
+      grp.g_daily.push({type:'sub',  id:'rev_t',     label:'TO',            dot:METRIC_COLOR_TO, parent:'rev'});
+      grp.g_daily.push({type:'sub',  id:'rev_hotel', label:'Hotel',         dot:METRIC_COLOR_HOTEL, parent:'rev'});
     }
   }
 
@@ -5146,54 +5146,54 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_more.push({type:'top', id:'g_more', label:'More Metrics'});
     if (wvMetricState.dm_rnSold) {
       grp.g_more.push({type:'sect', id:'rn',       label:'RN Sold',    parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'rn_t',     label:'TO',          dot:'#5CEADE', parent:'rn'});
-      grp.g_more.push({type:'sub',  id:'rn_hotel', label:'Hotel',       dot:'#006461', parent:'rn'});
+      grp.g_more.push({type:'sub',  id:'rn_t',     label:'TO',          dot:METRIC_COLOR_TO, parent:'rn'});
+      grp.g_more.push({type:'sub',  id:'rn_hotel', label:'Hotel',       dot:METRIC_COLOR_HOTEL, parent:'rn'});
     }
     if (wvMetricState.dm_trevpar) {
       grp.g_more.push({type:'sect', id:'revpar_s',    label:'RevPAR',    parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'revpar_t',    label:'TO',        dot:'#5CEADE', parent:'revpar_s'});
-      grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:'#006461', parent:'revpar_s'});
+      grp.g_more.push({type:'sub',  id:'revpar_t',    label:'TO',        dot:METRIC_COLOR_TO, parent:'revpar_s'});
+      grp.g_more.push({type:'sub',  id:'revpar_h',    label:'Hotel',     dot:METRIC_COLOR_HOTEL, parent:'revpar_s'});
     }
     if (wvMetricState.dm_pickup && wvMetricState['dm_pickup_0'] !== false) {
       var _puDv = pickupDayValues[0] || 1;
       grp.g_more.push({type:'sect', id:'pickup_0', label:'Pickup', parent:'g_more', puIdx: 0, puDv: _puDv});
-      grp.g_more.push({type:'sub',  id:'pickup_0_t', label:'TO',    dot:'#5CEADE', parent:'pickup_0', puIdx: 0, puDv: _puDv});
-      grp.g_more.push({type:'sub',  id:'pickup_0_h', label:'Hotel', dot:'#006461', parent:'pickup_0', puIdx: 0, puDv: _puDv});
+      grp.g_more.push({type:'sub',  id:'pickup_0_t', label:'TO',    dot:METRIC_COLOR_TO, parent:'pickup_0', puIdx: 0, puDv: _puDv});
+      grp.g_more.push({type:'sub',  id:'pickup_0_h', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'pickup_0', puIdx: 0, puDv: _puDv});
     }
     if (wvMetricState.dm_avgAdults) {
       grp.g_more.push({type:'sect', id:'avga_s', label:'Average Adults', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'avga_t',    label:'TO',          dot:'#5CEADE', parent:'avga_s'});
-      grp.g_more.push({type:'sub',  id:'avga_h',    label:'Hotel',       dot:'#006461', parent:'avga_s'});
+      grp.g_more.push({type:'sub',  id:'avga_t',    label:'TO',          dot:METRIC_COLOR_TO, parent:'avga_s'});
+      grp.g_more.push({type:'sub',  id:'avga_h',    label:'Hotel',       dot:METRIC_COLOR_HOTEL, parent:'avga_s'});
     }
     if (wvMetricState.dm_avgChildren) {
       grp.g_more.push({type:'sect', id:'avgc_s', label:'Average Children', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'avgc_t',    label:'TO',            dot:'#5CEADE', parent:'avgc_s'});
-      grp.g_more.push({type:'sub',  id:'avgc_h',    label:'Hotel',         dot:'#006461', parent:'avgc_s'});
+      grp.g_more.push({type:'sub',  id:'avgc_t',    label:'TO',            dot:METRIC_COLOR_TO, parent:'avgc_s'});
+      grp.g_more.push({type:'sub',  id:'avgc_h',    label:'Hotel',         dot:METRIC_COLOR_HOTEL, parent:'avgc_s'});
     }
     if (wvMetricState.dm_totalAdults) {
       grp.g_more.push({type:'sect', id:'tota_s', label:'Total Adults', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'tota_t',    label:'TO',        dot:'#5CEADE', parent:'tota_s'});
-      grp.g_more.push({type:'sub',  id:'tota_h',    label:'Hotel',     dot:'#006461', parent:'tota_s'});
+      grp.g_more.push({type:'sub',  id:'tota_t',    label:'TO',        dot:METRIC_COLOR_TO, parent:'tota_s'});
+      grp.g_more.push({type:'sub',  id:'tota_h',    label:'Hotel',     dot:METRIC_COLOR_HOTEL, parent:'tota_s'});
     }
     if (wvMetricState.dm_totalChildren) {
       grp.g_more.push({type:'sect', id:'totc_s', label:'Total Children', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'totc_t',    label:'TO',          dot:'#5CEADE', parent:'totc_s'});
-      grp.g_more.push({type:'sub',  id:'totc_h',    label:'Hotel',       dot:'#006461', parent:'totc_s'});
+      grp.g_more.push({type:'sub',  id:'totc_t',    label:'TO',          dot:METRIC_COLOR_TO, parent:'totc_s'});
+      grp.g_more.push({type:'sub',  id:'totc_h',    label:'Hotel',       dot:METRIC_COLOR_HOTEL, parent:'totc_s'});
     }
     if (wvMetricState.dm_totalGuests) {
       grp.g_more.push({type:'sect', id:'totg_s', label:'Total Guests', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'totg_t',    label:'TO',        dot:'#5CEADE', parent:'totg_s'});
-      grp.g_more.push({type:'sub',  id:'totg_h',    label:'Hotel',     dot:'#006461', parent:'totg_s'});
+      grp.g_more.push({type:'sub',  id:'totg_t',    label:'TO',        dot:METRIC_COLOR_TO, parent:'totg_s'});
+      grp.g_more.push({type:'sub',  id:'totg_h',    label:'Hotel',     dot:METRIC_COLOR_HOTEL, parent:'totg_s'});
     }
     if (wvMetricState.dm_avgLos) {
       grp.g_more.push({type:'sect', id:'los_s', label:'Average LOS', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'los_t', label:'TO',          dot:'#5CEADE', parent:'los_s'});
-      grp.g_more.push({type:'sub',  id:'los_h', label:'Hotel',       dot:'#006461', parent:'los_s'});
+      grp.g_more.push({type:'sub',  id:'los_t', label:'TO',          dot:METRIC_COLOR_TO, parent:'los_s'});
+      grp.g_more.push({type:'sub',  id:'los_h', label:'Hotel',       dot:METRIC_COLOR_HOTEL, parent:'los_s'});
     }
     if (wvMetricState.dm_avgLeadTime) {
       grp.g_more.push({type:'sect', id:'lead_s', label:'Lead Time', parent:'g_more'});
-      grp.g_more.push({type:'sub',  id:'lead_t', label:'TO',        dot:'#5CEADE', parent:'lead_s'});
-      grp.g_more.push({type:'sub',  id:'lead_h', label:'Hotel',     dot:'#006461', parent:'lead_s'});
+      grp.g_more.push({type:'sub',  id:'lead_t', label:'TO',        dot:METRIC_COLOR_TO, parent:'lead_s'});
+      grp.g_more.push({type:'sub',  id:'lead_h', label:'Hotel',     dot:METRIC_COLOR_HOTEL, parent:'lead_s'});
     }
     if (wvMetricState.dm_availRooms) grp.g_more.push({type:'sect', id:'avail_s',  label:'Avail Rooms', parent:'g_more'});
     if (wvMetricState.dm_availGuar)  grp.g_more.push({type:'sect', id:'availg_s', label:'Avail Guar.', parent:'g_more'});
@@ -5210,8 +5210,8 @@ function buildDailyBView(days, month, activeDay) {
     ];
     _mpPlans.forEach(function(p) {
       grp.g_meals.push({type:'sect', id:'mp_'+p.key,       label:p.label, parent:'g_meals', mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_t',  label:'TO',    dot:'#5CEADE', parent:'mp_'+p.key, mpKey:p.key});
-      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_h',  label:'Hotel', dot:'#006461', parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_t',  label:'TO',    dot:METRIC_COLOR_TO, parent:'mp_'+p.key, mpKey:p.key});
+      grp.g_meals.push({type:'sub',  id:'mp_'+p.key+'_h',  label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mp_'+p.key, mpKey:p.key});
     });
     grp.g_meals.push({type:'sect', id:'mp_sum',  label:'Summary',         parent:'g_meals'});
   }
@@ -5220,7 +5220,7 @@ function buildDailyBView(days, month, activeDay) {
   if (wvMetricState.bizMix) {
     grp.g_biz.push({type:'top',  id:'g_biz',    label:'Business Mix'});
     grp.g_biz.push({type:'sect', id:'biz',       label:'Business Mix', parent:'g_biz'});
-    grp.g_biz.push({type:'sub',  id:'biz_to',    label:'TO',          dot:'#5CEADE', parent:'biz'});
+    grp.g_biz.push({type:'sub',  id:'biz_to',    label:'TO',          dot:METRIC_COLOR_TO, parent:'biz'});
     grp.g_biz.push({type:'sub',  id:'biz_dir',   label:'Direct',      dot:'#52d9ce', parent:'biz'});
     grp.g_biz.push({type:'sub',  id:'biz_ota',   label:'OTA',         dot:'#D97706', parent:'biz'});
     grp.g_biz.push({type:'sub',  id:'biz_other', label:'Other',       dot:'#9ca3af', parent:'biz'});
@@ -5231,7 +5231,7 @@ function buildDailyBView(days, month, activeDay) {
     grp.g_avail.push({type:'top', id:'g_avail', label:'Room Availability'});
     RT_NAMES.forEach(function(name, i) {
       grp.g_avail.push({type:'sect', id:'avrt'+i,       label:name,        parent:'g_avail', rtIdx:i});
-      grp.g_avail.push({type:'sub',  id:'avrt'+i+'_to', label:'TO Sold',   dot:'#5CEADE', parent:'avrt'+i, rtIdx:i, rtSub:'to'});
+      grp.g_avail.push({type:'sub',  id:'avrt'+i+'_to', label:'TO Sold',   dot:METRIC_COLOR_TO, parent:'avrt'+i, rtIdx:i, rtSub:'to'});
       grp.g_avail.push({type:'sub',  id:'avrt'+i+'_ot', label:'Other Segments', dot:'#52d9ce', parent:'avrt'+i, rtIdx:i, rtSub:'other'});
       grp.g_avail.push({type:'sub',  id:'avrt'+i+'_tn', label:'Tentative Sold (Group)',    dot:'#967EF3', parent:'avrt'+i, rtIdx:i, rtSub:'tentative'});
       grp.g_avail.push({type:'sub',  id:'avrt'+i+'_oo', label:'Out-of-Order',             dot:'#ef4444', parent:'avrt'+i, rtIdx:i, rtSub:'ooo'});
@@ -6698,17 +6698,17 @@ window._buildWv7dSummaryHtml = function(d) {
 
   rows.push({type:'top', id:'wv7d_daily', label:'Daily Metrics'});
   rows.push({type:'sect', id:'mos_occ', label:'Occupancy', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_occ_to',   label:'TO',    dot:'#5CEADE', parent:'mos_occ', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_occ_htl',  label:'Hotel', dot:'#006461', parent:'mos_occ', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_occ_to',   label:'TO',    dot:METRIC_COLOR_TO, parent:'mos_occ', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_occ_htl',  label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_occ', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_adr', label:'ADR', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_adr_to',  label:'TO',    dot:'#5CEADE', parent:'mos_adr', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:'#006461', parent:'mos_adr', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_adr_to',  label:'TO',    dot:METRIC_COLOR_TO, parent:'mos_adr', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_adr_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_adr', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_rev', label:'Revenue', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_rev_to',  label:'TO',    dot:'#5CEADE', parent:'mos_rev', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:'#006461', parent:'mos_rev', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_rev_to',  label:'TO',    dot:METRIC_COLOR_TO, parent:'mos_rev', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_rev_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_rev', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_revpar', label:'RevPAR', parent:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_revpar_to',  label:'TO',    dot:'#5CEADE', parent:'mos_revpar', gp:'wv7d_daily'});
-  rows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:'#006461', parent:'mos_revpar', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_revpar_to',  label:'TO',    dot:METRIC_COLOR_TO, parent:'mos_revpar', gp:'wv7d_daily'});
+  rows.push({type:'sub', id:'mos_revpar_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_revpar', gp:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_pickup', label:'Pickup', parent:'wv7d_daily'});
   rows.push({type:'sect', id:'mos_onoff', label:'Online / Offline', parent:'wv7d_daily'});
   rows.push({type:'sub', id:'mos_onoff_on',  label:'Online',  dot:'#3b82f6', parent:'mos_onoff', gp:'wv7d_daily'});
@@ -6729,8 +6729,8 @@ window._buildWv7dSummaryHtml = function(d) {
 
   rows.push({type:'top', id:'wv7d_meals', label:'Meal Plans'});
   rows.push({type:'sect', id:'mos_mpsum', label:'Summary', parent:'wv7d_meals'});
-  rows.push({type:'sub', id:'mos_mpsum_to',  label:'TO',    dot:'#5CEADE', parent:'mos_mpsum', gp:'wv7d_meals'});
-  rows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:'#006461', parent:'mos_mpsum', gp:'wv7d_meals'});
+  rows.push({type:'sub', id:'mos_mpsum_to',  label:'TO',    dot:METRIC_COLOR_TO, parent:'mos_mpsum', gp:'wv7d_meals'});
+  rows.push({type:'sub', id:'mos_mpsum_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_mpsum', gp:'wv7d_meals'});
   rows.push({type:'sub', id:'mos_mp_ai', label:'All Inclusive',  dot:'#006461', parent:'mos_mpsum', gp:'wv7d_meals'});
   rows.push({type:'sub', id:'mos_mp_bb', label:'Bed & Breakfast',dot:'#3b82f6', parent:'mos_mpsum', gp:'wv7d_meals'});
   rows.push({type:'sub', id:'mos_mp_hb', label:'Half Board',     dot:'#967EF3', parent:'mos_mpsum', gp:'wv7d_meals'});
@@ -6738,8 +6738,8 @@ window._buildWv7dSummaryHtml = function(d) {
 
   rows.push({type:'top', id:'wv7d_biz', label:'Business Mix'});
   rows.push({type:'sect', id:'mos_bizbar', label:'Summary', parent:'wv7d_biz'});
-  rows.push({type:'sub', id:'mos_biz_to',  label:'TO',     dot:'#5CEADE', parent:'mos_bizbar', gp:'wv7d_biz'});
-  rows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:'#006461', parent:'mos_bizbar', gp:'wv7d_biz'});
+  rows.push({type:'sub', id:'mos_biz_to',  label:'TO',     dot:METRIC_COLOR_TO, parent:'mos_bizbar', gp:'wv7d_biz'});
+  rows.push({type:'sub', id:'mos_bizbar_htl', label:'Hotel', dot:METRIC_COLOR_HOTEL, parent:'mos_bizbar', gp:'wv7d_biz'});
   rows.push({type:'sub', id:'mos_biz_dir', label:'Direct', dot:'#0284c7', parent:'mos_bizbar', gp:'wv7d_biz'});
   rows.push({type:'sub', id:'mos_biz_ota', label:'OTA',    dot:'#D97706', parent:'mos_bizbar', gp:'wv7d_biz'});
   rows.push({type:'sub', id:'mos_biz_oth', label:'Other',  dot:'#9ca3af', parent:'mos_bizbar', gp:'wv7d_biz'});
@@ -9159,7 +9159,7 @@ function buildWeekGrid(month, weekStart, activeDay) {
                 +'<div class="wv-dm-bar-fill" style="width:'+_puHPct+'%;background:#006461;opacity:0.2"></div>'
                 +'<div class="wv-dm-bar-fill" style="width:'+_puTPct+'%;background:#006461"></div>'
                 +'</div>';
-              var _puBd = '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#006461;opacity:.45"></span><span class="wv-occ-br-lbl">Hotel</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">+'+_puHtlP+'</span></div></div>'
+              var _puBd = '<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:'+METRIC_COLOR_HOTEL+';opacity:.45"></span><span class="wv-occ-br-lbl">Hotel</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms">+'+_puHtlP+'</span></div></div>'
                 +'<div class="wv-occ-br-row"><div class="wv-occ-br-left"><span class="wv-occ-br-dot" style="background:#006461"></span><span class="wv-occ-br-lbl" style="color:#006461">TO</span></div><div class="wv-occ-br-right"><span class="wv-occ-br-rms" style="color:#006461">+'+_puToP+'</span></div></div>';
               return '<div>'
                 +'<div class="wv-occ-bar-labels"><span class="wv-q-label">Pickup</span>'
