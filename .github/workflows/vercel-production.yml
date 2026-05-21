@@ -1,0 +1,48 @@
+name: Deploy to Vercel Production
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: vercel-production-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_ORG_ID: team_rM8Qzmwu72YZsct6a0yrcWtE
+  VERCEL_PROJECT_ID: prj_MNRkdJJH9xTlb6vvDIeFHyxlVKVv
+  PRODUCTION_URL: https://tour-operator-final.vercel.app/travelcore-rm-hub.html
+
+jobs:
+  deploy:
+    name: Deploy to tour-operator-final
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to production
+        run: vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "Deployed to ${PRODUCTION_URL}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
+          echo "Ref: ${GITHUB_REF}"
