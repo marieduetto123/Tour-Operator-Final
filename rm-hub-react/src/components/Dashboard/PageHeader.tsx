@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Popover from '@mui/material/Popover';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFnsV3 } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import Button from 'components/Button/Button';
 import { format } from 'date-fns';
 
@@ -85,7 +85,7 @@ export default function PageHeader({ title }: Props) {
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
           <div className="p-3">
-            <LocalizationProvider dateAdapter={AdapterDateFnsV3}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
               <div className="flex gap-4">
                 <DateCalendar value={draftStart} onChange={(d) => d && setDraftStart(d)} />
                 <DateCalendar value={draftEnd} onChange={(d) => d && setDraftEnd(d)} />
