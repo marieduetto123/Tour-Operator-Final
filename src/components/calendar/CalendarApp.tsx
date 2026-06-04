@@ -5,7 +5,6 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CompareMode } from '@/lib/calendar/metrics';
 import { ALL_MONTHS, type MetricKey } from '@/data/calendarData';
@@ -30,8 +29,10 @@ import { CalendarTabBar, type CalendarViewTab } from './CalendarTabBar';
 import { CloseOutModal } from './CloseOutModal';
 import { DayDetailModal } from './DayDetailModal';
 import { HeatmapModal } from './HeatmapModal';
+import { MonthRangePicker } from './MonthRangePicker';
 import { SelectDatesFooter } from './SelectDatesFooter';
 import { WeeklyView } from './WeeklyView';
+import DateRangeIcon from '@mui/icons-material/DateRange';
 
 const DEFAULT_METRICS: MetricKey[] = ['hocc', 'tocc'];
 
@@ -63,7 +64,6 @@ export function CalendarApp() {
     applyFilters,
     resetFilters,
     activeFilterCount,
-    filters,
     heatmap,
     heatmapDraft,
     setHeatmapDraft,
@@ -82,6 +82,7 @@ export function CalendarApp() {
   const [rangeEndIdx, setRangeEndIdx] = useState(1);
   const [displayView, setDisplayView] = useState(2);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [dateAnchor, setDateAnchor] = useState<HTMLElement | null>(null);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedDays, setSelectedDays] = useState<Set<string>>(() => new Set());
   const [appliedMetrics, setAppliedMetrics] = useState<MetricKey[]>(DEFAULT_METRICS);
@@ -113,7 +114,7 @@ export function CalendarApp() {
     () => ALL_MONTHS.slice(startIdx, startIdx + displayView),
     [startIdx, displayView],
   );
-  const navLabel = rangeLabel(startIdx, displayView);
+  void rangeLabel;
   const dateLabel = fullDateRangeLabel(rangeStartIdx, rangeEndIdx);
   const hmVars = heatmapCssVars(heatmap);
 
@@ -256,6 +257,37 @@ export function CalendarApp() {
 
   const weekNavLabel = weekRangeLabel(getWeekDays(2026, weekAnchor.month, weekAnchor.day));
 
+  const datePickerTrigger = (
+    <Box
+      component="button"
+      type="button"
+      ref={setDateAnchor}
+      onClick={(e) => {
+        e.stopPropagation();
+        setDatePickerOpen((o) => !o);
+      }}
+      sx={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 1,
+        height: 32,
+        px: 1.5,
+        bgcolor: 'transparent',
+        border: 'none',
+        borderRadius: '4px',
+        fontFamily: 'inherit',
+        fontSize: 14,
+        color: '#1c1c1c',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        '&:hover': { bgcolor: '#f5f5f5' },
+      }}
+    >
+      <DateRangeIcon sx={{ fontSize: 18, color: '#4f5b60' }} />
+      <span>{viewMode === 'monthly' ? dateLabel : weekNavLabel}</span>
+    </Box>
+  );
+
   const dateShuffler = viewMode === 'monthly' ? (
     <Box className="wv-date-shuffler">
       <IconButton
@@ -266,9 +298,7 @@ export function CalendarApp() {
       >
         <ChevronLeftIcon />
       </IconButton>
-      <Typography component="span" className="wv-range">
-        {navLabel}
-      </Typography>
+      {datePickerTrigger}
       <IconButton
         className="wv-nav-btn"
         onClick={handleNext}
@@ -283,17 +313,7 @@ export function CalendarApp() {
       <IconButton className="wv-nav-btn" onClick={() => shiftWeek(-1)} aria-label="Previous day" size="small">
         <ChevronLeftIcon />
       </IconButton>
-      <Typography component="span" className="wv-range">
-        {weekNavLabel}
-        {!filters.operator.includes('all') && filters.operator.length > 0 && (
-          <Typography
-            component="span"
-            sx={{ ml: 1, fontSize: 12, fontWeight: 400, color: 'primary.main' }}
-          >
-            · {filters.operator.join(', ')}
-          </Typography>
-        )}
-      </Typography>
+      {datePickerTrigger}
       <IconButton className="wv-nav-btn" onClick={() => shiftWeek(1)} aria-label="Next day" size="small">
         <ChevronRightIcon />
       </IconButton>
@@ -380,16 +400,21 @@ export function CalendarApp() {
           }}
           heatmapActive={heatmap.enabled}
           heatmapType={heatmap.type}
-          dateLabel={dateLabel}
-          datePickerOpen={datePickerOpen}
-          onDatePickerToggle={() => setDatePickerOpen((o) => !o)}
-          rangeStartIdx={rangeStartIdx}
-          rangeEndIdx={rangeEndIdx}
-          onRangeApply={handleRangeApply}
-          onDatePickerClose={() => setDatePickerOpen(false)}
         />
 
         <CalendarTabBar value={viewMode} onChange={handleTabChange} trailing={tabBarTrailing} />
+        <MonthRangePicker
+          open={datePickerOpen}
+          anchorEl={dateAnchor}
+          appliedStartIdx={rangeStartIdx}
+          appliedEndIdx={rangeEndIdx}
+          onClose={() => setDatePickerOpen(false)}
+          onApply={(start, end) => {
+            handleRangeApply(start, end);
+            setDatePickerOpen(false);
+          }}
+          onCancel={() => setDatePickerOpen(false)}
+        />
 
         {viewMode === 'monthly' ? (
           <Box

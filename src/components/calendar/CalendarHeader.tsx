@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import DateRangeIcon from '@mui/icons-material/DateRange';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -12,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import { CellMetricsPanel } from './CellMetricsPanel';
 import { ComparePanel } from './ComparePanel';
 import { FiltersDropdown } from './FiltersDropdown';
-import { MonthRangePicker } from './MonthRangePicker';
 import type { FilterGroupId, FilterState } from '@/data/filterOptions';
 import type { MetricKey } from '@/data/calendarData';
 import type { SegmentKey } from '@/data/metricTree';
@@ -50,13 +48,6 @@ type Props = {
   onHeatmapOpen: () => void;
   heatmapActive: boolean;
   heatmapType: HeatmapType | '';
-  dateLabel: string;
-  datePickerOpen: boolean;
-  onDatePickerToggle: () => void;
-  rangeStartIdx: number;
-  rangeEndIdx: number;
-  onRangeApply: (startIdx: number, endIdx: number) => void;
-  onDatePickerClose: () => void;
 };
 
 export function CalendarHeader({
@@ -89,18 +80,10 @@ export function CalendarHeader({
   onHeatmapOpen,
   heatmapActive,
   heatmapType,
-  dateLabel,
-  datePickerOpen,
-  onDatePickerToggle,
-  rangeStartIdx,
-  rangeEndIdx,
-  onRangeApply,
-  onDatePickerClose,
 }: Props) {
   const metricsRef = useRef<HTMLButtonElement>(null);
   const filtersRef = useRef<HTMLButtonElement>(null);
   const compareRef = useRef<HTMLButtonElement>(null);
-  const [dateAnchor, setDateAnchor] = useState<HTMLElement | null>(null);
   const [compareOpen, setCompareOpen] = useState(false);
 
   const compareNames: Record<string, string> = {
@@ -217,32 +200,6 @@ export function CalendarHeader({
           {heatmapActive && heatmapType ? heatmapTypeLabel(heatmapType) : 'Heatmap'}
         </Button>
 
-        <Button
-          ref={setDateAnchor}
-          className="drp-trigger"
-          color="inherit"
-          startIcon={<DateRangeIcon sx={{ fontSize: 16 }} />}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDatePickerToggle();
-          }}
-        >
-          {dateLabel}
-        </Button>
-        <MonthRangePicker
-          open={datePickerOpen}
-          anchorEl={dateAnchor}
-          appliedStartIdx={rangeStartIdx}
-          appliedEndIdx={rangeEndIdx}
-          onClose={onDatePickerClose}
-          onApply={(start, end) => {
-            onRangeApply(start, end);
-            onDatePickerClose();
-          }}
-          onCancel={() => {
-            onDatePickerClose();
-          }}
-        />
       </Box>
     </Box>
   );
