@@ -24,11 +24,16 @@ type Props = {
   month: number;
   startDay: number;
   compare: CompareMode;
+  compareModes: CompareMode[];
   collapsed: Record<string, boolean>;
   onCollapsedChange: Dispatch<SetStateAction<Record<string, boolean>>>;
+  selectMode: boolean;
+  selectedDays: Set<string>;
+  onSelectDay: (iso: string) => void;
 };
 
-export function WeekGrid({ month, startDay, compare, collapsed, onCollapsedChange }: Props) {
+export function WeekGrid({ month, startDay, compare: _compare, compareModes, collapsed, onCollapsedChange, selectMode, selectedDays, onSelectDay }: Props) {
+  void _compare;
   const { isLocked, isPartial } = useCalendar();
   const rows = useMemo(() => buildWbRows(), []);
   const rowMap = useMemo(() => new Map(rows.map((r) => [r.id, r])), [rows]);
@@ -61,6 +66,8 @@ export function WeekGrid({ month, startDay, compare, collapsed, onCollapsedChang
           const dba = Math.round((dt.getTime() - new Date(2026, 2, 9).getTime()) / 86400000);
           const dbaStr = dba === 0 ? 'Today' : dba > 0 ? `${dba} DBA` : '';
           const hasEvent = EVENT_DAYS.has(key);
+          const iso = `${dv.year}-${String(dv.month).padStart(2, '0')}-${String(dv.day).padStart(2, '0')}`;
+          const isSelected = selectedDays.has(iso);
 
           return (
             <div
@@ -70,15 +77,29 @@ export function WeekGrid({ month, startDay, compare, collapsed, onCollapsedChang
                 'wb-hdr-cell',
                 isActive ? 'wb-hdr-active' : '',
                 isToday ? 'wb-hdr-today' : '',
+                selectMode ? 'wb-hdr-selectable' : '',
+                isSelected ? 'wb-hdr-selected' : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
+              onClick={selectMode ? () => onSelectDay(iso) : undefined}
+              style={selectMode ? { cursor: 'pointer' } : undefined}
             >
               <Checkbox
                 size="small"
                 className="wb-hdr-check"
-                sx={{ p: 0, color: 'rgba(255,255,255,0.7)', '&.Mui-checked': { color: '#c4ff45' } }}
-                onClick={(e) => e.stopPropagation()}
+                sx={{
+                  p: 0,
+                  color: 'rgba(255,255,255,0.7)',
+                  '&.Mui-checked': { color: '#c4ff45' },
+                  display: selectMode ? 'inline-flex' : 'none',
+                }}
+                checked={isSelected}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectDay(iso);
+                }}
+                onChange={() => {}}
               />
               <span className="wb-hdr-dow">{dow}</span>
               <span className="wb-hdr-date">
@@ -160,9 +181,9 @@ export function WeekGrid({ month, startDay, compare, collapsed, onCollapsedChang
               if (row.type === 'top') {
                 content = renderTopCell(row, d, isCollapsed, locked, partial);
               } else if (row.type === 'sect') {
-                content = renderSectCell(row, d, compare);
+                content = renderSectCell(row, d, compareModes);
               } else {
-                content = renderSubCell(row, d, locked, partial, compare);
+                content = renderSubCell(row, d, locked, partial, compareModes);
               }
 
               return (

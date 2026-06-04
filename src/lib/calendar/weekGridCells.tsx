@@ -62,14 +62,14 @@ function barTrack(segments: { pct: number; color: string }[], markerPct?: number
 function SectionCell({
   primary,
   pills,
-  compare,
+  compareModes,
   segments,
   markerPct,
   footer,
 }: {
   primary: ReactNode;
   pills: { key: string; label: string; curr: number; ref: number; isPercent?: boolean }[];
-  compare: CompareMode;
+  compareModes: CompareMode[];
   segments: { pct: number; color: string }[];
   markerPct?: number | null;
   footer?: ReactNode;
@@ -85,7 +85,7 @@ function SectionCell({
           {primary != null && primary !== '' ? primary : '\u00a0'}
         </span>
         <div className="wb-pills-slot">
-          <ComparePills pills={pills} compare={compare} />
+          <ComparePills pills={pills} compareModes={compareModes} />
         </div>
       </div>
       {segments.length > 0 ? (
@@ -100,14 +100,16 @@ function SubCell({
   primary,
   secondary,
   chips,
-  compare,
+  compareModes,
   isRem,
+  barPct,
 }: {
   primary: string;
   secondary?: string;
   chips: { label: string; ref: number | string }[];
-  compare: CompareMode;
+  compareModes: CompareMode[];
   isRem?: boolean;
+  barPct?: number;
 }) {
   return (
     <div className={`wb-sub-cell-inner${isRem ? ' wb-sub-cell-inner--rem' : ''}`}>
@@ -115,15 +117,27 @@ function SubCell({
         <span className="wb-sub-primary">{primary}</span>
         {secondary ? <span className="wb-sub-secondary">{secondary}</span> : null}
       </div>
+      {barPct != null ? (
+        <div className="wb-sub-bar-track">
+          <div
+            className="wb-sub-bar-fill"
+            style={{ width: `${Math.max(0, Math.min(100, barPct))}%` }}
+          />
+        </div>
+      ) : null}
       {chips.length > 0 ? (
         <div className="wb-sub-chips-line">
           {chips.map((c) => (
-            <SubCompareChip key={c.label} label={c.label} refVal={c.ref} compare={compare} />
+            <SubCompareChip key={c.label} label={c.label} refVal={c.ref} compareModes={compareModes} />
           ))}
         </div>
       ) : null}
     </div>
   );
+}
+
+function pctOfCap(rn: number) {
+  return (rn / HOTEL_CAPACITY) * 100;
 }
 
 export function renderTopCell(
@@ -143,7 +157,7 @@ export function renderTopCell(
   return <span className="wb-top-summary wb-top-summary--open">Open</span>;
 }
 
-export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode) {
+export function renderSectCell(row: WbRow, d: WeekDayData, compareModes: CompareMode[]) {
   const stly = { key: 'stly', label: 'STLY' };
   const ly = { key: 'ly', label: 'LY' };
   const fc = { key: 'fcst', label: 'Fc' };
@@ -152,21 +166,21 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'occ':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`${d.hotel}%`}
           pills={[
             { ...stly, curr: d.hotel, ref: d.sdlyH, isPercent: true },
             { ...ly, curr: d.hotel, ref: d.lyH, isPercent: true },
             { ...fc, curr: d.hotel, ref: d.fcstH, isPercent: true },
           ]}
-          markerPct={compare !== 'none' ? d.sdlyH : null}
+          markerPct={compareModes.length > 0 ? d.sdlyH : null}
           segments={toOtherBar(d)}
         />
       );
     case 'onoff':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`${d.onlinePct}%`}
           pills={[
             { ...stly, curr: d.onlinePct, ref: Math.max(20, d.onlinePct - 4), isPercent: true },
@@ -182,21 +196,21 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'adr':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`$${d.toAdr}`}
           pills={[
             { ...stly, curr: d.toAdr, ref: d.sdlyA },
             { ...ly, curr: d.toAdr, ref: d.lyA },
             { ...fc, curr: d.toAdr, ref: d.fcstA },
           ]}
-          markerPct={compare !== 'none' ? d.sdlyH : null}
+          markerPct={compareModes.length > 0 ? d.sdlyH : null}
           segments={toOtherBar(d)}
         />
       );
     case 'rev':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={d.fR(d.toRev)}
           pills={[
             { ...stly, curr: d.toRev, ref: d.sdlyR },
@@ -209,7 +223,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'rn':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={String(d.toRn)}
           pills={[
             { ...stly, curr: d.toRn, ref: d.sdlyRn },
@@ -225,7 +239,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'revpar_s':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`$${d.hRevpar}`}
           pills={[
             { ...stly, curr: d.hRevpar, ref: d.sdlyRevpar },
@@ -238,7 +252,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'pickup_0':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`+${d.pickup}`}
           pills={[
             { ...stly, curr: d.pickup, ref: Math.max(0, d.hPickup - 2) },
@@ -251,7 +265,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'avga_s':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={d.avgA}
           pills={[]}
           segments={toOtherBar(d)}
@@ -260,7 +274,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'los_s':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={d.avgLos}
           pills={[]}
           segments={toOtherBar(d)}
@@ -269,7 +283,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'lead_s':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={d.avgLead}
           pills={[]}
           segments={toOtherBar(d)}
@@ -278,7 +292,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'avail_s':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`${d.availRooms} rm`}
           pills={[]}
           segments={toOtherBar(d)}
@@ -287,7 +301,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'availg_s':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary={`${d.availGuar} rm`}
           pills={[]}
           segments={toOtherBar(d)}
@@ -296,7 +310,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
     case 'biz':
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary=""
           pills={[]}
           segments={[
@@ -319,7 +333,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
       const aiSt = Math.round(d.hnRn * (d.aiPct / 100) * gpr);
       return (
         <SectionCell
-          compare={compare}
+          compareModes={compareModes}
           primary=""
           pills={[]}
           segments={[
@@ -343,7 +357,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
         const hRm = Math.round(d.hnRn * (pct / 100));
         return (
           <SectionCell
-            compare={compare}
+            compareModes={compareModes}
             primary={`${pct}%`}
             pills={[]}
             segments={toHotelRnBar(toRm, hRm)}
@@ -359,7 +373,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
         const avRm = Math.max(0, inv - sold);
         return (
           <SectionCell
-            compare={compare}
+            compareModes={compareModes}
             primary={avRm <= 0 ? '0 available' : `${avRm} avail`}
             pills={[]}
             segments={[
@@ -373,7 +387,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
         const toRate = d.adr - 15 + Math.abs((d.dm * (row.toIdx + 3) + d.dd * (row.toIdx + 5)) % 50);
         return (
           <SectionCell
-            compare={compare}
+            compareModes={compareModes}
             primary={`$${toRate}`}
             pills={[]}
             segments={toOtherBar(d)}
@@ -384,7 +398,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
         const baseRate = d.adr + 8;
         return (
           <SectionCell
-            compare={compare}
+            compareModes={compareModes}
             primary={`$${baseRate}`}
             pills={[]}
             segments={toOtherBar(d)}
@@ -395,7 +409,7 @@ export function renderSectCell(row: WbRow, d: WeekDayData, compare: CompareMode)
   }
 }
 
-export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isPartial: boolean, compare: CompareMode) {
+export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isPartial: boolean, compareModes: CompareMode[]) {
   const chips = [
     { label: 'STLY', ref: 20 },
     { label: 'LY', ref: 18 },
@@ -405,18 +419,18 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
   switch (row.id) {
     case 'co_rooms':
       return (
-        <SubCell primary={isLocked ? 'All' : isPartial ? 'Partial' : '—'} chips={[]} compare={compare} />
+        <SubCell primary={isLocked ? 'All' : isPartial ? 'Partial' : '—'} chips={[]} compareModes={compareModes} />
       );
     case 'co_boards':
       return (
-        <SubCell primary={isLocked ? 'All' : isPartial ? 'BB, HB' : '—'} chips={[]} compare={compare} />
+        <SubCell primary={isLocked ? 'All' : isPartial ? 'BB, HB' : '—'} chips={[]} compareModes={compareModes} />
       );
     case 'co_tos':
       return (
         <SubCell
           primary={isLocked ? 'All' : isPartial ? 'Sunshine Tours' : '—'}
           chips={[]}
-          compare={compare}
+          compareModes={compareModes}
         />
       );
     case 'occ_tdh':
@@ -425,7 +439,8 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
           primary={`${d.toRn} RN`}
           secondary={`${d.to}%`}
           chips={[{ label: 'STLY', ref: d.sdlyRn }]}
-          compare={compare}
+          compareModes={compareModes}
+          barPct={d.to}
         />
       );
     case 'occ_other':
@@ -434,7 +449,8 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
           primary={`${d.otherRms} RN`}
           secondary={`${d.otherPct}%`}
           chips={[{ label: 'STLY', ref: d.sdlyRn }]}
-          compare={compare}
+          compareModes={compareModes}
+          barPct={d.otherPct}
         />
       );
     case 'occ_rem':
@@ -443,61 +459,62 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
           primary={`${d.freeRms} RN`}
           secondary={`${Math.max(0, 100 - d.hotel)}%`}
           chips={[{ label: 'STLY', ref: 20 }]}
-          compare={compare}
+          compareModes={compareModes}
           isRem
+          barPct={Math.max(0, 100 - d.hotel)}
         />
       );
     case 'onoff_on':
-      return <SubCell primary={`${d.onlinePct}%`} chips={chips} compare={compare} />;
+      return <SubCell primary={`${d.onlinePct}%`} chips={chips} compareModes={compareModes} barPct={d.onlinePct} />;
     case 'onoff_off':
-      return <SubCell primary={`${100 - d.onlinePct}%`} chips={chips} compare={compare} />;
+      return <SubCell primary={`${100 - d.onlinePct}%`} chips={chips} compareModes={compareModes} barPct={100 - d.onlinePct} />;
     case 'adr_t':
-      return <SubCell primary={`$${d.toAdr}`} chips={[{ label: 'STLY', ref: d.sdlyA }]} compare={compare} />;
+      return <SubCell primary={`$${d.toAdr}`} chips={[{ label: 'STLY', ref: d.sdlyA }]} compareModes={compareModes} barPct={Math.min(100, d.toAdr / 3)} />;
     case 'adr_hotel':
-      return <SubCell primary={`$${d.adr}`} chips={[{ label: 'STLY', ref: d.sdlyA }]} compare={compare} />;
+      return <SubCell primary={`$${d.adr}`} chips={[{ label: 'STLY', ref: d.sdlyA }]} compareModes={compareModes} barPct={Math.min(100, d.adr / 3)} />;
     case 'rev_t':
-      return <SubCell primary={d.fR(d.toRev)} chips={[{ label: 'STLY', ref: d.fR(d.sdlyR) }]} compare={compare} />;
+      return <SubCell primary={d.fR(d.toRev)} chips={[{ label: 'STLY', ref: d.fR(d.sdlyR) }]} compareModes={compareModes} barPct={Math.min(100, d.toRev / 1000)} />;
     case 'rev_hotel':
-      return <SubCell primary={d.fR(d.hnRev)} chips={[{ label: 'STLY', ref: d.fR(d.lyR) }]} compare={compare} />;
+      return <SubCell primary={d.fR(d.hnRev)} chips={[{ label: 'STLY', ref: d.fR(d.lyR) }]} compareModes={compareModes} barPct={Math.min(100, d.hnRev / 1000)} />;
     case 'rn_t':
-      return <SubCell primary={`${d.toRn} RN`} chips={[{ label: 'STLY', ref: d.sdlyRn }]} compare={compare} />;
+      return <SubCell primary={`${d.toRn} RN`} chips={[{ label: 'STLY', ref: d.sdlyRn }]} compareModes={compareModes} barPct={pctOfCap(d.toRn)} />;
     case 'rn_hotel':
-      return <SubCell primary={`${d.hnRn} RN`} chips={[{ label: 'STLY', ref: Math.round(d.lyRn) }]} compare={compare} />;
+      return <SubCell primary={`${d.hnRn} RN`} chips={[{ label: 'STLY', ref: Math.round(d.lyRn) }]} compareModes={compareModes} barPct={pctOfCap(d.hnRn)} />;
     case 'revpar_t':
-      return <SubCell primary={`$${d.toRevpar}`} chips={[{ label: 'STLY', ref: d.sdlyRevpar }]} compare={compare} />;
+      return <SubCell primary={`$${d.toRevpar}`} chips={[{ label: 'STLY', ref: d.sdlyRevpar }]} compareModes={compareModes} barPct={Math.min(100, d.toRevpar / 3)} />;
     case 'revpar_h':
-      return <SubCell primary={`$${d.hRevpar}`} chips={[{ label: 'STLY', ref: d.lyRevpar }]} compare={compare} />;
+      return <SubCell primary={`$${d.hRevpar}`} chips={[{ label: 'STLY', ref: d.lyRevpar }]} compareModes={compareModes} barPct={Math.min(100, d.hRevpar / 3)} />;
     case 'pickup_0_t':
-      return <SubCell primary={`+${d.pickup}`} chips={chips} compare={compare} />;
+      return <SubCell primary={`+${d.pickup}`} chips={chips} compareModes={compareModes} barPct={Math.min(100, d.pickup * 5)} />;
     case 'pickup_0_h':
-      return <SubCell primary={`+${d.hPickup}`} chips={chips} compare={compare} />;
+      return <SubCell primary={`+${d.hPickup}`} chips={chips} compareModes={compareModes} barPct={Math.min(100, d.hPickup * 5)} />;
     case 'avga_t':
-      return <SubCell primary={d.avgA} chips={chips} compare={compare} />;
+      return <SubCell primary={d.avgA} chips={chips} compareModes={compareModes} />;
     case 'avga_h':
-      return <SubCell primary={d.hAvgA} chips={chips} compare={compare} />;
+      return <SubCell primary={d.hAvgA} chips={chips} compareModes={compareModes} />;
     case 'los_t':
-      return <SubCell primary={d.avgLos} chips={chips} compare={compare} />;
+      return <SubCell primary={d.avgLos} chips={chips} compareModes={compareModes} />;
     case 'los_h':
-      return <SubCell primary={d.hLos} chips={chips} compare={compare} />;
+      return <SubCell primary={d.hLos} chips={chips} compareModes={compareModes} />;
     case 'lead_t':
-      return <SubCell primary={d.avgLead} chips={chips} compare={compare} />;
+      return <SubCell primary={d.avgLead} chips={chips} compareModes={compareModes} />;
     case 'lead_h':
-      return <SubCell primary={d.hLead} chips={chips} compare={compare} />;
+      return <SubCell primary={d.hLead} chips={chips} compareModes={compareModes} />;
     case 'biz_to':
-      return <SubCell primary={`${d.toMix}%`} chips={chips} compare={compare} />;
+      return <SubCell primary={`${d.toMix}%`} chips={chips} compareModes={compareModes} barPct={d.toMix} />;
     case 'biz_dir':
-      return <SubCell primary={`${d.dirMix}%`} chips={chips} compare={compare} />;
+      return <SubCell primary={`${d.dirMix}%`} chips={chips} compareModes={compareModes} barPct={d.dirMix} />;
     case 'biz_ota':
-      return <SubCell primary={`${d.otaMix}%`} chips={chips} compare={compare} />;
+      return <SubCell primary={`${d.otaMix}%`} chips={chips} compareModes={compareModes} barPct={d.otaMix} />;
     case 'biz_other':
-      return <SubCell primary={`${d.otherMix}%`} chips={chips} compare={compare} />;
+      return <SubCell primary={`${d.otherMix}%`} chips={chips} compareModes={compareModes} barPct={d.otherMix} />;
     default:
       if (row.mpKey && row.id.endsWith('_t')) {
         return (
           <SubCell
             primary={`${Math.round(d.toRn * (mealPct(d, row.mpKey) / 100))} RN`}
             chips={chips}
-            compare={compare}
+            compareModes={compareModes}
           />
         );
       }
@@ -506,7 +523,7 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
           <SubCell
             primary={`${Math.round(d.hnRn * (mealPct(d, row.mpKey) / 100))} RN`}
             chips={chips}
-            compare={compare}
+            compareModes={compareModes}
           />
         );
       }
@@ -515,7 +532,7 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
           <SubCell
             primary={`${Math.min(RT_CAPS[row.rtIdx], Math.floor((RT_CAPS[row.rtIdx] * d.to) / 100))} RN`}
             chips={chips}
-            compare={compare}
+            compareModes={compareModes}
           />
         );
       }
@@ -526,7 +543,7 @@ export function renderSubCell(row: WbRow, d: WeekDayData, isLocked: boolean, isP
           <SubCell
             primary={`${Math.max(0, inv - sold)} RN`}
             chips={chips}
-            compare={compare}
+            compareModes={compareModes}
             isRem
           />
         );

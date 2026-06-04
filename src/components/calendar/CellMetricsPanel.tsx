@@ -165,8 +165,18 @@ export function CellMetricsPanel({
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       slotProps={{
         paper: {
-          className: 'cal-dropdown-panel cal-metrics-dropdown',
-          sx: { width: 298, maxHeight: 'min(560px, 85vh)', overflow: 'hidden', display: 'flex', flexDirection: 'column', p: 0 },
+          className: 'cal-metrics-dropdown',
+          sx: {
+            width: 298,
+            maxHeight: 'min(560px, 85vh)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            p: 0,
+            boxShadow: 'none',
+            border: '1px solid #DDE1E2',
+            borderRadius: '8px',
+          },
         },
       }}
     >

@@ -2,9 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import Paper from '@mui/material/Paper';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import { ALL_MONTHS } from '@/data/calendarData';
@@ -24,11 +22,14 @@ type Props = {
   onCancel: () => void;
 };
 
-/** 0 = none, 1 = picking end, 2 = range complete */
 type PickPhase = 0 | 1 | 2;
 
 function monthIndexForYear(year: number, month1Based: number) {
   return ALL_MONTHS.findIndex((m) => m.year === year && m.month === month1Based);
+}
+
+function clampIdx(idx: number) {
+  return Math.max(0, Math.min(ALL_MONTHS.length - 1, idx));
 }
 
 function YearMonthGrid({
@@ -45,7 +46,15 @@ function YearMonthGrid({
   onMonthHoverOut: () => void;
 }) {
   return (
-    <Box className="caldr-mgrid">
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+        gridAutoRows: '34px',
+        rowGap: '2px',
+        width: '100%',
+      }}
+    >
       {MONTH_ABBR.map((abbr, mi) => {
         const idx = monthIndexForYear(year, mi + 1);
         const inData = idx >= 0;
@@ -58,43 +67,162 @@ function YearMonthGrid({
         const prevInRange = inData && bounds && idx > lo && idx - 1 >= lo;
         const nextInRange = inData && bounds && idx < hi && idx + 1 <= hi;
 
-        const classes = [
-          'caldr-cell',
-          `col-${mi % 4}`,
-          !inData ? 'empty' : '',
-          isStart && isEnd ? 'range-start range-end' : '',
-          isStart && !isEnd ? 'range-start' : '',
-          isEnd && !isStart ? 'range-end' : '',
-          isMid ? 'in-range' : '',
-          inRange && !prevInRange ? 'edge-left' : '',
-          inRange && !nextInRange ? 'edge-right' : '',
-        ]
-          .filter(Boolean)
-          .join(' ');
-
-        if (!inData) {
-          return (
-            <div key={`${year}-${abbr}`} className={classes} aria-hidden>
-              <span className="caldr-cell-bg" />
-              <span className="caldr-cell-lbl">{abbr}</span>
-            </div>
-          );
-        }
+        const Cell = inData ? 'button' : 'div';
+        const isEdge = inRange && (!prevInRange || !nextInRange);
 
         return (
-          <button
+          <Box
             key={`${year}-${abbr}`}
-            type="button"
-            className={classes}
-            onClick={() => onMonthClick(idx)}
-            onMouseEnter={() => onMonthHover(idx)}
-            onMouseLeave={onMonthHoverOut}
+            component={Cell as 'button'}
+            type={inData ? 'button' : undefined}
+            onClick={inData ? () => onMonthClick(idx) : undefined}
+            onMouseEnter={inData ? () => onMonthHover(idx) : undefined}
+            onMouseLeave={inData ? onMonthHoverOut : undefined}
+            sx={{
+              position: 'relative',
+              height: 34,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              cursor: inData ? 'pointer' : 'default',
+              opacity: inData ? 1 : 0.35,
+              pointerEvents: inData ? 'auto' : 'none',
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              fontFamily: 'inherit',
+            }}
           >
-            <span className="caldr-cell-bg" aria-hidden />
-            <span className="caldr-cell-lbl">{abbr}</span>
-          </button>
+            {/* Range fill background — 28px tall, edges left/right open */}
+            {isMid && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 3,
+                  bottom: 3,
+                  left: 0,
+                  right: 0,
+                  bgcolor: 'rgba(0,100,97,0.13)',
+                }}
+              />
+            )}
+            {isStart && !isEnd && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 3,
+                  bottom: 3,
+                  left: '50%',
+                  right: 0,
+                  bgcolor: 'rgba(0,100,97,0.13)',
+                }}
+              />
+            )}
+            {isEnd && !isStart && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 3,
+                  bottom: 3,
+                  left: 0,
+                  right: '50%',
+                  bgcolor: 'rgba(0,100,97,0.13)',
+                }}
+              />
+            )}
+            {/* Pill for start/end */}
+            {(isStart || isEnd) && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 3,
+                  height: 28,
+                  width: 42,
+                  borderRadius: '14px',
+                  bgcolor: '#006461',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 1,
+                }}
+              />
+            )}
+            <Typography
+              sx={{
+                position: 'relative',
+                zIndex: 2,
+                fontSize: 12,
+                lineHeight: '12px',
+                fontWeight: isStart || isEnd ? 700 : 400,
+                color: isStart || isEnd ? '#fff' : '#1c1c1c',
+                fontFamily: 'Lato, sans-serif',
+              }}
+            >
+              {abbr}
+            </Typography>
+            {/* Hover bg */}
+            {inData && !inRange && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  bgcolor: 'transparent',
+                  '*:hover > &': { bgcolor: '#f5f5f5' },
+                }}
+              />
+            )}
+            {/* Mark edges with rounded ends for the bg fill */}
+            {isEdge && isMid && null}
+          </Box>
         );
       })}
+    </Box>
+  );
+}
+
+function PresetItem({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <Box
+      component="button"
+      type="button"
+      onClick={onClick}
+      sx={{
+        width: '100%',
+        textAlign: 'left',
+        px: 1,
+        py: '5px',
+        border: 'none',
+        bgcolor: 'transparent',
+        cursor: 'pointer',
+        borderRadius: '4px',
+        color: '#006461',
+        fontSize: 13,
+        lineHeight: '18.59px',
+        fontFamily: 'Lato, sans-serif',
+        '&:hover': { bgcolor: '#f5f5f5' },
+      }}
+    >
+      {label}
+    </Box>
+  );
+}
+
+function PresetLabel({ children }: { children: string }) {
+  return (
+    <Box sx={{ px: '4px', pt: '3.5px', pb: '1.8px', width: '100%' }}>
+      <Typography
+        sx={{
+          fontSize: 10,
+          lineHeight: '14.3px',
+          fontWeight: 700,
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+          color: '#9ca3af',
+          fontFamily: 'Lato, sans-serif',
+        }}
+      >
+        {children}
+      </Typography>
     </Box>
   );
 }
@@ -158,6 +286,30 @@ export function MonthRangePicker({
     setPhase(1);
   };
 
+  const applyRange = (lo: number, hi: number) => {
+    const l = clampIdx(Math.min(lo, hi));
+    const h = clampIdx(Math.max(lo, hi));
+    setStartIdx(l);
+    setEndIdx(h);
+    setPhase(2);
+    setHoverIdx(null);
+    setLeftYear(ALL_MONTHS[l]?.year ?? 2026);
+  };
+
+  // Presets relative to today (2026-06-04)
+  const TODAY = { year: 2026, month: 6 };
+  const todayIdx = clampIdx(monthIndexForYear(TODAY.year, TODAY.month));
+
+  const presetThisMonth = () => applyRange(todayIdx, todayIdx);
+  const presetNextMonth = () => applyRange(todayIdx + 1, todayIdx + 1);
+  const presetQuarter = () => {
+    const q = Math.floor((TODAY.month - 1) / 3);
+    const startM = q * 3 + 1;
+    applyRange(monthIndexForYear(TODAY.year, startM), monthIndexForYear(TODAY.year, startM + 2));
+  };
+  const presetYear = () => applyRange(monthIndexForYear(TODAY.year, 1), monthIndexForYear(TODAY.year, 12));
+  const presetNextN = (n: number) => applyRange(todayIdx + 1, todayIdx + n);
+
   const footerLabel = useMemo(() => {
     if (phase === 0 || startIdx === null) return 'Select a start month';
     const lo = bounds?.lo ?? startIdx;
@@ -165,9 +317,7 @@ export function MonthRangePicker({
     const startM = ALL_MONTHS[lo];
     const endM = ALL_MONTHS[hi];
     if (phase === 1) {
-      if (startM && endM && lo !== hi) {
-        return `${startM.name} – ${endM.name}`;
-      }
+      if (startM && endM && lo !== hi) return `${startM.name} – ${endM.name}`;
       return `${startM?.name ?? ''} – ? (select end month)`;
     }
     return `${startM?.name ?? ''} – ${endM?.name ?? ''}`;
@@ -184,31 +334,50 @@ export function MonthRangePicker({
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       slotProps={{
         paper: {
-          className: 'caldr-panel drp-dropdown',
-          sx: { mt: 0.5, maxWidth: '95vw' },
+          sx: {
+            mt: 0.5,
+            maxWidth: '95vw',
+            bgcolor: '#fff',
+            borderRadius: '8px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.14)',
+            overflow: 'hidden',
+          },
         },
       }}
     >
-      <Paper
-        elevation={8}
-        className="caldr-panel-inner"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <Box className="drp-calendars">
-          <Box className="drp-month">
-            <Box className="drp-month-hdr caldr-year-hdr">
+      <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 720 }}>
+        <Box sx={{ display: 'flex', alignItems: 'stretch' }}>
+          {/* Left year */}
+          <Box sx={{ flex: 1, py: '16px', pt: '20px', px: '20px', display: 'flex', flexDirection: 'column' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pr: '105px',
+                pb: '10px',
+                height: 28,
+              }}
+            >
               <IconButton
                 size="small"
-                className="drp-nav"
                 onClick={() => setLeftYear((y) => y - 1)}
                 aria-label="Previous year"
+                sx={{ width: 24, height: 24, color: '#585858' }}
               >
-                <ChevronLeftIcon fontSize="small" />
+                <ChevronLeftIcon sx={{ fontSize: 18 }} />
               </IconButton>
-              <Typography component="span" className="drp-month-title caldr-year-title">
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  lineHeight: '20px',
+                  color: '#1c1c1c',
+                  fontFamily: 'Lato, sans-serif',
+                }}
+              >
                 {leftYear}
               </Typography>
-              <span className="caldr-nav-spacer" aria-hidden />
             </Box>
             <YearMonthGrid
               year={leftYear}
@@ -223,19 +392,39 @@ export function MonthRangePicker({
             />
           </Box>
 
-          <Box className="drp-month">
-            <Box className="drp-month-hdr caldr-year-hdr">
-              <span className="caldr-nav-spacer" aria-hidden />
-              <Typography component="span" className="drp-month-title caldr-year-title">
+          {/* Vertical divider */}
+          <Box sx={{ width: 1, bgcolor: '#dde1e2', my: '16px' }} />
+
+          {/* Right year */}
+          <Box sx={{ flex: 1, py: '16px', pt: '20px', px: '20px', display: 'flex', flexDirection: 'column' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pl: '105px',
+                pb: '10px',
+                height: 28,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  lineHeight: '20px',
+                  color: '#1c1c1c',
+                  fontFamily: 'Lato, sans-serif',
+                }}
+              >
                 {leftYear + 1}
               </Typography>
               <IconButton
                 size="small"
-                className="drp-nav"
                 onClick={() => setLeftYear((y) => y + 1)}
                 aria-label="Next year"
+                sx={{ width: 24, height: 24, color: '#585858' }}
               >
-                <ChevronRightIcon fontSize="small" />
+                <ChevronRightIcon sx={{ fontSize: 18 }} />
               </IconButton>
             </Box>
             <YearMonthGrid
@@ -250,31 +439,108 @@ export function MonthRangePicker({
               }}
             />
           </Box>
+
+          {/* Presets sidebar */}
+          <Box
+            sx={{
+              width: 106,
+              borderLeft: '1px solid #dde1e2',
+              pl: '11px',
+              pr: '10px',
+              py: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+            }}
+          >
+            <PresetItem label="This Month" onClick={presetThisMonth} />
+            <PresetItem label="Next Month" onClick={presetNextMonth} />
+            <Box sx={{ py: '6px', width: '100%' }}>
+              <Box sx={{ height: 1, bgcolor: '#dde1e2', width: '100%' }} />
+            </Box>
+            <PresetLabel>Current</PresetLabel>
+            <PresetItem label="Quarter" onClick={presetQuarter} />
+            <PresetItem label="Year" onClick={presetYear} />
+            <Box sx={{ py: '6px', width: '100%' }}>
+              <Box sx={{ height: 1, bgcolor: '#dde1e2', width: '100%' }} />
+            </Box>
+            <PresetLabel>Next</PresetLabel>
+            <PresetItem label="3 Months" onClick={() => presetNextN(3)} />
+            <PresetItem label="6 Months" onClick={() => presetNextN(6)} />
+            <PresetItem label="12 Months" onClick={() => presetNextN(12)} />
+          </Box>
         </Box>
 
-        <Box className="drp-footer">
-          <Typography component="span" className="drp-range-text">
+        {/* Footer */}
+        <Box
+          sx={{
+            borderTop: '1px solid #dde1e2',
+            height: 52,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: '20px',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: '18.59px',
+              color: '#4f5b60',
+              fontFamily: 'Lato, sans-serif',
+            }}
+          >
             {footerLabel}
           </Typography>
-          <Box className="drp-footer-btns">
-            <Button className="drp-cancel" color="inherit" onClick={onCancel}>
+          <Box sx={{ display: 'flex', gap: '8px' }}>
+            <Box
+              component="button"
+              type="button"
+              onClick={onCancel}
+              sx={{
+                height: 32,
+                px: '17px',
+                border: '1px solid #dde1e2',
+                borderRadius: '4px',
+                bgcolor: '#fff',
+                color: '#4f5b60',
+                fontSize: 13,
+                lineHeight: '22.75px',
+                fontFamily: 'Lato, sans-serif',
+                cursor: 'pointer',
+                '&:hover': { bgcolor: '#f5f5f5' },
+              }}
+            >
               Cancel
-            </Button>
-            <Button
-              className={`drp-apply${ready ? '' : ' is-disabled'}`}
-              variant="contained"
-              color="primary"
+            </Box>
+            <Box
+              component="button"
+              type="button"
               disabled={!ready}
               onClick={() => {
                 if (!ready || startIdx === null || endIdx === null) return;
                 onApply(Math.min(startIdx, endIdx), Math.max(startIdx, endIdx));
               }}
+              sx={{
+                height: 32,
+                px: '16px',
+                border: 'none',
+                borderRadius: '4px',
+                bgcolor: '#006461',
+                color: '#fff',
+                fontSize: 13,
+                lineHeight: '22.75px',
+                fontFamily: 'Lato, sans-serif',
+                cursor: ready ? 'pointer' : 'not-allowed',
+                opacity: ready ? 1 : 0.5,
+                '&:hover': { bgcolor: '#004d4a' },
+              }}
             >
               Apply
-            </Button>
+            </Box>
           </Box>
         </Box>
-      </Paper>
+      </Box>
     </Popover>
   );
 }

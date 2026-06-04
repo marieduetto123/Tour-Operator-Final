@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { DuettoCheckbox } from '@/components/ui/DuettoCheckbox';
 import AddIcon from '@mui/icons-material/Add';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
@@ -111,24 +112,28 @@ function MultiSelect({
           <ExpandMoreIcon className="co2-select-arrow" />
         </button>
         <div className={`co2-ms-list${open ? ' open' : ''}`}>
-          <label className="co2-ms-item">
-            <input
-              type="checkbox"
-              checked={selected.has('all') || selected.size === 0}
-              onChange={() => toggle('all')}
-            />
-            All
-          </label>
-          {items.map((item) => (
-            <label key={item} className="co2-ms-item">
-              <input
-                type="checkbox"
-                checked={!selected.has('all') && selected.has(item)}
-                onChange={() => toggle(item)}
-              />
-              {item}
-            </label>
-          ))}
+          <button
+            type="button"
+            className="co2-ms-item"
+            onClick={() => toggle('all')}
+          >
+            <DuettoCheckbox state={selected.has('all') || selected.size === 0 ? 'checked' : 'unchecked'} />
+            <span>All</span>
+          </button>
+          {items.map((item) => {
+            const isChecked = !selected.has('all') && selected.has(item);
+            return (
+              <button
+                key={item}
+                type="button"
+                className="co2-ms-item"
+                onClick={() => toggle(item)}
+              >
+                <DuettoCheckbox state={isChecked ? 'checked' : 'unchecked'} />
+                <span>{item}</span>
+              </button>
+            );
+          })}
         </div>
         {chips.length > 0 ? (
           <div className="co2-ms-chips">
@@ -211,9 +216,9 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
   };
 
   const closeOptions = [
-    { type: 'full' as const, label: 'Close all Day', Icon: LockIcon },
+    { type: 'full' as const, label: 'Close all day', Icon: LockIcon },
     { type: 'los' as const, label: 'Min Length of Stay', Icon: LockIcon },
-    { type: 'reopen' as const, label: 'Re-Open', Icon: LockOpenIcon },
+    { type: 'reopen' as const, label: 'Re-open', Icon: LockOpenIcon },
   ];
 
   if (!open) return null;
@@ -244,9 +249,6 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
 
         <div className="co2-body">
           <div className="co2-section">
-            <div className="co2-heading" style={{ fontWeight: 400, fontSize: 14 }}>
-              Please select
-            </div>
             <div className="co2-type-row">
               {closeOptions.map((opt) => {
                 const active = closeType === opt.type;
@@ -289,26 +291,13 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {ranges.map((r, idx) => (
                 <div key={r.id} className="co2-dr-wrap">
-                  <span className="co2-dr-label">Date Range {idx + 1}</span>
-                  <div className="co2-dr-trigger">
+                  <span className="co2-dr-label">Date range {idx + 1}</span>
+                  <label className="co2-dr-trigger" style={{ position: 'relative', cursor: 'text' }}>
                     <CalendarTodayIcon className="co2-dr-cal-ico" />
                     <span className="co2-dr-text">
-                      {fmtDisplay(r.from) || 'Start'} – {fmtDisplay(r.to) || 'End'}
+                      {`${fmtDisplay(r.from) || 'mm/dd/yyyy'} - ${fmtDisplay(r.to) || 'mm/dd/yyyy'}`}
                     </span>
-                    {ranges.length > 1 ? (
-                      <button
-                        type="button"
-                        className="co2-dr-remove"
-                        aria-label="Remove range"
-                        onClick={() => setRanges((prev) => prev.filter((x) => x.id !== r.id))}
-                      >
-                        ×
-                      </button>
-                    ) : null}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                     <input
-                      className="co2-input"
                       type="date"
                       value={r.from}
                       onChange={(e) =>
@@ -317,9 +306,9 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
                         )
                       }
                       aria-label={`Range ${idx + 1} start`}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, width: '50%', cursor: 'pointer' }}
                     />
                     <input
-                      className="co2-input"
                       type="date"
                       value={r.to}
                       onChange={(e) =>
@@ -328,8 +317,23 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
                         )
                       }
                       aria-label={`Range ${idx + 1} end`}
+                      style={{ position: 'absolute', inset: 0, left: '50%', opacity: 0, cursor: 'pointer' }}
                     />
-                  </div>
+                    {ranges.length > 1 ? (
+                      <button
+                        type="button"
+                        className="co2-dr-remove"
+                        aria-label="Remove range"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setRanges((prev) => prev.filter((x) => x.id !== r.id));
+                        }}
+                        style={{ position: 'relative', zIndex: 1 }}
+                      >
+                        ×
+                      </button>
+                    ) : null}
+                  </label>
                 </div>
               ))}
             </div>
@@ -339,12 +343,12 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
               onClick={() => setRanges((prev) => [...prev, { id: ++rangeIdSeq, from: '', to: '' }])}
             >
               <AddIcon sx={{ fontSize: 16 }} />
-              Add Date Range
+              Add date range
             </button>
           </div>
 
           <div className="co2-section">
-            <div className="co2-heading">What to Close</div>
+            <div className="co2-heading">Closing:</div>
             {rules.map((rule) => (
               <div key={rule.id} className="co2-strategy-group">
                 <MultiSelect
@@ -389,12 +393,12 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
               }
             >
               <AddIcon sx={{ fontSize: 16 }} />
-              Add Strategy
+              Add
             </button>
           </div>
 
           <div className="co2-section">
-            <div className="co2-heading">Contact sales team</div>
+            <div className="co2-heading">Contact sales team:</div>
             <div className="co2-field-group">
               <label className="co2-field-label" htmlFor="co-email">
                 Email Address
@@ -456,7 +460,7 @@ export function CloseOutModal({ open, selectedDays, onClose, onComplete }: Props
               Cancel
             </button>
             <button type="button" className="co2-btn-confirm" onClick={handleConfirm}>
-              {closeType === 'reopen' ? 'Re-Open' : 'Close Out'}
+              Confirm
             </button>
           </div>
         </div>

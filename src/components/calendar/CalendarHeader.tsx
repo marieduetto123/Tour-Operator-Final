@@ -8,11 +8,9 @@ import TuneIcon from '@mui/icons-material/Tune';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import FormControl from '@mui/material/FormControl';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
-import { CellMetricsPanel, cellMetricsButtonLabel } from './CellMetricsPanel';
+import { CellMetricsPanel } from './CellMetricsPanel';
+import { ComparePanel } from './ComparePanel';
 import { FiltersDropdown } from './FiltersDropdown';
 import { MonthRangePicker } from './MonthRangePicker';
 import type { FilterGroupId, FilterState } from '@/data/filterOptions';
@@ -28,7 +26,8 @@ type Props = {
   selectedCount: number;
   onOpenCloseOut: () => void;
   compare: CompareMode;
-  onCompareChange: (v: CompareMode) => void;
+  compareSet: CompareMode[];
+  onCompareToggle: (mode: CompareMode) => void;
   metricsOpen: boolean;
   onMetricsOpen: (open: boolean) => void;
   metricDraft: MetricKey[];
@@ -65,13 +64,14 @@ export function CalendarHeader({
   onToggleSelectMode,
   selectedCount,
   onOpenCloseOut,
-  compare,
-  onCompareChange,
+  compare: _compare,
+  compareSet,
+  onCompareToggle,
   metricsOpen,
   onMetricsOpen,
   metricDraft,
   segmentDraft,
-  appliedMetrics,
+  appliedMetrics: _appliedMetrics,
   onMetricToggle,
   onSegmentToggle,
   onMetricsReset,
@@ -99,7 +99,20 @@ export function CalendarHeader({
 }: Props) {
   const metricsRef = useRef<HTMLButtonElement>(null);
   const filtersRef = useRef<HTMLButtonElement>(null);
+  const compareRef = useRef<HTMLButtonElement>(null);
   const [dateAnchor, setDateAnchor] = useState<HTMLElement | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
+
+  const compareNames: Record<string, string> = {
+    ly: 'LY',
+    stly: 'STLY',
+    fcst: 'Forecast',
+    budget: 'Budget',
+  };
+  const compareButtonLabel =
+    compareSet.length === 0
+      ? 'Compare'
+      : `Compare (${compareSet.map((m) => compareNames[m]).filter(Boolean).join(', ')})`;
 
   return (
     <Box component="header" className="cal-header">
@@ -112,6 +125,7 @@ export function CalendarHeader({
           className={`mo-select-dates-btn${selectMode ? ' active' : ''}`}
           onClick={onToggleSelectMode}
           color="inherit"
+          disabled={selectMode}
         >
           {selectMode ? `Selecting (${selectedCount})` : 'Select Dates'}
         </Button>
@@ -134,7 +148,7 @@ export function CalendarHeader({
           endIcon={<ExpandMoreIcon sx={{ fontSize: 14, opacity: 0.65 }} />}
           onClick={() => onMetricsOpen(!metricsOpen)}
         >
-          {cellMetricsButtonLabel(appliedMetrics)}
+          Cell Metrics
         </Button>
         <CellMetricsPanel
           open={metricsOpen}
@@ -148,21 +162,22 @@ export function CalendarHeader({
           onApply={onMetricsApply}
         />
 
-        <FormControl size="small" className="wv-outline-select-wrap">
-          <Select
-            value={compare}
-            onChange={(e) => onCompareChange(e.target.value as CompareMode)}
-            className="wv-outline-select"
-            variant="outlined"
-            displayEmpty
-          >
-            <MenuItem value="ly">vs LY</MenuItem>
-            <MenuItem value="stly">vs STLY</MenuItem>
-            <MenuItem value="fcst">vs Locked Forecast</MenuItem>
-            <MenuItem value="budget">vs Locked Budget</MenuItem>
-            <MenuItem value="none">No Compare</MenuItem>
-          </Select>
-        </FormControl>
+        <Button
+          ref={compareRef}
+          className={`wv-topbar-text-btn${compareOpen ? ' active' : ''}`}
+          color="inherit"
+          endIcon={<ExpandMoreIcon sx={{ fontSize: 14, opacity: 0.65 }} />}
+          onClick={() => setCompareOpen((o) => !o)}
+        >
+          {compareButtonLabel}
+        </Button>
+        <ComparePanel
+          open={compareOpen}
+          anchorEl={compareRef.current}
+          value={compareSet}
+          onToggle={onCompareToggle}
+          onClose={() => setCompareOpen(false)}
+        />
 
         <Badge
           badgeContent={activeFilterCount}

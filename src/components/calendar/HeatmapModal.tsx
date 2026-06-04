@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import HotelIcon from '@mui/icons-material/Hotel';
 import LockIcon from '@mui/icons-material/Lock';
@@ -7,16 +8,15 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
-import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
-import Radio from '@mui/material/Radio';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -47,9 +47,116 @@ type Props = {
   onApply: () => void;
 };
 
-export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply }: Props) {
-  const isStop = draft.type === 'stopsales';
+type ThresholdRowDef = {
+  key: 'grey' | 'blue' | 'green';
+  color: string;
+  boldLabel?: string;
+  desc?: string;
+  inputLabel?: string;
+  which?: 'grey' | 'green';
+  unitOptions?: string[];
+  suffix?: string;
+};
 
+function RadioCard({
+  selected,
+  Icon,
+  label,
+  onClick,
+}: {
+  selected: boolean;
+  Icon: SvgIconComponent;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <Box
+      component="button"
+      type="button"
+      onClick={onClick}
+      sx={{
+        flex: '1 0 0',
+        minWidth: 0,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        p: '10px',
+        borderRadius: '4px',
+        border: '1px solid',
+        borderColor: '#DDE1E2',
+        bgcolor: '#fff',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+        textAlign: 'left',
+        '&:hover': { borderColor: '#DDE1E2' },
+      }}
+    >
+      <Box
+        sx={{
+          width: 18,
+          height: 18,
+          borderRadius: '50%',
+          border: '2px solid',
+          borderColor: selected ? '#006461' : '#4f5b60',
+          bgcolor: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        {selected && <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#006461' }} />}
+      </Box>
+      <Icon sx={{ fontSize: 18, color: '#006461' }} />
+      <Typography
+        sx={{ fontSize: 14, fontWeight: 700, color: '#1c1c1c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+      >
+        {label}
+      </Typography>
+    </Box>
+  );
+}
+
+function thresholdsFor(type: HeatmapType): ThresholdRowDef[] {
+  switch (type) {
+    case 'stopsales':
+      return [
+        { key: 'grey', color: HM_STOP_SALES_COLORS.closed, boldLabel: 'Closed', desc: 'Full close out day' },
+        { key: 'blue', color: HM_STOP_SALES_COLORS.partial, boldLabel: 'Partial', desc: 'At least 1 partial close out' },
+        { key: 'green', color: HM_STOP_SALES_COLORS.open, boldLabel: 'Open', desc: 'No stop sale' },
+      ];
+    case 'hotelocc':
+      return [
+        { key: 'grey', color: HM_METRIC_COLORS.grey, inputLabel: 'Occupancy above (%)', which: 'grey' },
+        { key: 'blue', color: HM_METRIC_COLORS.blue, desc: 'Between Grey & Green thresholds' },
+        { key: 'green', color: HM_METRIC_COLORS.green, inputLabel: 'Occupancy below (%)', which: 'green' },
+      ];
+    case 'remaining':
+      return [
+        { key: 'grey', color: HM_METRIC_COLORS.grey, inputLabel: 'Remaining rooms less than', which: 'grey', unitOptions: ['RN', '%'] },
+        { key: 'blue', color: HM_METRIC_COLORS.blue, desc: 'Between Grey & Green thresholds' },
+        { key: 'green', color: HM_METRIC_COLORS.green, inputLabel: 'Remaining rooms more than', which: 'green', unitOptions: ['RN', '%'] },
+      ];
+    case 'mealplan':
+      return [
+        { key: 'grey', color: HM_METRIC_COLORS.grey, inputLabel: 'Total guests above', which: 'grey', suffix: 'guests' },
+        { key: 'blue', color: HM_METRIC_COLORS.blue, desc: 'Between Grey & Green thresholds' },
+        { key: 'green', color: HM_METRIC_COLORS.green, inputLabel: 'Total guests below', which: 'green', suffix: 'guests' },
+      ];
+    case 'toforecast':
+      return [
+        { key: 'grey', color: HM_METRIC_COLORS.grey, boldLabel: 'Above Forecast', desc: 'OTB exceeds the forecast by', which: 'grey', inputLabel: '', unitOptions: ['RN', '%'] },
+        { key: 'blue', color: HM_METRIC_COLORS.blue, boldLabel: 'Within Range', desc: 'OTB within forecast variance' },
+        { key: 'green', color: HM_METRIC_COLORS.green, boldLabel: 'Below Forecast', desc: 'OTB is below the forecast by', which: 'green', inputLabel: '', unitOptions: ['RN', '%'] },
+      ];
+  }
+}
+
+export function HeatmapModal({ open, draft, onChange, onClose, onReset: _onReset, onApply }: Props) {
+  void _onReset;
+  const [units, setUnits] = useState<Record<string, string>>({ grey: 'RN', green: 'RN' });
+
+  const isStop = draft.type === 'stopsales';
   const setType = (type: HeatmapType) => onChange({ ...draft, type });
 
   const setThreshold = (which: 'grey' | 'green', val: number) => {
@@ -61,87 +168,223 @@ export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply 
     onChange({ ...draft, colors: { ...draft.colors, [key]: hex } });
   };
 
-  const thresholdRows = isStop
-    ? [
-        { key: 'grey' as const, label: 'Closed', desc: 'Full close out day', color: HM_STOP_SALES_COLORS.closed },
-        { key: 'blue' as const, label: 'Partial', desc: 'At least 1 partial close out', color: HM_STOP_SALES_COLORS.partial },
-        { key: 'green' as const, label: 'Open', desc: 'No stop sale', color: HM_STOP_SALES_COLORS.open },
-      ]
-    : [
-        { key: 'grey' as const, label: 'Grey', desc: 'Above threshold', color: HM_METRIC_COLORS.grey, input: true, which: 'grey' as const },
-        { key: 'green' as const, label: 'Green', desc: 'Below threshold', color: HM_METRIC_COLORS.green, input: true, which: 'green' as const },
-        { key: 'blue' as const, label: 'Blue', desc: 'Between thresholds', color: HM_METRIC_COLORS.blue, input: false },
-      ];
+  const rows: ThresholdRowDef[] = draft.type ? thresholdsFor(draft.type) : [];
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            bgcolor: '#fafafa',
+            borderRadius: '4px',
+            boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
+          },
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 1,
+          p: 3,
+          pb: 0,
+          fontSize: 20,
+          fontWeight: 400,
+          color: '#1c1c1c',
+        }}
+      >
         Heatmap
-        <IconButton aria-label="Close" onClick={onClose} size="small">
-          <CloseIcon />
+        <IconButton aria-label="Close" onClick={onClose} size="small" sx={{ p: 0, color: '#1c1c1c' }}>
+          <CloseIcon sx={{ fontSize: 24 }} />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <DialogContent sx={{ p: 3, pt: 0, mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#000' }}>
           Select a heatmap type, then configure each colour threshold
         </Typography>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1, mb: 2 }}>
-          {HEATMAP_TYPE_OPTIONS.map((opt) => {
-            const Icon = TYPE_ICONS[opt.key];
-            const selected = draft.type === opt.key;
-            return (
-              <Button
-                key={opt.key}
-                variant="outlined"
-                color={selected ? 'primary' : 'inherit'}
-                onClick={() => setType(opt.key)}
-                sx={{
-                  justifyContent: 'flex-start',
-                  gap: 1,
-                  py: 1,
-                  textAlign: 'left',
-                  borderColor: selected ? 'primary.main' : 'divider',
-                  bgcolor: selected ? 'action.selected' : 'transparent',
-                }}
-                startIcon={
-                  <Radio checked={selected} size="small" sx={{ p: 0 }} tabIndex={-1} />
-                }
-              >
-                <Icon color="primary" fontSize="small" />
-                {opt.label}
-              </Button>
-            );
-          })}
+        <Typography sx={{ fontSize: 14, color: '#4f5b60', mt: -1 }}>Please select</Typography>
+
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '13px' }}>
+          {HEATMAP_TYPE_OPTIONS.slice(0, 3).map((opt) => (
+            <RadioCard
+              key={opt.key}
+              selected={draft.type === opt.key}
+              Icon={TYPE_ICONS[opt.key]}
+              label={opt.label}
+              onClick={() => setType(opt.key)}
+            />
+          ))}
+        </Box>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '13px', width: 'calc(66.66% - 4px)' }}>
+          {HEATMAP_TYPE_OPTIONS.slice(3).map((opt) => (
+            <RadioCard
+              key={opt.key}
+              selected={draft.type === opt.key}
+              Icon={TYPE_ICONS[opt.key]}
+              label={opt.label}
+              onClick={() => setType(opt.key)}
+            />
+          ))}
         </Box>
 
         {draft.type && (
           <>
+            <Typography sx={{ fontSize: 14, color: '#4f5b60', mt: 1 }}>Colour Thresholds</Typography>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {rows.map((row) => {
+                const swatch = draft.colors[row.key] ?? row.color;
+                const value = row.which === 'grey' ? draft.greyThreshold : row.which === 'green' ? draft.greenThreshold : null;
+                const hasInput = row.which != null;
+                return (
+                  <Box
+                    key={row.key}
+                    sx={{
+                      display: 'flex',
+                      gap: 3,
+                      alignItems: 'center',
+                      p: 2.5,
+                      border: '1px solid #dde1e2',
+                      borderRadius: '8px',
+                      bgcolor: '#fff',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        flexShrink: 0,
+                        width: 88,
+                      }}
+                    >
+                      <Box sx={{ position: 'relative', width: 40, height: 40 }}>
+                        <Box
+                          component="input"
+                          type="color"
+                          value={swatch}
+                          onChange={(e) => setColor(row.key, e.target.value)}
+                          sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            opacity: 0,
+                            cursor: 'pointer',
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            bgcolor: swatch,
+                            border: '1px solid #dde1e2',
+                          }}
+                        />
+                      </Box>
+                      <Typography sx={{ fontSize: 12, color: '#006461', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                        Change colour
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {row.boldLabel && (
+                        <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1c1c1c' }}>
+                          {row.boldLabel}
+                        </Typography>
+                      )}
+                      {row.desc && (
+                        <Typography sx={{ fontSize: 14, color: '#4f5b60' }}>{row.desc}</Typography>
+                      )}
+                      {hasInput && row.inputLabel !== '' && row.inputLabel != null && !row.boldLabel && (
+                        <Typography sx={{ fontSize: 14, color: '#1c1c1c' }}>{row.inputLabel}</Typography>
+                      )}
+                      {hasInput && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <TextField
+                            type="number"
+                            size="small"
+                            value={value ?? 0}
+                            onChange={(e) => setThreshold(row.which!, Number(e.target.value))}
+                            sx={{
+                              width: 180,
+                              '& .MuiOutlinedInput-root': {
+                                fontSize: 14,
+                                bgcolor: '#fff',
+                                height: 36,
+                              },
+                              '& fieldset': { borderColor: '#dde1e2' },
+                            }}
+                          />
+                          {row.unitOptions && (
+                            <FormControl size="small">
+                              <Select
+                                value={units[row.key] ?? row.unitOptions[0]}
+                                onChange={(e) => setUnits((u) => ({ ...u, [row.key]: e.target.value as string }))}
+                                sx={{
+                                  width: 88,
+                                  height: 36,
+                                  fontSize: 14,
+                                  bgcolor: '#fff',
+                                  '& fieldset': { borderColor: '#dde1e2' },
+                                }}
+                              >
+                                {row.unitOptions.map((u) => (
+                                  <MenuItem key={u} value={u}>
+                                    {u}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          )}
+                          {row.suffix && (
+                            <Typography sx={{ fontSize: 14, color: '#4f5b60' }}>{row.suffix}</Typography>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+
             {isStop && (
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
-                  Room Type
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {ROOM_TYPE_OPTIONS.map((rt) => {
-                    const on = draft.stopSalesRoomTypes.includes(rt);
-                    return (
-                      <Chip
-                        key={rt}
-                        label={rt}
-                        size="small"
-                        color={on ? 'primary' : 'default'}
-                        onClick={() => {
-                          const next = on
-                            ? draft.stopSalesRoomTypes.filter((x) => x !== rt)
-                            : [...draft.stopSalesRoomTypes, rt];
-                          onChange({ ...draft, stopSalesRoomTypes: next });
-                        }}
-                      />
-                    );
-                  })}
-                </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', width: 215 }}>
+                <Typography sx={{ fontSize: 14, color: '#585858' }}>Room Type</Typography>
+                <FormControl size="small">
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={draft.stopSalesRoomTypes}
+                    onChange={(e) => {
+                      const val = e.target.value as string[];
+                      onChange({ ...draft, stopSalesRoomTypes: val });
+                    }}
+                    renderValue={(sel) => ((sel as string[]).length ? (sel as string[]).join(', ') : 'Value')}
+                    sx={{
+                      fontSize: 14,
+                      bgcolor: '#fff',
+                      height: 34,
+                      '& fieldset': { borderColor: '#e0e0e0' },
+                    }}
+                  >
+                    {ROOM_TYPE_OPTIONS.map((rt) => (
+                      <MenuItem key={rt} value={rt}>
+                        {rt}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
             )}
 
@@ -156,127 +399,55 @@ export function HeatmapModal({ open, draft, onChange, onClose, onReset, onApply 
                         condition: { ...draft.condition, enabled: e.target.checked },
                       })
                     }
+                    sx={{ p: 0.5 }}
                   />
                 }
-                label="Add condition"
-                sx={{ mb: 1 }}
+                label={<Typography sx={{ fontSize: 14, color: '#1c1c1c' }}>Add Condition</Typography>}
+                sx={{ ml: 0, mt: 0 }}
               />
             )}
-
-            {draft.condition.enabled && !isStop && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                <FormControl size="small">
-                  <Select
-                    value={draft.condition.metric}
-                    onChange={(e) =>
-                      onChange({
-                        ...draft,
-                        condition: {
-                          ...draft.condition,
-                          metric: e.target.value as typeof draft.condition.metric,
-                        },
-                      })
-                    }
-                  >
-                    <MenuItem value="hotel">Hotel Occ (%)</MenuItem>
-                    <MenuItem value="remainRooms">Remaining Rooms</MenuItem>
-                    <MenuItem value="totalGuests">Meal Plan Guests</MenuItem>
-                    <MenuItem value="toOtb">TO OTB (rooms)</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl size="small">
-                  <Select
-                    value={draft.condition.op}
-                    onChange={(e) =>
-                      onChange({
-                        ...draft,
-                        condition: {
-                          ...draft.condition,
-                          op: e.target.value as typeof draft.condition.op,
-                        },
-                      })
-                    }
-                  >
-                    <MenuItem value=">">&gt; above</MenuItem>
-                    <MenuItem value=">=">&gt;= at least</MenuItem>
-                    <MenuItem value="<">&lt; below</MenuItem>
-                    <MenuItem value="<=">&lt;= at most</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField
-                  type="number"
-                  size="small"
-                  sx={{ width: 88 }}
-                  value={draft.condition.value}
-                  onChange={(e) =>
-                    onChange({
-                      ...draft,
-                      condition: { ...draft.condition, value: Number(e.target.value) },
-                    })
-                  }
-                />
-              </Box>
-            )}
-
-            <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, textTransform: 'uppercase' }}>
-              Colour Thresholds
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {thresholdRows.map((row) => (
-                <Box
-                  key={row.key}
-                  sx={{
-                    display: 'flex',
-                    gap: 1.5,
-                    p: 1.5,
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                  }}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
-                    <Box
-                      component="input"
-                      type="color"
-                      value={draft.colors[row.key] ?? row.color}
-                      onChange={(e) => setColor(row.key, e.target.value)}
-                      sx={{ width: 40, height: 40, border: 0, cursor: 'pointer', p: 0 }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      Change
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {row.label}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {row.desc}
-                    </Typography>
-                    {'input' in row && row.input && (
-                      <TextField
-                        type="number"
-                        size="small"
-                        sx={{ mt: 0.5, width: 96 }}
-                        value={row.which === 'grey' ? draft.greyThreshold : draft.greenThreshold}
-                        onChange={(e) => setThreshold(row.which!, Number(e.target.value))}
-                      />
-                    )}
-                  </Box>
-                </Box>
-              ))}
-            </Box>
           </>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
-        <Button variant="outlined" color="inherit" fullWidth onClick={onReset}>
-          Reset
-        </Button>
-        <Button variant="contained" color="primary" fullWidth disabled={!draft.type} onClick={onApply}>
-          Apply
-        </Button>
+      <DialogActions sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 3, p: 3, pt: 0 }}>
+        <Divider sx={{ borderColor: '#dde1e2' }} />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+          <Button
+            onClick={onClose}
+            sx={{
+              height: 36,
+              px: 2,
+              color: '#006461',
+              fontSize: 14,
+              textTransform: 'none',
+              fontWeight: 400,
+              borderRadius: '4px',
+              '&:hover': { bgcolor: '#f0fdf9' },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!draft.type}
+            onClick={onApply}
+            sx={{
+              height: 36,
+              px: 2,
+              bgcolor: '#006461',
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 400,
+              textTransform: 'none',
+              borderRadius: '4px',
+              boxShadow: 'none',
+              '&:hover': { bgcolor: '#004d4a', boxShadow: 'none' },
+            }}
+          >
+            Confirm
+          </Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );

@@ -7,9 +7,13 @@ type Props = {
   month: number;
   startDay: number;
   compare: CompareMode;
+  compareModes: CompareMode[];
   selectedMetrics: MetricKey[];
   collapsed: Record<string, boolean>;
   onCollapsedChange: Dispatch<SetStateAction<Record<string, boolean>>>;
+  selectMode: boolean;
+  selectedDays: Set<string>;
+  onSelectDay: (iso: string) => void;
 };
 
 /** Weekly calendar — legacy Daily B grid (`wb-layout`) */
@@ -17,8 +21,12 @@ export function WeeklyView({
   month,
   startDay,
   compare,
+  compareModes,
   collapsed,
   onCollapsedChange,
+  selectMode,
+  selectedDays,
+  onSelectDay,
 }: Props) {
   return (
     <div
@@ -31,8 +39,12 @@ export function WeeklyView({
         month={month}
         startDay={startDay}
         compare={compare}
+        compareModes={compareModes}
         collapsed={collapsed}
         onCollapsedChange={onCollapsedChange}
+        selectMode={selectMode}
+        selectedDays={selectedDays}
+        onSelectDay={onSelectDay}
       />
     </div>
   );

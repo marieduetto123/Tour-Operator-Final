@@ -66,25 +66,26 @@
   gap: 6px;
   padding: 0 14px;
   height: 36px;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  border: 1px solid #63696f;
   border-radius: 4px;
   font-size: 14px;
-  color: var(--text-primary);
+  color: #4f5b60;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .mo-select-dates-btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  background: #f5f5f5;
+  border-color: #354549;
 }
 
-.mo-select-dates-btn.active {
-  background: var(--teal-700);
-  border-color: var(--teal-700);
-  color: #fff;
+.mo-select-dates-btn.active,
+.mo-select-dates-btn:disabled {
+  background: #ffffff;
+  border-color: #aeb4ba;
+  color: #aeb4ba;
 }
 
 .wv-closeout-primary {
@@ -316,7 +317,6 @@
   align-items: center;
   gap: 10px;
   padding-bottom: 4px;
-  margin-left: auto;
 }
 
 .wv-nav-btn {

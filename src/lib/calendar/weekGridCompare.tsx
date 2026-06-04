@@ -13,18 +13,18 @@ type PillDef = {
 
 export function ComparePills({
   pills,
-  compare,
+  compareModes,
 }: {
   pills: PillDef[];
-  compare: CompareMode;
+  compareModes: CompareMode[];
 }) {
-  if (compare === 'none') return null;
+  if (compareModes.length === 0) return null;
 
   const visible = pills.filter((p) => {
-    if (compare === 'stly') return p.key === 'stly';
-    if (compare === 'ly') return p.key === 'ly';
-    if (compare === 'fcst' || compare === 'budget') return p.key === 'fcst';
-    return true;
+    if (compareModes.includes('stly') && p.key === 'stly') return true;
+    if (compareModes.includes('ly') && p.key === 'ly') return true;
+    if ((compareModes.includes('fcst') || compareModes.includes('budget')) && p.key === 'fcst') return true;
+    return false;
   });
 
   if (visible.length === 0) return null;
@@ -58,21 +58,17 @@ export function ComparePills({
 export function SubCompareChip({
   label,
   refVal,
-  compare,
+  compareModes,
 }: {
   label: string;
   refVal: number | string;
-  compare: CompareMode;
+  compareModes: CompareMode[];
 }) {
-  if (compare === 'none') return null;
+  if (compareModes.length === 0) return null;
   const show =
-    compare === 'stly'
-      ? label === 'STLY'
-      : compare === 'ly'
-        ? label === 'LY'
-        : compare === 'fcst' || compare === 'budget'
-          ? label === 'Fc'
-          : true;
+    (label === 'STLY' && compareModes.includes('stly')) ||
+    (label === 'LY' && compareModes.includes('ly')) ||
+    (label === 'Fc' && (compareModes.includes('fcst') || compareModes.includes('budget')));
   if (!show) return null;
 
   return (

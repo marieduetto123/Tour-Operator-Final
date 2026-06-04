@@ -91,7 +91,15 @@ export function CalendarApp() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [heatmapModalOpen, setHeatmapModalOpen] = useState(false);
   const [pickupDays, setPickupDays] = useState(365);
-  const [compare, setCompare] = useState<CompareMode>('none');
+  const [compareSet, setCompareSet] = useState<CompareMode[]>([]);
+  const compare: CompareMode = compareSet[0] ?? 'none';
+  const toggleCompare = (mode: CompareMode) => {
+    if (mode === 'none') {
+      setCompareSet([]);
+      return;
+    }
+    setCompareSet((prev) => (prev.includes(mode) ? prev.filter((m) => m !== mode) : [...prev, mode]));
+  };
   const [cmpVisible, setCmpVisible] = useState(false);
   const [dayModal, setDayModal] = useState<DayModal | null>(null);
   const wbRows = useMemo(() => buildWbRows(), []);
@@ -295,6 +303,7 @@ export function CalendarApp() {
   const tabBarTrailing =
     viewMode === 'weekly' ? (
       <Box className="ds-tab-bar__trailing-inner">
+        {dateShuffler}
         <div className="wv-date-acc-controls">
           <button
             type="button"
@@ -313,7 +322,6 @@ export function CalendarApp() {
             Open All
           </button>
         </div>
-        {dateShuffler}
       </Box>
     ) : (
       dateShuffler
@@ -331,7 +339,8 @@ export function CalendarApp() {
           selectedCount={selectedDays.size}
           onOpenCloseOut={() => setCloseOutOpen(true)}
           compare={compare}
-          onCompareChange={setCompare}
+          compareSet={compareSet}
+          onCompareToggle={toggleCompare}
           metricsOpen={metricsOpen}
           onMetricsOpen={setMetricsOpen}
           metricDraft={metricDraft}
@@ -411,9 +420,13 @@ export function CalendarApp() {
             month={weekAnchor.month}
             startDay={weekAnchor.day}
             compare={compare}
+            compareModes={compareSet}
             selectedMetrics={appliedMetrics}
             collapsed={wbCollapsed}
             onCollapsedChange={setWbCollapsed}
+            selectMode={selectMode}
+            selectedDays={selectedDays}
+            onSelectDay={handleSelectDay}
           />
         )}
       </Paper>
@@ -424,7 +437,7 @@ export function CalendarApp() {
         onCancel={exitSelectMode}
         onConfirm={() => {
           setCloseOutOpen(true);
-          exitSelectMode();
+          setSelectMode(false);
         }}
       />
 
@@ -441,7 +454,10 @@ export function CalendarApp() {
       <CloseOutModal
         open={closeOutOpen}
         selectedDays={selectedDays}
-        onClose={() => setCloseOutOpen(false)}
+        onClose={() => {
+          setCloseOutOpen(false);
+          setSelectedDays(new Set());
+        }}
         onComplete={() => {
           setCloseOutOpen(false);
           exitSelectMode();
