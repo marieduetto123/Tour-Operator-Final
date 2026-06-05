@@ -157,7 +157,10 @@ export function renderTopCell(
   return <span className="wb-top-summary wb-top-summary--open">Open</span>;
 }
 
-export function renderSectCell(row: WbRow, d: WeekDayData, compareModes: CompareMode[]) {
+export function renderSectCell(row: WbRow, d: WeekDayData, _compareModes: CompareMode[]) {
+  void _compareModes;
+  // Section row is overview: always show all three compare pills regardless of user's compare selection.
+  const compareModes: CompareMode[] = ['stly', 'ly', 'fcst'];
   const stly = { key: 'stly', label: 'STLY' };
   const ly = { key: 'ly', label: 'LY' };
   const fc = { key: 'fcst', label: 'Fc' };
