@@ -1,7 +1,6 @@
 {
   "rewrites": [
-    { "source": "/rate-management", "destination": "/rate-management.html" },
-    { "source": "/calendar",        "destination": "/travelcore-rm-hub.html" },
-    { "source": "/",                "destination": "/travelcore-rm-hub.html" }
+    { "source": "/",                  "destination": "/travelcore-rm-hub.html" },
+    { "source": "/travelcore-rm-hub", "destination": "/travelcore-rm-hub.html" }
   ]
 }
