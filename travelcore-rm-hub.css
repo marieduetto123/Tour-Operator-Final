@@ -9816,3 +9816,10 @@ body:not(.dark) .an-kpi-card {
 }
 .an-kpi-trend.up   { color: #34d399; }
 .an-kpi-trend.down { color: #f87171; }
+
+/* Swap Trends and Calendar display order */
+#demand-calendar { order: 1; }
+#revenue-trend { order: 2; }
+
+/* Move Room type sales by segment to bottom */
+#room-type { order: 999; }

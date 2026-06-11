@@ -2033,72 +2033,6 @@
       <div class="section-card">
         <h2 class="page-h2">Communications &amp; Notes</h2>
 
-        <!-- ACTION ITEMS -->
-        <div class="cn-section">
-          <div class="cn-section-hdr">
-            <span class="cn-section-title">Action items</span>
-            <span class="cn-pending-badge">2 pending</span>
-          </div>
-
-          <div class="cn-action-item">
-            <div class="cn-action-icon">
-              <span class="material-icons" style="font-size:16px">description</span>
-            </div>
-            <div class="cn-action-text">
-              <div class="cn-action-title">Review and approve Winter 2026 contract with Sunshine Tours</div>
-              <div class="cn-action-due">Due in 2 days</div>
-            </div>
-            <span class="cn-medium-badge">Medium</span>
-            <button class="cn-take-action">Take action</button>
-          </div>
-
-          <div class="cn-action-item">
-            <div class="cn-action-icon">
-              <span class="material-icons" style="font-size:16px">trending_up</span>
-            </div>
-            <div class="cn-action-text">
-              <div class="cn-action-title">Update rate sheet for Beach Holidays Ltd – Q2 2026</div>
-              <div class="cn-action-due">Due in 5 days</div>
-            </div>
-            <span class="cn-medium-badge">Medium</span>
-            <button class="cn-take-action">Take action</button>
-          </div>
-        </div>
-
-        <!-- NOTES -->
-        <div class="cn-section">
-          <div class="cn-section-hdr">
-            <span class="cn-section-title">Notes</span>
-            <button class="cn-add-note-btn" id="btnAddNote">+ Add note</button>
-          </div>
-
-          <div class="cn-note-card">
-            <div class="cn-note-hdr">
-              <span class="cn-note-title">Q1 2026 Strategy Discussion</span>
-              <span class="cn-note-tag">Strategy</span>
-            </div>
-            <p class="cn-note-body">Follow up with Sunshine Tours regarding early booking incentives. Consider 13% discount for bookings made 6+ months in advance.</p>
-            <div class="cn-note-footer">
-              <span>Sarah Chan</span>
-              <span>·</span>
-              <span>Feb 5, 2026</span>
-            </div>
-          </div>
-
-          <div class="cn-note-card">
-            <div class="cn-note-hdr">
-              <span class="cn-note-title">Contract Negotiation Points</span>
-              <span class="cn-note-tag">Contracts</span>
-            </div>
-            <p class="cn-note-body">Key points for Beach Holidays Ltd renewal: maintain current allocation, increase rates by 8%, add blackout dates for peak summer weekends.</p>
-            <div class="cn-note-footer">
-              <span>Michael Torres</span>
-              <span>·</span>
-              <span>Feb 1, 2026</span>
-            </div>
-          </div>
-        </div>
-
         <!-- COMMUNICATION RECORDS -->
         <div class="cn-section" style="border-bottom:none">
           <div class="cn-section-hdr">
@@ -2136,7 +2070,6 @@
   <div class="to-tabs to-page-tabs">
     <div class="st-tabs-inner">
       <button class="st-tab active" data-stab="operators">tour operator</button>
-      <button class="st-tab" data-stab="stopsales">Stop Sales &amp; Alerts</button>
       <button class="st-tab" data-stab="autopilot">Autopilot</button>
     </div>
   </div>
@@ -2373,76 +2306,6 @@
 
     </div><!-- /stPanel-operators -->
 
-    <!-- ═══ STOP SALES & ALERTS PANEL ═══ -->
-    <div class="st-panel" id="stPanel-stopsales" style="display:none">
-
-      <div style="margin-bottom:24px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--text-primary);margin:0 0 4px">Stop Sales &amp; Alerts</h3>
-        <p style="font-size:14px;color:var(--text-muted);margin:0">Configure stop sale rules, alert thresholds, and room-type visibility</p>
-      </div>
-
-      <!-- Section 1: Stop Rules -->
-      <div style="padding:16px 0;border-bottom:1px solid var(--border)">
-        <div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:4px">Stop Rules</div>
-        <div style="font-size:14px;color:var(--text-muted);margin-bottom:14px">Define conditions that trigger stop sale alerts or actions per room type</div>
-        <div id="stopRulesGrid" style="width:100%"></div>
-      </div>
-
-      <!-- Section 2: Room-Type Stop Sale Visibility -->
-      <div style="padding:16px 0;border-bottom:1px solid var(--border)">
-        <div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:4px">Room-Type Stop Sale Visibility</div>
-        <div style="font-size:14px;color:var(--text-muted);margin-bottom:14px">Choose which room types show stop sale indicators on the calendar</div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px">
-          <label class="ds-radio-label"><input type="checkbox" checked> Standard</label>
-          <label class="ds-radio-label"><input type="checkbox" checked> Superior</label>
-          <label class="ds-radio-label"><input type="checkbox" checked> Deluxe</label>
-          <label class="ds-radio-label"><input type="checkbox"> Suite</label>
-          <label class="ds-radio-label"><input type="checkbox" checked> Family</label>
-        </div>
-      </div>
-
-      <!-- Section 3: Global Alert Settings -->
-      <div style="padding:16px 0">
-        <div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:4px">Global Alert Settings</div>
-        <div style="font-size:14px;color:var(--text-muted);margin-bottom:14px">Set default alert frequency and notification channel for all stop sale rules</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px">
-          <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Default Alert Frequency</div>
-            <select class="ds-select" style="width:100%">
-              <option selected>Daily digest</option>
-              <option>Weekly digest</option>
-              <option>Monthly summary</option>
-              <option>Disabled</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Alert Channel</div>
-            <select class="ds-select" style="width:100%">
-              <option selected>Email + In-app</option>
-              <option>Email only</option>
-              <option>In-app only</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Hotel-Wide Stop Threshold</div>
-            <select class="ds-select" style="width:100%">
-              <option>85% total occupancy</option>
-              <option selected>90% total occupancy</option>
-              <option>95% total occupancy</option>
-              <option>Disabled</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px">Auto Stop Sale</div>
-            <div style="display:flex;align-items:center;gap:8px;padding:8px 0">
-              <span style="font-size:13px;color:var(--text-muted)">Disabled</span>
-              <span style="font-size:10px;background:#e5e7eb;color:#6b7280;padding:2px 6px;border-radius:4px;font-weight:600">COMING SOON</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /stPanel-stopsales -->
 
     <div class="st-panel" id="stPanel-autopilot" style="display:none">
 
@@ -3450,20 +3313,20 @@
         </label>
 
         <label class="figma-tb-opt">
-          <input type="radio" name="figmaScope" value="revenue-trend">
-          <span class="figma-tb-opt-icon">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><polyline points="1 10 4 6 7 8 10 3 13 5"/></svg>
-          </span>
-          <span class="figma-tb-opt-label">Trends</span>
-          <span class="figma-tb-opt-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="1 4 4 7 9 1"/></svg></span>
-        </label>
-
-        <label class="figma-tb-opt">
           <input type="radio" name="figmaScope" value="demand-calendar">
           <span class="figma-tb-opt-icon">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="2.5" width="12" height="10" rx="1.5"/><line x1="1" y1="5.5" x2="13" y2="5.5"/><line x1="4.5" y1="1" x2="4.5" y2="4"/><line x1="9.5" y1="1" x2="9.5" y2="4"/></svg>
           </span>
           <span class="figma-tb-opt-label">Calendar</span>
+          <span class="figma-tb-opt-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="1 4 4 7 9 1"/></svg></span>
+        </label>
+
+        <label class="figma-tb-opt">
+          <input type="radio" name="figmaScope" value="revenue-trend">
+          <span class="figma-tb-opt-icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><polyline points="1 10 4 6 7 8 10 3 13 5"/></svg>
+          </span>
+          <span class="figma-tb-opt-label">Trends</span>
           <span class="figma-tb-opt-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="1 4 4 7 9 1"/></svg></span>
         </label>
 
