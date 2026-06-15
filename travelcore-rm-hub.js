@@ -3985,14 +3985,6 @@ function clearCalSelection() {
     });
 
     // ── Position popup ──
-    const rect = cell.getBoundingClientRect();
-    const popW = 350;
-    let left = rect.right + 10;
-    let top  = rect.top;
-    if (left + popW > window.innerWidth - 12) left = rect.left - popW - 10;
-    popup.style.left = left + 'px';
-    popup.style.top  = top  + 'px';
-    popup.style.maxHeight = (window.innerHeight - top - 20) + 'px';
     popup.classList.remove('tw-hidden');
     popup.classList.add('tw-flex');
   }
