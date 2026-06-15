@@ -1039,8 +1039,8 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   flex-direction: column; align-items: flex-start; gap: 1px;
 }
 /* Hotel / TO default (overridden by cal-on-dark / cal-on-light when contrast runs) */
-.cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #1C1C1C; }
-.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #5CEADE; }
+.cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #053C3C; }
+.cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #38AAA3; }
 
 /* Contrast-aware text — white on dark fills, black on light (heatmap + occ) */
 .cal-day.cal-on-dark .day-num,
@@ -2171,7 +2171,8 @@ body.dark .cal-days { border-top-color: #1a3336; border-left-color: #1a3336; }
 body.dark .day-num { color: #c8e6e5; }
 body.dark .day-muted { color: #5a8a89; }
 body.dark .cell-m-hotel .cell-m-label, body.dark .cell-m-hotel .cell-m-val { color: #e0e4e4; }
-body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #5ceade; }
+body.dark .cell-m-to .cell-m-label, body.dark .cell-m-to .cell-m-val { color: #38AAA3; }
+body.dark .cell-m-hotel .cell-m-label, body.dark .cell-m-hotel .cell-m-val { color: #053C3C; }
 body.dark .cal-dow span { color: #7aabad; }
 body.dark .cal-month-name:hover { color: var(--accent); }
 body.dark .cell-closed-label { background: rgba(211,47,47,.3); color: #ef9a9a; }
