@@ -491,7 +491,14 @@
                 </div>
               </div>
 
-              <div class="cal-metrics-dropdown" id="calMetricsDropdown" style="display:none">
+              <div class="cal-metrics-modal-overlay" id="calMetricsModalOverlay" onclick="calMetricsModalBg(event)" style="display:none">
+              <div class="cal-metrics-dropdown cal-metrics-modal" id="calMetricsDropdown" style="display:none">
+                <div class="cal-md-header">
+                  <span class="cal-md-modal-title">Calendar Settings</span>
+                  <button type="button" class="cal-md-close" onclick="calMetricsModalClose()" aria-label="Close">
+                    <span class="material-icons" style="font-size:22px;color:#1C1C1C">close</span>
+                  </button>
+                </div>
                 <div class="cal-md-scroll">
                 <div class="cal-md-segments" id="cmSegSection">
                   <p class="cal-md-section-title">Segments to show</p>
@@ -674,6 +681,7 @@
                   <button type="button" class="cal-md-apply" id="cmApplyBtn" onclick="cmApplyMetrics()">Apply</button>
                 </div>
               </div>
+              </div><!-- /cal-metrics-modal-overlay -->
 
                 </div>
             <!-- Compare — Figma Selector (1315:38117) -->
@@ -1102,10 +1110,10 @@
                 <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
               </button>
               <div class="cmp-select-menu ds-select-menu" id="wvCmpSelectMenu" role="listbox" style="display:none">
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="none" onclick="wvPickCompare('none', event)"><span class="wv-ms-cb"></span><span>None</span></button>
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="stly" onclick="wvPickCompare('stly', event)"><span class="wv-ms-cb"></span><span>STLY</span></button>
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="ly" onclick="wvPickCompare('ly', event)"><span class="wv-ms-cb"></span><span>LY</span></button>
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="fcst" onclick="wvPickCompare('fcst', event)"><span class="wv-ms-cb"></span><span>Forecast</span></button>
+                <button type="button" class="ds-select-opt active" data-cmp="none" onclick="wvPickCompare('none', event)">None</button>
+                <button type="button" class="ds-select-opt" data-cmp="stly" onclick="wvPickCompare('stly', event)">STLY</button>
+                <button type="button" class="ds-select-opt" data-cmp="ly" onclick="wvPickCompare('ly', event)">LY</button>
+                <button type="button" class="ds-select-opt" data-cmp="fcst" onclick="wvPickCompare('fcst', event)">Forecast</button>
               </div>
             </div>
 

@@ -4176,30 +4176,24 @@ document.addEventListener('click', function(e) {
   if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
 });
 function wvSyncCmpDd() {
-  var _names = {stly:'STLY', ly:'LY', fcst:'Forecast'};
-  var labelTxt = wvCompare.size === 0
-    ? 'Compare'
-    : ['stly','ly','fcst'].filter(function(k){ return wvCompare.has(k); }).map(function(k){ return _names[k]; }).join(', ');
+  var _names = {none:'Compare', stly:'STLY', ly:'LY', fcst:'Forecast'};
+  var current = wvCompare.size === 0 ? 'none' : (wvCompare.has('stly') ? 'stly' : wvCompare.has('ly') ? 'ly' : 'fcst');
   var menu = document.getElementById('wvCmpSelectMenu');
   if (menu) {
     menu.querySelectorAll('.ds-select-opt').forEach(function(item) {
       var k = item.dataset.cmp;
-      var active = (k === 'none') ? wvCompare.size === 0 : wvCompare.has(k);
+      var active = (k === current);
       item.classList.toggle('active', active);
       var cb = item.querySelector('.wv-ms-cb');
       if (cb) cb.classList.toggle('checked', active);
     });
   }
   var lbl = document.getElementById('wvCmpSelectLabel');
-  if (lbl) lbl.textContent = labelTxt;
+  if (lbl) lbl.textContent = _names[current] || 'Compare';
 }
 function wvSetCompare(val) {
-  if (val === 'none') {
-    wvCompare.clear();
-  } else {
-    if (wvCompare.has(val)) wvCompare.delete(val);
-    else wvCompare.add(val);
-  }
+  wvCompare.clear();
+  if (val && val !== 'none') wvCompare.add(val);
   wvSyncCmpDd();
   buildWeekGrid(wvMonth, wvWeekStart, wvWeekStart);
 }
@@ -11539,18 +11533,21 @@ document.addEventListener('click', function(e) {
       }
     }
 
-    // ── Normal calendar mode ──────────────────────────────────
+    // ── Normal calendar mode (now opens as centered modal) ────
+    var overlay = document.getElementById('calMetricsModalOverlay');
     var dd  = document.getElementById('calMetricsDropdown');
     var wrap = document.getElementById('calMetricsWrap');
     var calCard = document.getElementById('demand-calendar');
-    var isOpen = dd && dd.style.display !== 'none';
+    var isOpen = overlay && overlay.style.display !== 'none';
     if (isOpen) {
-      dd.style.display = 'none';
+      if (overlay) overlay.style.display = 'none';
+      if (dd) dd.style.display = 'none';
       if (wrap) wrap.classList.remove('cal-metrics-open');
       if (calCard) calCard.classList.remove('cal-metrics-panel-open');
       e.stopPropagation(); return;
     }
-    dd.style.display = 'flex';
+    if (overlay) overlay.style.display = 'flex';
+    if (dd) dd.style.display = 'flex';
     if (wrap) wrap.classList.add('cal-metrics-open');
     if (calCard) calCard.classList.add('cal-metrics-panel-open');
     if (window.cmSyncOnOpen) window.cmSyncOnOpen();
@@ -11560,17 +11557,26 @@ document.addEventListener('click', function(e) {
   if (e.target.closest('.cal-md-cb[data-cm-key]')) {
     e.stopPropagation(); return;
   }
-  if (!e.target.closest('#calMetricsWrap') && !e.target.closest('#dailyRevColPanel')) {
-    var dd2 = document.getElementById('calMetricsDropdown');
-    var wrap2 = document.getElementById('calMetricsWrap');
-    var calCard2 = document.getElementById('demand-calendar');
-    if (dd2) dd2.style.display = 'none';
-    if (wrap2) wrap2.classList.remove('cal-metrics-open');
-    if (calCard2) calCard2.classList.remove('cal-metrics-panel-open');
+  // Closing now handled by modal backdrop click (calMetricsModalBg)
+  if (!e.target.closest('#calMetricsWrap') && !e.target.closest('#dailyRevColPanel') && !e.target.closest('#calMetricsModalOverlay')) {
     var drp2 = document.getElementById('dailyRevColPanel');
     if (drp2) drp2.style.display = 'none';
   }
 });
+
+window.calMetricsModalClose = function() {
+  var overlay = document.getElementById('calMetricsModalOverlay');
+  var dd = document.getElementById('calMetricsDropdown');
+  var wrap = document.getElementById('calMetricsWrap');
+  var calCard = document.getElementById('demand-calendar');
+  if (overlay) overlay.style.display = 'none';
+  if (dd) dd.style.display = 'none';
+  if (wrap) wrap.classList.remove('cal-metrics-open');
+  if (calCard) calCard.classList.remove('cal-metrics-panel-open');
+};
+window.calMetricsModalBg = function(e) {
+  if (e.target.id === 'calMetricsModalOverlay') window.calMetricsModalClose();
+};
 
 // ── Daily R column group toggle ──────────────────────────────
 var _drColVisibility = {

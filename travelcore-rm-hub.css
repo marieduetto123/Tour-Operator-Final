@@ -6367,7 +6367,7 @@ body.dark .ag-header-cell-resize::after { background: #2a3d40 !important; }
   position: fixed; inset: 0;
   background: rgba(0,0,0,.5);
   z-index: 400;
-  display: flex; align-items: flex-start; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   padding: 40px 16px;
   overflow-y: auto;
 }
@@ -8904,8 +8904,7 @@ body.dark .cal-cap-tip-line--avail.cal-cap-tip-line--ok { color: #dde1e2; }
 /* ── Heatmap modal (Figma 2026) ── */
 .hm-modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 9998;
-  background: rgba(0,0,0,.35); align-items: flex-start; justify-content: center;
-  padding-top: 60px;
+  background: rgba(0,0,0,.35); align-items: center; justify-content: center;
 }
 .hm-modal {
   background: #FAFAFA; border-radius: 4px; width: 660px; max-width: 95vw;
@@ -9823,3 +9822,47 @@ body:not(.dark) .an-kpi-card {
 
 /* Move Room type sales by segment to bottom */
 #room-type { order: 999; }
+
+/* ─── Calendar Settings modal (was Cell Metrics dropdown) ─── */
+.cal-metrics-modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.35);
+  align-items: center; justify-content: center;
+}
+.cal-metrics-modal-overlay[style*="flex"] { display: flex !important; }
+.cal-metrics-dropdown.cal-metrics-modal {
+  position: static !important;
+  top: auto !important; right: auto !important; left: auto !important;
+  width: 560px !important; max-width: 94vw !important;
+  max-height: 85vh !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 2px 1px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.14) !important;
+  padding: 0 !important;
+  background: #FAFAFA !important;
+}
+.cal-md-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid #DDE1E2;
+  background: #FAFAFA;
+}
+.cal-md-modal-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 24px; font-weight: 400; color: #1C1C1C; line-height: 1;
+}
+.cal-md-close {
+  background: none; border: none; cursor: pointer;
+  padding: 0; line-height: 0;
+}
+.cal-md-close:hover { opacity: .7; }
+
+/* Ensure all known modals center via flex (override legacy display:block) */
+.modal-overlay[style*="block"],
+.modal-overlay[style*="flex"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.ts-modal-overlay[style*="block"] {
+  display: flex !important;
+}
