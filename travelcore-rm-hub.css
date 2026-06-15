@@ -1042,37 +1042,23 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 .cell-m-hotel .cell-m-label, .cell-m-hotel .cell-m-val { color: #053C3C; }
 .cell-m-to .cell-m-label, .cell-m-to .cell-m-val { color: #38AAA3; }
 
-/* Contrast-aware text — white on dark fills, black on light (heatmap + occ) */
+/* Contrast-aware text — white on dark fills, black on light (heatmap + occ).
+   TO/Hotel metric rows opt out — they use their own brand colors. */
 .cal-day.cal-on-dark .day-num,
-.cal-day.cal-on-dark .cell-m-label,
-.cal-day.cal-on-dark .cell-m-val,
-.cal-day.cal-on-dark .cell-m-hotel .cell-m-label,
-.cal-day.cal-on-dark .cell-m-hotel .cell-m-val,
-.cal-day.cal-on-dark .cell-m-to .cell-m-label,
-.cal-day.cal-on-dark .cell-m-to .cell-m-val,
 .cal-day.cal-on-dark .cell-eye,
 .cal-day.cal-on-dark .cell-eye .material-icons {
   color: rgba(255, 255, 255, 0.92) !important;
 }
 .cal-day.cal-on-light .day-num,
-.cal-day.cal-on-light .cell-m-label,
-.cal-day.cal-on-light .cell-m-val,
-.cal-day.cal-on-light .cell-m-hotel .cell-m-label,
-.cal-day.cal-on-light .cell-m-hotel .cell-m-val,
-.cal-day.cal-on-light .cell-m-to .cell-m-label,
-.cal-day.cal-on-light .cell-m-to .cell-m-val,
 .cal-day.cal-on-light .cell-eye,
 .cal-day.cal-on-light .cell-eye .material-icons {
   color: #1C1C1C !important;
 }
-.cal-day .cell-content.cal-on-dark .cell-m-label,
-.cal-day .cell-content.cal-on-dark .cell-m-val {
-  color: rgba(255, 255, 255, 0.92) !important;
-}
-.cal-day .cell-content.cal-on-light .cell-m-label,
-.cal-day .cell-content.cal-on-light .cell-m-val {
-  color: #1C1C1C !important;
-}
+/* Force TO/Hotel metric brand colors regardless of fill */
+.cal-day .cell-m-to .cell-m-label,
+.cal-day .cell-m-to .cell-m-val { color: #38AAA3 !important; }
+.cal-day .cell-m-hotel .cell-m-label,
+.cal-day .cell-m-hotel .cell-m-val { color: #053C3C !important; }
 
 /* Inline compare delta — hidden until cell is wide enough (container query + JS class) */
 .cell-m-cmp-wrap {
