@@ -347,8 +347,8 @@ function getRadioVal(name) {
 }
 
 // Color palettes for TO/Source Geo/Source individual lines
-const TO_LINE_COLORS   = { tui:'#0ea5e9', 'thomas-cook':'#f59e0b', jet2:'#10b981', fti:'#967EF3', sunwing:'#ec4899', 'club-med':'#f97316' };
-const TO_LINE_LABELS   = { tui:'TUI Group', 'thomas-cook':'Thomas Cook', jet2:'Jet2holidays', fti:'FTI Group', sunwing:'Sunwing', 'club-med':'Club Med' };
+const TO_LINE_COLORS   = { tui:'#0ea5e9', jet2:'#10b981', fti:'#967EF3', sunwing:'#ec4899', 'club-med':'#f97316' };
+const TO_LINE_LABELS   = { tui:'TUI Group', jet2:'Jet2holidays', fti:'FTI Group', sunwing:'Sunwing', 'club-med':'Club Med' };
 const ORIGIN_COLORS    = { UK:'#3b82f6', SP:'#f97316', US:'#10b981', MX:'#ec4899' };
 const SOURCE_COLORS    = { contract:'#006461', promo:'#967EF3', direct_web:'#0ea5e9', gds_source:'#f59e0b', walk_in:'#6b7280' };
 const SOURCE_LABELS    = { contract:'Contract', promo:'Promotion', direct_web:'Direct Web', gds_source:'GDS', walk_in:'Walk-in' };
@@ -1429,7 +1429,7 @@ let calSelEnd    = null;  // { month, day } — range end
 let calSelPicking = false; // true after first click, waiting for end
 
 // Filter bar state
-const TO_FILTER_MULT = { all:1.0, sunwing:0.82, tui:1.18, 'thomas-cook':0.71, 'club-med':1.08 };
+const TO_FILTER_MULT = { all:1.0, sunwing:0.82, tui:1.18, 'club-med':1.08 };
 let calFiltTO = 'all';
 let calCompareMode = 'none'; // 'stly' | 'ly' | 'fcst' | 'none'
 
@@ -1566,7 +1566,6 @@ function _calBindCompareResizeObserver() {
 const ALLOTMENTS = {
   sunwing:       { total: 42, pct: 0.88 },
   tui:           { total: 55, pct: 0.72 },
-  'thomas-cook': { total: 30, pct: 0.58 },
   'club-med':    { total: 25, pct: 0.94 },
 };
 
@@ -10767,7 +10766,7 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
   if (!overlay || !modal) return;
 
   // ── Static data ────────────────────────────────────────────────
-  const OPERATORS  = ['TUI Group','Thomas Cook','Sunwing','Club Med','Jet2 Holidays'];
+  const OPERATORS  = ['TUI Group','Sunwing','Club Med','Jet2 Holidays'];
   const ROOM_TYPES = ['Standard Double','Superior Double','Junior Suite','Suite','Deluxe Ocean View'];
   const BOARD_TYPES = ['All Inclusive','Full Board','Half Board','Bed & Breakfast','Room Only'];
 
@@ -11254,7 +11253,7 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
 
   // ── Shared: build a pre-populated rule from the active view's filter state ──
   function _coPrePopulateRule(ctx) {
-    var _TO_MAP    = { sunwing: 'Sunwing', tui: 'TUI Group', 'thomas-cook': 'Thomas Cook', 'club-med': 'Club Med' };
+    var _TO_MAP    = { sunwing: 'Sunwing', tui: 'TUI Group', 'club-med': 'Club Med' };
     var _ROOM_MAP  = { standard: 'Standard Double', superior: 'Superior Double', deluxe: 'Deluxe Ocean View', suite: 'Suite' };
     var _BOARD_MAP = { ai: 'All Inclusive', bb: 'Bed & Breakfast', ro: 'Room Only', hb: 'Half Board', fb: 'Full Board' };
     var _opsSet = new Set(['all']), _roomsSet = new Set(['all']), _boardsSet = new Set(['all']);
@@ -12002,7 +12001,6 @@ setTimeout(function() { window.renderPickupMetricItems(); }, 600);
   // ── Generate Q1 2026 demo data ─────────────────────────────────────────
   var TOUR_OPS = [
     {name:'TUI Group',           baseSold:24, baseAdr:76},
-    {name:'Thomas Cook',         baseSold:28, baseAdr:76},
     {name:'Jet2holidays',        baseSold:32, baseAdr:76},
     {name:'FTI Group',           baseSold:33, baseAdr:80},
     {name:'DER Touristik',       baseSold:28, baseAdr:78},
@@ -13567,19 +13565,17 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
   // ── Static data ───────────────────────────────────────────────
   const INS_TOS = [
     { id:'TUI Group',    name:'TUI Group',    color:'#0ea5e9' },
-    { id:'Thomas Cook',  name:'Thomas Cook',  color:'#f59e0b' },
     { id:'Jet2holidays', name:'Jet2holidays', color:'#10b981' },
     { id:'FTI Group',    name:'FTI Group',    color:'#967EF3' },
     { id:'Sunwing',      name:'Sunwing',      color:'#ec4899' },
     { id:'Club Med',     name:'Club Med',     color:'#f97316' },
   ];
   const INS_CONTRACTS = [
-    { id:'C-2025-TUI-001', name:'Summer 2025',    tos:['TUI Group','Thomas Cook'],  type:'Static', season:'Summer', releaseDate:'2025-04-15' },
+    { id:'C-2025-TUI-001', name:'Summer 2025',    tos:['TUI Group','Jet2holidays'],  type:'Static', season:'Summer', releaseDate:'2025-04-15' },
     { id:'C-2025-TUI-002', name:'Winter 2025',    tos:['TUI Group','Jet2holidays'], type:'Static', season:'Winter', releaseDate:'2025-09-01' },
-    { id:'C-2025-TC-001',  name:'Winter 2025 II', tos:['Thomas Cook','FTI Group'],  type:'Static', season:'Winter', releaseDate:'2025-09-20' },
     { id:'C-2025-J2-001',  name:'Annual 2025',    tos:['Jet2holidays','Sunwing'],   type:'Static', season:'Annual', releaseDate:'2025-01-10' },
     { id:'C-2025-FTI-001', name:'Q1 2025',        tos:['FTI Group','Club Med'],     type:'Static', season:'Q1',     releaseDate:'2024-12-01' },
-    { id:'C-2025-SW-001',  name:'Spring 2025',    tos:['Sunwing','Thomas Cook'],    type:'Static', season:'Spring', releaseDate:'2025-02-28' },
+    { id:'C-2025-SW-001',  name:'Spring 2025',    tos:['Sunwing','Club Med'],    type:'Static', season:'Spring', releaseDate:'2025-02-28' },
   ];
   const INS_PROMOS = [
     { id:'EBB',   name:'Early Bird Booking', discount:12 },
@@ -13625,7 +13621,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
   const DD_LABELS = {
     meal:     { all:'All Meal Plans', items:{ HB:'Half Board', AI:'All Inclusive', RO:'Room Only' } },
     origin:   { all:'All Origins',    items:{ UK:'UK', SP:'Spain', US:'US', MX:'Mexico' } },
-    to:       { all:'All TOs',        items:{ 'TUI Group':'TUI Group','Thomas Cook':'Thomas Cook','Jet2holidays':'Jet2holidays','FTI Group':'FTI Group','Sunwing':'Sunwing','Club Med':'Club Med' } },
+    to:       { all:'All TOs',        items:{ 'TUI Group':'TUI Group','Jet2holidays':'Jet2holidays','FTI Group':'FTI Group','Sunwing':'Sunwing','Club Med':'Club Med' } },
     contract: { all:'All Contracts',  items:{ 'C-2025-TUI-001':'Summer 2025','C-2025-TUI-002':'Winter 2025','C-2025-TC-001':'Winter 2025 II','C-2025-J2-001':'Annual 2025','C-2025-FTI-001':'Q1 2025','C-2025-SW-001':'Spring 2025' } },
   };
 
@@ -13717,7 +13713,6 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
   // Per-TO base profiles — gives each operator meaningfully different numbers
   const TO_PROFILES = {
     'TUI Group':    { rnBase:420, adrBase:112, lyMult:0.91, slyMult:0.84, losMod:3.8, leadMod:52 },
-    'Thomas Cook':  { rnBase:185, adrBase:148, lyMult:0.79, slyMult:0.72, losMod:2.2, leadMod:28 },
     'Jet2holidays': { rnBase:310, adrBase:96,  lyMult:0.93, slyMult:0.87, losMod:3.1, leadMod:41 },
     'FTI Group':    { rnBase:265, adrBase:105, lyMult:0.88, slyMult:0.82, losMod:4.0, leadMod:35 },
     'Sunwing':      { rnBase:190, adrBase:122, lyMult:0.85, slyMult:0.78, losMod:5.2, leadMod:60 },
@@ -15780,7 +15775,7 @@ window.calHideCapTip = function() {
 
   // Labels for display
   var LABELS = {
-    to:     { all: 'Operator', map: { sunwing:'Sunwing', tui:'TUI', 'thomas-cook':'Thomas Cook', 'club-med':'Club Med', jet2:'Jet2' } },
+    to:     { all: 'Operator', map: { sunwing:'Sunwing', tui:'TUI', 'club-med':'Club Med', jet2:'Jet2' } },
     rt:     { all: 'Room Type',     map: { standard:'Standard', superior:'Superior', deluxe:'Deluxe', suite:'Suite' } },
     mp:     { all: 'Meal Plan',     map: { ai:'All Incl.', hb:'Half Board', bb:'B&B', ro:'Room Only' } },
     origin: { all: 'Source Geo',        map: { UK:'UK', SP:'Spain', US:'US', MX:'Mexico' } },
