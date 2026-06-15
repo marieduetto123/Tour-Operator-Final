@@ -3887,12 +3887,27 @@ body.dark .wv-acc-title { color: #fff; }
   gap: 3px;
   padding: 2px 8px;
   border-radius: 9999px;
-  border: 1px solid #DDE1E2;
+  border: 1px solid #B3DDDC;
   background: #fff;
   margin-left: 6px;
 }
+.wv-cmp-val-txt::before {
+  content: '';
+  display: inline-block;
+  width: 12px; height: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23006461' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='1 10 4 6 7 8 10 3 13 5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
 .wv-cmp-val-txt.wv-cmp-up { color: #28592C; background:#E8F5E9; border-color:#E8F5E9; }
+.wv-cmp-val-txt.wv-cmp-up::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%2328592C' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10l4-4 4 4'/%3E%3C/svg%3E");
+}
 .wv-cmp-val-txt.wv-cmp-dn { color: #991F1F; background:#FFEBEE; border-color:#FFEBEE; }
+.wv-cmp-val-txt.wv-cmp-dn::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23991F1F' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4l4 4 4-4'/%3E%3C/svg%3E");
+}
 .wv-cmp-val-txt.wv-cmp-neutral { color: #006461; }
 body.dark .wv-cmp-sep { color: #7aabad; }
 body.dark .wv-cmp-val-txt { color: #7aabad; }
