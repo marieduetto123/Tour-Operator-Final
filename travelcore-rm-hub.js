@@ -4198,8 +4198,8 @@ function wvSetCompare(val) {
   if (val === 'none') {
     wvCompare.clear();
   } else {
-    if (wvCompare.has(val)) wvCompare.delete(val);
-    else wvCompare.add(val);
+    wvCompare.clear();
+    wvCompare.add(val);
   }
   wvSyncCmpDd();
   buildWeekGrid(wvMonth, wvWeekStart, wvWeekStart);
@@ -11540,21 +11540,12 @@ document.addEventListener('click', function(e) {
       }
     }
 
-    // ── Normal calendar mode ──────────────────────────────────
-    var dd  = document.getElementById('calMetricsDropdown');
-    var wrap = document.getElementById('calMetricsWrap');
-    var calCard = document.getElementById('demand-calendar');
-    var isOpen = dd && dd.style.display !== 'none';
-    if (isOpen) {
-      dd.style.display = 'none';
-      if (wrap) wrap.classList.remove('cal-metrics-open');
-      if (calCard) calCard.classList.remove('cal-metrics-panel-open');
-      e.stopPropagation(); return;
+    // ── Normal calendar mode: open modal ──────────────────────
+    var modal = document.getElementById('calMetricsModal');
+    if (modal) {
+      modal.classList.add('open');
+      if (window.cmSyncOnOpen) window.cmSyncOnOpen();
     }
-    dd.style.display = 'flex';
-    if (wrap) wrap.classList.add('cal-metrics-open');
-    if (calCard) calCard.classList.add('cal-metrics-panel-open');
-    if (window.cmSyncOnOpen) window.cmSyncOnOpen();
     e.stopPropagation(); return;
   }
   // Metric checkbox clicks are handled by inline onclick="cmToggleMetric()" — just stop propagation here
@@ -16113,19 +16104,15 @@ window.calHideCapTip = function() {
   };
 
   window.cmApplyMetrics = function() {
-    var dd = document.getElementById('calMetricsDropdown');
-    var wrap = document.getElementById('calMetricsWrap');
-    var calCard = document.getElementById('demand-calendar');
-    if (dd) dd.style.display = 'none';
-    if (wrap) wrap.classList.remove('cal-metrics-open');
-    if (calCard) calCard.classList.remove('cal-metrics-panel-open');
+    var modal = document.getElementById('calMetricsModal');
+    if (modal) modal.classList.remove('open');
     renderCalendar();
   };
 
   // ── Reset: uncheck all metrics ──────────────────────────────────
   window.cmResetMetrics = function() {
     cmMetrics = [];
-    document.querySelectorAll('#calMetricsDropdown .cal-md-cb').forEach(function(cb) {
+    document.querySelectorAll('#calMetricsModal .cal-md-cb').forEach(function(cb) {
       cb.classList.remove('checked');
     });
     updateHint();
@@ -16157,6 +16144,15 @@ window.calHideCapTip = function() {
     });
   }
 
+  // Modal background click to close
+  var cmModal = document.getElementById('calMetricsModal');
+  if (cmModal) {
+    cmModal.addEventListener('click', function(e) {
+      if (e.target.id === 'calMetricsModal') {
+        cmApplyMetrics();
+      }
+    });
+  }
 
   // ── Build metric rows for a cell ──────────────────────────────
   // Exposed globally so renderCalendar can call it

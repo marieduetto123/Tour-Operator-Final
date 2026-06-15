@@ -185,270 +185,6 @@
       <!-- ╔══════════════════════════════════════════════╗ -->
       <!-- ║  REVENUE TREND                               ║ -->
       <!-- ╚══════════════════════════════════════════════╝ -->
-      <div class="section-card" id="revenue-trend">
-        <div class="section-header">
-          <div>
-            <h3 class="section-title">Trends</h3>
-            <p class="section-sub" id="revSubtitle">Total Guests – Segment Comparison</p>
-          </div>
-        </div>
-        <div class="filter-bar rev-filter-bar">
-          <div class="filter-group">
-            <label>Metric</label>
-            <select id="revMetric">
-              <option value="revenue">Revenue</option>
-              <option value="adr">ADR</option>
-              <option value="nights">Room Nights</option>
-              <option value="occ">Occupancy</option>
-              <option value="bookings">Contract Bookings</option>
-              <option value="avg_guests">Avg Guests</option>
-              <option value="total_guests" selected>Total Guests</option>
-              <option value="contracted_rates">Contracted Rates</option>
-              <option value="allotments">Allotments / Guarantees</option>
-            </select>
-          </div>
-          <div class="filter-group rev-board-group">
-            <label>Segment</label>
-            <div class="rev-board-wrap" id="revSegmentWrap">
-              <button type="button" class="rev-board-trigger" id="revSegmentBtn">All Segments<span class="material-icons" style="font-size:14px">expand_more</span></button>
-              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revSegmentDropdown" style="display:none">
-                <div class="rev-dd-mode-row">
-                  <span class="rev-dd-mode-lbl">Display as:</span>
-                  <label class="rev-board-opt"><input type="radio" name="revSegmentMode" value="combined" checked> Combined (1 line)</label>
-                  <label class="rev-board-opt"><input type="radio" name="revSegmentMode" value="individual"> Individual lines</label>
-                </div>
-                <div class="rev-dd-divider"></div>
-                <label class="rev-board-opt"><input type="checkbox" value="to" checked> Static FIT Rates</label>
-                <label class="rev-board-opt"><input type="checkbox" value="to_dynamic" checked> Operator Dynamic</label>
-                <label class="rev-board-opt"><input type="checkbox" value="direct" checked> Direct Bookings</label>
-                <label class="rev-board-opt"><input type="checkbox" value="gds" checked> GDS</label>
-                <label class="rev-board-opt"><input type="checkbox" value="corporate"> Corporate</label>
-              </div>
-            </div>
-          </div>
-          <div class="filter-group rev-board-group">
-            <label>Room Type</label>
-            <div class="rev-board-wrap" id="revRoomWrap">
-              <button type="button" class="rev-board-trigger" id="revRoomBtn">All Rooms<span class="material-icons" style="font-size:14px">expand_more</span></button>
-              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revRoomDropdown" style="display:none">
-                <div class="rev-dd-mode-row">
-                  <span class="rev-dd-mode-lbl">Display as:</span>
-                  <label class="rev-board-opt"><input type="radio" name="revRoomMode" value="combined" checked> Combined (1 line)</label>
-                  <label class="rev-board-opt"><input type="radio" name="revRoomMode" value="individual"> Individual lines</label>
-                </div>
-                <div class="rev-dd-divider"></div>
-                <label class="rev-board-opt"><input type="checkbox" value="standard" checked> Standard Room</label>
-                <label class="rev-board-opt"><input type="checkbox" value="deluxe" checked> Deluxe Room</label>
-                <label class="rev-board-opt"><input type="checkbox" value="premium" checked> Premium Suite</label>
-                <label class="rev-board-opt"><input type="checkbox" value="executive" checked> Executive Suite</label>
-                <label class="rev-board-opt"><input type="checkbox" value="presidential"> Presidential Suite</label>
-                <label class="rev-board-opt"><input type="checkbox" value="family"> Family Room</label>
-              </div>
-            </div>
-          </div>
-          <div class="filter-group rev-board-group">
-            <label>Meal Plan</label>
-            <div class="rev-board-wrap" id="revBoardWrap">
-              <button type="button" class="rev-board-trigger" id="revBoardBtn">
-                All Types
-                <span class="material-icons" style="font-size:14px">expand_more</span>
-              </button>
-              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revBoardDropdown" style="display:none">
-                <div class="rev-dd-mode-row">
-                  <span class="rev-dd-mode-lbl">Display as:</span>
-                  <label class="rev-board-opt"><input type="radio" name="revBoardMode" value="combined" checked> Combined (1 line)</label>
-                  <label class="rev-board-opt"><input type="radio" name="revBoardMode" value="individual"> Individual lines</label>
-                </div>
-                <div class="rev-dd-divider"></div>
-                <label class="rev-board-opt"><input type="checkbox" value="ai"> All Inclusive</label>
-                <label class="rev-board-opt"><input type="checkbox" value="fb"> Full Board</label>
-                <label class="rev-board-opt"><input type="checkbox" value="hb"> Half Board</label>
-                <label class="rev-board-opt"><input type="checkbox" value="bb"> Bed &amp; Breakfast</label>
-                <label class="rev-board-opt"><input type="checkbox" value="ro"> Room Only</label>
-              </div>
-            </div>
-          </div>
-          <!-- Operator filter -->
-          <div class="filter-group rev-board-group">
-            <label>Operator</label>
-            <div class="rev-board-wrap" id="revTOWrap">
-              <button type="button" class="rev-board-trigger" id="revTOBtn">All TOs<span class="material-icons" style="font-size:14px">expand_more</span></button>
-              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revTODropdown" style="display:none">
-                <div class="rev-dd-mode-row">
-                  <span class="rev-dd-mode-lbl">Display as:</span>
-                  <label class="rev-board-opt"><input type="radio" name="revTOMode" value="combined" checked> Combined (1 line)</label>
-                  <label class="rev-board-opt"><input type="radio" name="revTOMode" value="individual"> Individual lines</label>
-                </div>
-                <div class="rev-dd-divider"></div>
-                <label class="rev-board-opt"><input type="checkbox" value="tui" data-group="revTO" checked> TUI Group</label>
-                <label class="rev-board-opt"><input type="checkbox" value="thomas-cook" data-group="revTO" checked> Thomas Cook</label>
-                <label class="rev-board-opt"><input type="checkbox" value="jet2" data-group="revTO" checked> Jet2holidays</label>
-                <label class="rev-board-opt"><input type="checkbox" value="fti" data-group="revTO"> FTI Group</label>
-                <label class="rev-board-opt"><input type="checkbox" value="sunwing" data-group="revTO"> Sunwing</label>
-                <label class="rev-board-opt"><input type="checkbox" value="club-med" data-group="revTO"> Club Med</label>
-              </div>
-            </div>
-          </div>
-          <!-- Source Geo filter -->
-          <div class="filter-group rev-board-group">
-            <label>Source Geo</label>
-            <div class="rev-board-wrap" id="revOriginWrap">
-              <button type="button" class="rev-board-trigger" id="revOriginBtn">All Origins<span class="material-icons" style="font-size:14px">expand_more</span></button>
-              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revOriginDropdown" style="display:none">
-                <div class="rev-dd-mode-row">
-                  <span class="rev-dd-mode-lbl">Display as:</span>
-                  <label class="rev-board-opt"><input type="radio" name="revOriginMode" value="combined" checked> Combined (1 line)</label>
-                  <label class="rev-board-opt"><input type="radio" name="revOriginMode" value="individual"> Individual lines</label>
-                </div>
-                <div class="rev-dd-divider"></div>
-                <label class="rev-board-opt"><input type="checkbox" value="UK" data-group="revOrigin" checked> UK</label>
-                <label class="rev-board-opt"><input type="checkbox" value="SP" data-group="revOrigin" checked> Spain</label>
-                <label class="rev-board-opt"><input type="checkbox" value="US" data-group="revOrigin"> US</label>
-                <label class="rev-board-opt"><input type="checkbox" value="MX" data-group="revOrigin"> Mexico</label>
-              </div>
-            </div>
-          </div>
-          <!-- Source of Business filter -->
-          <div class="filter-group rev-board-group">
-            <label>Source Code</label>
-            <div class="rev-board-wrap" id="revSourceWrap">
-              <button type="button" class="rev-board-trigger" id="revSourceBtn">All Sources<span class="material-icons" style="font-size:14px">expand_more</span></button>
-              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revSourceDropdown" style="display:none">
-                <div class="rev-dd-mode-row">
-                  <span class="rev-dd-mode-lbl">Display as:</span>
-                  <label class="rev-board-opt"><input type="radio" name="revSourceMode" value="combined" checked> Combined (1 line)</label>
-                  <label class="rev-board-opt"><input type="radio" name="revSourceMode" value="individual"> Individual lines</label>
-                </div>
-                <div class="rev-dd-divider"></div>
-                <label class="rev-board-opt"><input type="checkbox" value="contract" data-group="revSource" checked> Contract</label>
-                <label class="rev-board-opt"><input type="checkbox" value="promo" data-group="revSource" checked> Promotion</label>
-                <label class="rev-board-opt"><input type="checkbox" value="direct_web" data-group="revSource"> Direct Web</label>
-                <label class="rev-board-opt"><input type="checkbox" value="gds_source" data-group="revSource"> GDS</label>
-                <label class="rev-board-opt"><input type="checkbox" value="walk_in" data-group="revSource"> Walk-in</label>
-              </div>
-            </div>
-          </div>
-          <div class="filter-group">
-            <label>Display</label>
-            <select id="revDisplay"><option value="values" selected>Values</option><option value="pct">Percentage</option></select>
-          </div>
-          <div class="filter-group rev-board-group">
-            <div class="rev-board-wrap" id="revCmpWrap">
-              <button type="button" class="rev-board-trigger rev-cmp-trigger" id="revCmpBtn">
-                <span class="material-icons" style="font-size:14px">info</span>
-                Compare
-                <span class="material-icons" style="font-size:14px">expand_more</span>
-              </button>
-              <div class="rev-board-dropdown rev-cmp-panel" id="revCmpDropdown" style="display:none">
-                <button class="rev-cmp-chip" data-cmp="forecast"><span class="rev-cmp-swatch" style="background:#f59e0b"></span>Forecast</button>
-                <button class="rev-cmp-chip rev-cmp-active" data-cmp="ly"><span class="rev-cmp-swatch" style="background:#2563EB"></span>Last Year</button>
-                <button class="rev-cmp-chip" data-cmp="stly"><span class="rev-cmp-swatch" style="background:#15803d"></span>Same Time Last Year</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- ── Revenue Trend: Date Range + Granularity ── -->
-        <div class="filter-bar rev-filter-bar rev-filter-bar-row2" style="flex-wrap:wrap;gap:11px;align-items:center;justify-content:space-between">
-          <div style="position:relative;flex-shrink:0" id="revDRWrap">
-            <button id="revDRTrigger" onclick="revDRToggle()" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;font-size:14px;color:#1c1c1c;cursor:pointer;white-space:nowrap;font-family:inherit;height:36px">
-              <span id="revDRLabel">8/1/2025 – 1/31/2026</span>
-              <span class="material-icons" style="font-size:16px">calendar_today</span>
-            </button>
-            <div id="revDRPanel" style="display:none;position:fixed;top:0;left:0;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);width:720px;max-width:95vw">
-              <div style="display:flex">
-                <div style="flex:1;padding:20px 20px 0">
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                    <div style="display:flex;gap:4px">
-                      <button onclick="revDRNav(-12)" style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">«</button>
-                      <button onclick="revDRNav(-1)"  style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">‹</button>
-                    </div>
-                    <span id="revDRLeft"  style="font-size:14px;font-weight:700;color:#111827"></span>
-                    <div style="display:flex;gap:4px">
-                      <button onclick="revDRNav(1)"   style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">›</button>
-                      <button onclick="revDRNav(12)"  style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">»</button>
-                    </div>
-                    <span style="width:60px"></span>
-                    <span id="revDRRight" style="font-size:14px;font-weight:700;color:#111827"></span>
-                    <div style="width:60px"></div>
-                  </div>
-                  <div id="revDRPickingBanner" style="display:none;padding:6px 12px;background:#e0f7f6;border-radius:6px;font-size:12px;color:#0f766e;font-weight:600;margin-bottom:10px">
-                    ✓ Start date selected — now click the end date
-                  </div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="revDRGrids"></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 16px;border-top:1px solid #f1f5f9;margin-top:14px">
-                    <span id="revDRFooterLabel" style="font-size:13px;color:#374151;font-weight:500"></span>
-                    <div style="display:flex;gap:10px">
-                      <button onclick="revDRCancel()" style="padding:8px 18px;border:none;background:none;color:#374151;font-size:13px;cursor:pointer;border-radius:6px">Cancel</button>
-                      <button onclick="revDRApply()"  style="padding:8px 20px;background:#006461;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Apply</button>
-                    </div>
-                  </div>
-                </div>
-                <div style="width:130px;border-left:1px solid #f1f5f9;padding:16px 0;display:flex;flex-direction:column">
-                  <div style="padding:8px 16px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Past:</div>
-                  <button onclick="revDRPreset('3m')"  class="caldr-preset">3 months</button>
-                  <button onclick="revDRPreset('6m')"  class="caldr-preset">6 months</button>
-                  <button onclick="revDRPreset('12m')" class="caldr-preset">12 months</button>
-                  <button onclick="revDRPreset('ytd')" class="caldr-preset">YTD</button>
-                  <div style="padding:8px 16px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-top:4px">Next:</div>
-                  <button onclick="revDRPreset('7d')"  class="caldr-preset">7 days</button>
-                  <button onclick="revDRPreset('30d')" class="caldr-preset">30 days</button>
-                  <button onclick="revDRPreset('90d')" class="caldr-preset">90 days</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="rev-gran-wrap">
-              <button type="button" id="revGranMonth" class="rev-gran-btn active" onclick="revSetGran('month')">Monthly</button>
-              <button type="button" id="revGranWeek"  class="rev-gran-btn"        onclick="revSetGran('week')">Weekly</button>
-              <button type="button" id="revGranDay"   class="rev-gran-btn"        onclick="revSetGran('day')" disabled>Daily</button>
-            </div>
-            <div class="rev-gran-wrap">
-              <button type="button" id="revChartLines" class="rev-gran-btn rev-gran-btn--icon" title="Line chart" onclick="revSetChartMode('lines')">
-                <span class="material-icons" style="font-size:16px">show_chart</span>
-                Line
-              </button>
-              <button type="button" id="revChartHisto" class="rev-gran-btn rev-gran-btn--icon active" title="Bar chart" onclick="revSetChartMode('histogram')">
-                <span class="material-icons" style="font-size:16px">bar_chart</span>
-                Bar
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <div class="chart-y-axis" id="revYAxis">
-            <span>$350K</span>
-            <span>$262K</span>
-            <span>$175K</span>
-            <span>$87K</span>
-            <span>$0K</span>
-          </div>
-          <div class="chart-area">
-            <svg id="revChart" viewBox="0 0 1305 340" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="0" y1="0" x2="1305" y2="0" stroke="#F5F5F5" stroke-width="1"/>
-              <line x1="0" y1="60" x2="1305" y2="60" stroke="#F5F5F5" stroke-width="1"/>
-              <line x1="0" y1="120" x2="1305" y2="120" stroke="#F5F5F5" stroke-width="1"/>
-              <line x1="0" y1="180" x2="1305" y2="180" stroke="#F5F5F5" stroke-width="1"/>
-              <line x1="0" y1="240" x2="1305" y2="240" stroke="#F5F5F5" stroke-width="1"/>
-            </svg>
-            <div class="chart-x-axis">
-              <span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span>
-            </div>
-          </div>
-        </div>
-        <div class="chart-legend" id="revLegend">
-          <!-- dynamically populated by JS -->
-        </div>
-
-      </div>
-
-      <!-- ╔══════════════════════════════════════════════╗ -->
-      <!-- ║  RATE TABLE + RATE STRATEGY                  ║ -->
-      <!-- ╚══════════════════════════════════════════════╝ -->
-
-      <!-- ╔══════════════════════════════════════════════╗ -->
-      <!-- ║  DEMAND CALENDAR                             ║ -->
-      <!-- ╚══════════════════════════════════════════════╝ -->
       <div class="section-card" id="demand-calendar">
 
         <!-- Header (single bar with all controls) -->
@@ -474,8 +210,7 @@
             <div class="cal-metrics-wrap" id="calMetricsWrap" style="order:5">
               <button class="wv-topbar-text-btn" id="calMetricsBtn">
                 <span class="material-icons" style="font-size:16px">tune</span>
-                Cell Metrics
-                <span class="material-icons cal-filters-chevron" style="font-size:14px">expand_more</span>
+                Calendar Settings
               </button>
 
               <!-- Daily R column visibility panel (shown only in Daily R view) -->
@@ -491,187 +226,197 @@
                 </div>
               </div>
 
-              <div class="cal-metrics-dropdown" id="calMetricsDropdown" style="display:none">
-                <div class="cal-md-scroll">
-                <div class="cal-md-segments" id="cmSegSection">
-                  <p class="cal-md-section-title">Segments to show</p>
-                  <label class="cal-md-seg-row">
-                    <span class="cal-md-cb checked" id="cmSegAllCb" onclick="cmToggleAllSegs(this)"></span>
-                    <span class="cal-md-seg-label cal-md-seg-label--strong">All</span>
-                  </label>
-                  <label class="cal-md-seg-row">
-                    <span class="cal-md-cb checked" data-seg-key="fit" onclick="cmToggleSeg('fit',this)"></span>
-                    <span class="cal-md-swatch" style="background:#47c5bc"></span>
-                    <span class="cal-md-seg-label">Static FIT Rates</span>
-                  </label>
-                  <label class="cal-md-seg-row">
-                    <span class="cal-md-cb checked" data-seg-key="dynamic" onclick="cmToggleSeg('dynamic',this)"></span>
-                    <span class="cal-md-swatch" style="background:#7459ee"></span>
-                    <span class="cal-md-seg-label">Operator Dynamic</span>
-                  </label>
-                  <label class="cal-md-seg-row">
-                    <span class="cal-md-cb checked" data-seg-key="series" onclick="cmToggleSeg('series',this)"></span>
-                    <span class="cal-md-swatch" style="background:#ffb90f"></span>
-                    <span class="cal-md-seg-label">Tour Series</span>
-                  </label>
-                </div>
-
-                <div class="cal-md-metrics">
-                  <div class="cal-md-metrics-head">
-                    <p class="cal-md-section-title">Select 4 metrics</p>
-                    <span class="cal-md-hint" id="calCmHint">3 / 4 rows</span>
+              <div id="calMetricsModal" class="cal-metrics-modal-overlay">
+                <div class="cal-metrics-modal">
+                  <div class="cal-metrics-modal-header">
+                    <h3 class="cal-metrics-modal-title">Calendar Settings</h3>
+                    <button class="cal-metrics-modal-close" onclick="cmApplyMetrics()">
+                      <span class="material-icons" style="font-size:20px;color:#4F5B60">close</span>
+                    </button>
                   </div>
-                  <div class="cal-md-search">
-                    <span class="material-icons cal-md-search-icon">search</span>
-                    <input type="text" id="cmSearchInput" class="cal-md-search-input" placeholder="Search..." autocomplete="off" oninput="cmSearchFilter(this.value)">
+                  <div class="cal-metrics-modal-content">
+                    <div class="cal-md-scroll">
+                    <div class="cal-md-segments" id="cmSegSection">
+                      <p class="cal-md-section-title">Segments to show</p>
+                      <label class="cal-md-seg-row">
+                        <span class="cal-md-cb checked" id="cmSegAllCb" onclick="cmToggleAllSegs(this)"></span>
+                        <span class="cal-md-seg-label cal-md-seg-label--strong">All</span>
+                      </label>
+                      <label class="cal-md-seg-row">
+                        <span class="cal-md-cb checked" data-seg-key="fit" onclick="cmToggleSeg('fit',this)"></span>
+                        <span class="cal-md-swatch" style="background:#47c5bc"></span>
+                        <span class="cal-md-seg-label">Static FIT Rates</span>
+                      </label>
+                      <label class="cal-md-seg-row">
+                        <span class="cal-md-cb checked" data-seg-key="dynamic" onclick="cmToggleSeg('dynamic',this)"></span>
+                        <span class="cal-md-swatch" style="background:#7459ee"></span>
+                        <span class="cal-md-seg-label">Operator Dynamic</span>
+                      </label>
+                      <label class="cal-md-seg-row">
+                        <span class="cal-md-cb checked" data-seg-key="series" onclick="cmToggleSeg('series',this)"></span>
+                        <span class="cal-md-swatch" style="background:#ffb90f"></span>
+                        <span class="cal-md-seg-label">Tour Series</span>
+                      </label>
+                    </div>
+    
+                    <div class="cal-md-metrics">
+                      <div class="cal-md-metrics-head">
+                        <p class="cal-md-section-title">Select 4 metrics</p>
+                        <span class="cal-md-hint" id="calCmHint">3 / 4 rows</span>
+                      </div>
+                      <div class="cal-md-search">
+                        <span class="material-icons cal-md-search-icon">search</span>
+                        <input type="text" id="cmSearchInput" class="cal-md-search-input" placeholder="Search..." autocomplete="off" oninput="cmSearchFilter(this.value)">
+                      </div>
+                      <div class="cal-md-menu-scroll" id="cmMetricsMenu">
+    
+                        <div class="cm-menu-group" data-cm-search="occupancy">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                            <span class="cm-menu-label">Occupancy</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:block">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="occupancy hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="hocc" onclick="cmToggleMetric('hocc',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="occupancy tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="tocc" onclick="cmToggleMetric('tocc',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="adr">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                            <span class="cm-menu-label">ADR</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:block">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="adr hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hadr" onclick="cmToggleMetric('hadr',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="adr tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tadr" onclick="cmToggleMetric('tadr',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="revenue">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                            <span class="cm-menu-label">Revenue</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:block">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revenue hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hrev" onclick="cmToggleMetric('hrev',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revenue tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trev" onclick="cmToggleMetric('trev',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="rn sold">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                            <span class="cm-menu-label">RN Sold</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:block">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="rn sold hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="hrn" onclick="cmToggleMetric('hrn',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="rn sold tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trn" onclick="cmToggleMetric('trn',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="revpar">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
+                            <span class="cm-menu-label">RevPAR</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:block">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revpar hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hrevpar" onclick="cmToggleMetric('hrevpar',this)"></span><span class="cm-menu-label">Hotel</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revpar tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trevpar" onclick="cmToggleMetric('trevpar',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="other metrics">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron">chevron_right</span>
+                            <span class="cm-menu-label">Other Metrics</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:none">
+                            <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
+                            <div class="cm-menu-children" style="display:none">
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
+                            </div>
+                            <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
+                            <div class="cm-menu-children" style="display:none">
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
+                            </div>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="availability">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron">chevron_right</span>
+                            <span class="cm-menu-label">Availability</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:none">
+                            <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
+                            <div class="cm-menu-children" style="display:none">
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail rooms"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cm-menu-label">Avail Rooms</span></label>
+                            </div>
+                            <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
+                            <div class="cm-menu-children" style="display:none">
+                              <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail guaranteed"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cm-menu-label">Avail Guaranteed</span></label>
+                            </div>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="business mix">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron">chevron_right</span>
+                            <span class="cm-menu-label">Business Mix</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:none">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cm-menu-label">Tour Operator Mix %</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="direct mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cm-menu-label">Direct Mix %</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="ota mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cm-menu-label">OTA Mix %</span></label>
+                          </div>
+                        </div>
+    
+                        <div class="cm-menu-group" data-cm-search="selling rates">
+                          <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
+                            <span class="cm-menu-spacer"></span>
+                            <span class="material-icons cm-menu-chevron">chevron_right</span>
+                            <span class="cm-menu-label">Selling Rates</span>
+                          </button>
+                          <div class="cm-menu-children" style="display:none">
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator contract rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cm-menu-label">Tour Operator Contract Rate</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="promotion"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cm-menu-label">Promotion %</span></label>
+                            <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="base segment rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cm-menu-label">Base Segment Rate</span></label>
+                          </div>
+                        </div>
+    
+                      </div>
+                    </div>
+                    </div>
+    
+                    <div id="cmModalSnackbar" class="cal-md-snackbar" style="display:none">
+                      <span class="material-icons">error_outline</span>
+                      <span>Only select up to 4 metrics</span>
+                      <span class="material-icons cal-md-snackbar-close" onclick="cmModalSnackbarHide()">close</span>
+                    </div>
+    
+                    <div class="cal-md-foot">
+                      <button type="button" class="cal-md-reset" onclick="cmResetMetrics()">Reset</button>
+                      <button type="button" class="cal-md-apply" id="cmApplyBtn" onclick="cmApplyMetrics()">Apply</button>
+                    </div>
                   </div>
-                  <div class="cal-md-menu-scroll" id="cmMetricsMenu">
-
-                    <div class="cm-menu-group" data-cm-search="occupancy">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
-                        <span class="cm-menu-label">Occupancy</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:block">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="occupancy hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="hocc" onclick="cmToggleMetric('hocc',this)"></span><span class="cm-menu-label">Hotel</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="occupancy tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="tocc" onclick="cmToggleMetric('tocc',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="adr">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
-                        <span class="cm-menu-label">ADR</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:block">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="adr hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hadr" onclick="cmToggleMetric('hadr',this)"></span><span class="cm-menu-label">Hotel</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="adr tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tadr" onclick="cmToggleMetric('tadr',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="revenue">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
-                        <span class="cm-menu-label">Revenue</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:block">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revenue hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hrev" onclick="cmToggleMetric('hrev',this)"></span><span class="cm-menu-label">Hotel</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revenue tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trev" onclick="cmToggleMetric('trev',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="rn sold">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
-                        <span class="cm-menu-label">RN Sold</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:block">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="rn sold hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="hrn" onclick="cmToggleMetric('hrn',this)"></span><span class="cm-menu-label">Hotel</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="rn sold tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trn" onclick="cmToggleMetric('trn',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="revpar">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="true">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron" style="transform:rotate(90deg)">chevron_right</span>
-                        <span class="cm-menu-label">RevPAR</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:block">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revpar hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hrevpar" onclick="cmToggleMetric('hrevpar',this)"></span><span class="cm-menu-label">Hotel</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-1" data-cm-search="revpar tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="trevpar" onclick="cmToggleMetric('trevpar',this)"></span><span class="cm-menu-label">Tour Operator</span></label>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="other metrics">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
-                        <span class="cm-menu-label">Other Metrics</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="hpickup" onclick="cmToggleMetric('hpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLos" onclick="cmToggleMetric('havgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgLeadTime" onclick="cmToggleMetric('havgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgAdults" onclick="cmToggleMetric('havgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="havgChildren" onclick="cmToggleMetric('havgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests hotel"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="htotalGuests" onclick="cmToggleMetric('htotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
-                        </div>
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="pickup tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tpickup" onclick="cmToggleMetric('tpickup',this)"></span><span class="cm-menu-label">Pickup</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg los tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLos" onclick="cmToggleMetric('tavgLos',this)"></span><span class="cm-menu-label">Avg LOS</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="lead time tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgLeadTime" onclick="cmToggleMetric('tavgLeadTime',this)"></span><span class="cm-menu-label">Lead Time</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg adults tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgAdults" onclick="cmToggleMetric('tavgAdults',this)"></span><span class="cm-menu-label">Avg Adults</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avg children tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="tavgChildren" onclick="cmToggleMetric('tavgChildren',this)"></span><span class="cm-menu-label">Avg Children</span></label>
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="total guests tour operator"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ttotalGuests" onclick="cmToggleMetric('ttotalGuests',this)"></span><span class="cm-menu-label">Total Guests</span></label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="availability">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
-                        <span class="cm-menu-label">Availability</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Hotel</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail rooms"><span class="cm-menu-spacer"></span><span class="cal-md-cb checked" data-cm-key="availRooms" onclick="cmToggleMetric('availRooms',this)"></span><span class="cm-menu-label">Avail Rooms</span></label>
-                        </div>
-                        <button type="button" class="cm-menu-row cm-menu-row--group cm-menu-row--indent-1" onclick="cmToggleMenuGroup(this)" aria-expanded="false"><span class="cm-menu-spacer"></span><span class="material-icons cm-menu-chevron">chevron_right</span><span class="cm-menu-label">Tour Operator</span></button>
-                        <div class="cm-menu-children" style="display:none">
-                          <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="avail guaranteed"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="availGuar" onclick="cmToggleMetric('availGuar',this)"></span><span class="cm-menu-label">Avail Guaranteed</span></label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="business mix">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
-                        <span class="cm-menu-label">Business Mix</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixTO" onclick="cmToggleMetric('bizMixTO',this)"></span><span class="cm-menu-label">Tour Operator Mix %</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="direct mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixDirect" onclick="cmToggleMetric('bizMixDirect',this)"></span><span class="cm-menu-label">Direct Mix %</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="ota mix"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="bizMixOTA" onclick="cmToggleMetric('bizMixOTA',this)"></span><span class="cm-menu-label">OTA Mix %</span></label>
-                      </div>
-                    </div>
-
-                    <div class="cm-menu-group" data-cm-search="selling rates">
-                      <button type="button" class="cm-menu-row cm-menu-row--group" onclick="cmToggleMenuGroup(this)" aria-expanded="false">
-                        <span class="cm-menu-spacer"></span>
-                        <span class="material-icons cm-menu-chevron">chevron_right</span>
-                        <span class="cm-menu-label">Selling Rates</span>
-                      </button>
-                      <div class="cm-menu-children" style="display:none">
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="tour operator contract rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateTO" onclick="cmToggleMetric('rateTO',this)"></span><span class="cm-menu-label">Tour Operator Contract Rate</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="promotion"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="ratePromo" onclick="cmToggleMetric('ratePromo',this)"></span><span class="cm-menu-label">Promotion %</span></label>
-                        <label class="cm-menu-row cm-menu-row--leaf cm-menu-row--indent-2" data-cm-search="base segment rate"><span class="cm-menu-spacer"></span><span class="cal-md-cb" data-cm-key="rateBase" onclick="cmToggleMetric('rateBase',this)"></span><span class="cm-menu-label">Base Segment Rate</span></label>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-                </div>
-
-                <div id="cmModalSnackbar" class="cal-md-snackbar" style="display:none">
-                  <span class="material-icons">error_outline</span>
-                  <span>Only select up to 4 metrics</span>
-                  <span class="material-icons cal-md-snackbar-close" onclick="cmModalSnackbarHide()">close</span>
-                </div>
-
-                <div class="cal-md-foot">
-                  <button type="button" class="cal-md-reset" onclick="cmResetMetrics()">Reset</button>
-                  <button type="button" class="cal-md-apply" id="cmApplyBtn" onclick="cmApplyMetrics()">Apply</button>
                 </div>
               </div>
 
@@ -703,7 +448,8 @@
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="calFiltTO" data-val="all"></span><span class="wv-ms-label">All Operators</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="sunwing"></span><span class="wv-ms-label">Sunwing</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="tui"></span><span class="wv-ms-label">TUI</span></label>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="thomas-cook"></span><span class="wv-ms-label">Thomas Cook</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="hotelbeds"></span><span class="wv-ms-label">Hotelbeds</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="world2meet"></span><span class="wv-ms-label">World2Meet</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="club-med"></span><span class="wv-ms-label">Club Med</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="jet2"></span><span class="wv-ms-label">Jet2holidays</span></label>
                 <div class="wv-ms-hdr wv-ms-hdr-divider"><span class="wv-ms-hdr-label">ROOM TYPE</span></div>
@@ -946,9 +692,7 @@
         <div id="calMonthlySummary" style="display:none"></div>
       </div>
 
-      <!-- ╔══════════════════════════════════════════════╗ -->
-      <!-- ║  WEEK VIEW                                    ║ -->
-      <!-- ╚══════════════════════════════════════════════╝ -->
+
       <div class="section-card" id="weekView">
         <div class="wv-topbar">
           <!-- Left: back arrow + title -->
@@ -987,13 +731,15 @@
               <div class="cal-filters-dropdown wv-metrics-dropdown" id="wvFiltersDropdown" style="display:none">
                 <!-- Travel Distribution Hub -->
                 <div class="wv-ms-hdr">
-                  <span class="wv-ms-hdr-label">TOUR OPERATOR</span>
+                  <span class="wv-ms-hdr-label">OPERATOR</span>
                 </div>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltTO" data-val="all"></span><span class="wv-ms-label">All Operators</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="sunwing"></span><span class="wv-ms-label">Sunwing</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="tui"></span><span class="wv-ms-label">TUI</span></label>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="thomas-cook"></span><span class="wv-ms-label">Thomas Cook</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="hotelbeds"></span><span class="wv-ms-label">Hotelbeds</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="world2meet"></span><span class="wv-ms-label">World2Meet</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="club-med"></span><span class="wv-ms-label">Club Med</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="jet2"></span><span class="wv-ms-label">Jet2holidays</span></label>
                 <!-- Room Type -->
                 <div class="wv-ms-hdr wv-ms-hdr-divider">
                   <span class="wv-ms-hdr-label">ROOM TYPE</span>
@@ -1005,10 +751,11 @@
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltRoom" data-val="suite"></span><span class="wv-ms-label">Suite</span></label>
                 <!-- Meal Plan -->
                 <div class="wv-ms-hdr wv-ms-hdr-divider">
-                  <span class="wv-ms-hdr-label">BOARD TYPE</span>
+                  <span class="wv-ms-hdr-label">MEAL PLAN</span>
                 </div>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltBoard" data-val="all"></span><span class="wv-ms-label">All Board</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltBoard" data-val="all"></span><span class="wv-ms-label">All Plans</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="ai"></span><span class="wv-ms-label">All Inclusive</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="hb"></span><span class="wv-ms-label">Half Board</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="bb"></span><span class="wv-ms-label">Bed &amp; Breakfast</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="ro"></span><span class="wv-ms-label">Room Only</span></label>
                 <!-- Source Geo -->
@@ -1100,10 +847,10 @@
                 <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
               </button>
               <div class="cmp-select-menu ds-select-menu" id="wvCmpSelectMenu" role="listbox" style="display:none">
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="none" onclick="wvPickCompare('none', event)"><span class="wv-ms-cb"></span><span>None</span></button>
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="stly" onclick="wvPickCompare('stly', event)"><span class="wv-ms-cb"></span><span>STLY</span></button>
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="ly" onclick="wvPickCompare('ly', event)"><span class="wv-ms-cb"></span><span>LY</span></button>
-                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="fcst" onclick="wvPickCompare('fcst', event)"><span class="wv-ms-cb"></span><span>Forecast</span></button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="none" onclick="wvPickCompare('none', event)">None</button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="stly" onclick="wvPickCompare('stly', event)">STLY</button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="ly" onclick="wvPickCompare('ly', event)">LY</button>
+                <button type="button" class="ds-select-opt cmp-select-opt" data-cmp="fcst" onclick="wvPickCompare('fcst', event)">Forecast</button>
               </div>
             </div>
 
@@ -1237,9 +984,265 @@
         <div id="wvSummaryContainer"></div>
       </div>
 
-      <!-- ╔══════════════════════════════════════════════╗ -->
-      <!-- ║  ROOM TYPE SALES BY SEGMENT                  ║ -->
-      <!-- ╚══════════════════════════════════════════════╝ -->
+
+      <div class="section-card" id="revenue-trend">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">Trends</h3>
+            <p class="section-sub" id="revSubtitle">Total Guests – Segment Comparison</p>
+          </div>
+        </div>
+        <div class="filter-bar rev-filter-bar">
+          <div class="filter-group">
+            <label>Metric</label>
+            <select id="revMetric">
+              <option value="revenue">Revenue</option>
+              <option value="adr">ADR</option>
+              <option value="nights">Room Nights</option>
+              <option value="occ">Occupancy</option>
+              <option value="bookings">Contract Bookings</option>
+              <option value="avg_guests">Avg Guests</option>
+              <option value="total_guests" selected>Total Guests</option>
+              <option value="contracted_rates">Contracted Rates</option>
+              <option value="allotments">Allotments / Guarantees</option>
+            </select>
+          </div>
+          <div class="filter-group rev-board-group">
+            <label>Segment</label>
+            <div class="rev-board-wrap" id="revSegmentWrap">
+              <button type="button" class="rev-board-trigger" id="revSegmentBtn">All Segments<span class="material-icons" style="font-size:14px">expand_more</span></button>
+              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revSegmentDropdown" style="display:none">
+                <div class="rev-dd-mode-row">
+                  <span class="rev-dd-mode-lbl">Display as:</span>
+                  <label class="rev-board-opt"><input type="radio" name="revSegmentMode" value="combined" checked> Combined (1 line)</label>
+                  <label class="rev-board-opt"><input type="radio" name="revSegmentMode" value="individual"> Individual lines</label>
+                </div>
+                <div class="rev-dd-divider"></div>
+                <label class="rev-board-opt"><input type="checkbox" value="to" checked> Static FIT Rates</label>
+                <label class="rev-board-opt"><input type="checkbox" value="to_dynamic" checked> Operator Dynamic</label>
+                <label class="rev-board-opt"><input type="checkbox" value="direct" checked> Direct Bookings</label>
+                <label class="rev-board-opt"><input type="checkbox" value="gds" checked> GDS</label>
+                <label class="rev-board-opt"><input type="checkbox" value="corporate"> Corporate</label>
+              </div>
+            </div>
+          </div>
+          <div class="filter-group rev-board-group">
+            <label>Room Type</label>
+            <div class="rev-board-wrap" id="revRoomWrap">
+              <button type="button" class="rev-board-trigger" id="revRoomBtn">All Rooms<span class="material-icons" style="font-size:14px">expand_more</span></button>
+              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revRoomDropdown" style="display:none">
+                <div class="rev-dd-mode-row">
+                  <span class="rev-dd-mode-lbl">Display as:</span>
+                  <label class="rev-board-opt"><input type="radio" name="revRoomMode" value="combined" checked> Combined (1 line)</label>
+                  <label class="rev-board-opt"><input type="radio" name="revRoomMode" value="individual"> Individual lines</label>
+                </div>
+                <div class="rev-dd-divider"></div>
+                <label class="rev-board-opt"><input type="checkbox" value="standard" checked> Standard Room</label>
+                <label class="rev-board-opt"><input type="checkbox" value="deluxe" checked> Deluxe Room</label>
+                <label class="rev-board-opt"><input type="checkbox" value="premium" checked> Premium Suite</label>
+                <label class="rev-board-opt"><input type="checkbox" value="executive" checked> Executive Suite</label>
+                <label class="rev-board-opt"><input type="checkbox" value="presidential"> Presidential Suite</label>
+                <label class="rev-board-opt"><input type="checkbox" value="family"> Family Room</label>
+              </div>
+            </div>
+          </div>
+          <div class="filter-group rev-board-group">
+            <label>Meal Plan</label>
+            <div class="rev-board-wrap" id="revBoardWrap">
+              <button type="button" class="rev-board-trigger" id="revBoardBtn">
+                All Types
+                <span class="material-icons" style="font-size:14px">expand_more</span>
+              </button>
+              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revBoardDropdown" style="display:none">
+                <div class="rev-dd-mode-row">
+                  <span class="rev-dd-mode-lbl">Display as:</span>
+                  <label class="rev-board-opt"><input type="radio" name="revBoardMode" value="combined" checked> Combined (1 line)</label>
+                  <label class="rev-board-opt"><input type="radio" name="revBoardMode" value="individual"> Individual lines</label>
+                </div>
+                <div class="rev-dd-divider"></div>
+                <label class="rev-board-opt"><input type="checkbox" value="ai"> All Inclusive</label>
+                <label class="rev-board-opt"><input type="checkbox" value="fb"> Full Board</label>
+                <label class="rev-board-opt"><input type="checkbox" value="hb"> Half Board</label>
+                <label class="rev-board-opt"><input type="checkbox" value="bb"> Bed &amp; Breakfast</label>
+                <label class="rev-board-opt"><input type="checkbox" value="ro"> Room Only</label>
+              </div>
+            </div>
+          </div>
+          <!-- Operator filter -->
+          <div class="filter-group rev-board-group">
+            <label>Operator</label>
+            <div class="rev-board-wrap" id="revTOWrap">
+              <button type="button" class="rev-board-trigger" id="revTOBtn">All TOs<span class="material-icons" style="font-size:14px">expand_more</span></button>
+              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revTODropdown" style="display:none">
+                <div class="rev-dd-mode-row">
+                  <span class="rev-dd-mode-lbl">Display as:</span>
+                  <label class="rev-board-opt"><input type="radio" name="revTOMode" value="combined" checked> Combined (1 line)</label>
+                  <label class="rev-board-opt"><input type="radio" name="revTOMode" value="individual"> Individual lines</label>
+                </div>
+                <div class="rev-dd-divider"></div>
+                <label class="rev-board-opt"><input type="checkbox" value="sunwing" data-group="revTO" checked> Sunwing</label>
+                <label class="rev-board-opt"><input type="checkbox" value="tui" data-group="revTO" checked> TUI</label>
+                <label class="rev-board-opt"><input type="checkbox" value="hotelbeds" data-group="revTO"> Hotelbeds</label>
+                <label class="rev-board-opt"><input type="checkbox" value="world2meet" data-group="revTO"> World2Meet</label>
+                <label class="rev-board-opt"><input type="checkbox" value="club-med" data-group="revTO"> Club Med</label>
+                <label class="rev-board-opt"><input type="checkbox" value="jet2" data-group="revTO"> Jet2holidays</label>
+              </div>
+            </div>
+          </div>
+          <!-- Source Geo filter -->
+          <div class="filter-group rev-board-group">
+            <label>Source Geo</label>
+            <div class="rev-board-wrap" id="revOriginWrap">
+              <button type="button" class="rev-board-trigger" id="revOriginBtn">All Origins<span class="material-icons" style="font-size:14px">expand_more</span></button>
+              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revOriginDropdown" style="display:none">
+                <div class="rev-dd-mode-row">
+                  <span class="rev-dd-mode-lbl">Display as:</span>
+                  <label class="rev-board-opt"><input type="radio" name="revOriginMode" value="combined" checked> Combined (1 line)</label>
+                  <label class="rev-board-opt"><input type="radio" name="revOriginMode" value="individual"> Individual lines</label>
+                </div>
+                <div class="rev-dd-divider"></div>
+                <label class="rev-board-opt"><input type="checkbox" value="UK" data-group="revOrigin" checked> UK</label>
+                <label class="rev-board-opt"><input type="checkbox" value="SP" data-group="revOrigin" checked> Spain</label>
+                <label class="rev-board-opt"><input type="checkbox" value="US" data-group="revOrigin"> US</label>
+                <label class="rev-board-opt"><input type="checkbox" value="MX" data-group="revOrigin"> Mexico</label>
+              </div>
+            </div>
+          </div>
+          <!-- Source of Business filter -->
+          <div class="filter-group rev-board-group">
+            <label>Source Code</label>
+            <div class="rev-board-wrap" id="revSourceWrap">
+              <button type="button" class="rev-board-trigger" id="revSourceBtn">All Sources<span class="material-icons" style="font-size:14px">expand_more</span></button>
+              <div class="rev-board-dropdown rev-board-dropdown-wide" id="revSourceDropdown" style="display:none">
+                <div class="rev-dd-mode-row">
+                  <span class="rev-dd-mode-lbl">Display as:</span>
+                  <label class="rev-board-opt"><input type="radio" name="revSourceMode" value="combined" checked> Combined (1 line)</label>
+                  <label class="rev-board-opt"><input type="radio" name="revSourceMode" value="individual"> Individual lines</label>
+                </div>
+                <div class="rev-dd-divider"></div>
+                <label class="rev-board-opt"><input type="checkbox" value="contract" data-group="revSource" checked> Contract</label>
+                <label class="rev-board-opt"><input type="checkbox" value="promo" data-group="revSource" checked> Promotion</label>
+                <label class="rev-board-opt"><input type="checkbox" value="direct_web" data-group="revSource"> Direct Web</label>
+                <label class="rev-board-opt"><input type="checkbox" value="gds_source" data-group="revSource"> GDS</label>
+                <label class="rev-board-opt"><input type="checkbox" value="walk_in" data-group="revSource"> Walk-in</label>
+              </div>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Display</label>
+            <select id="revDisplay"><option value="values" selected>Values</option><option value="pct">Percentage</option></select>
+          </div>
+          <div class="filter-group rev-board-group">
+            <div class="rev-board-wrap" id="revCmpWrap">
+              <button type="button" class="rev-board-trigger rev-cmp-trigger" id="revCmpBtn">
+                <span class="material-icons" style="font-size:14px">info</span>
+                Compare
+                <span class="material-icons" style="font-size:14px">expand_more</span>
+              </button>
+              <div class="rev-board-dropdown rev-cmp-panel" id="revCmpDropdown" style="display:none">
+                <button class="rev-cmp-chip" data-cmp="forecast"><span class="rev-cmp-swatch" style="background:#f59e0b"></span>Forecast</button>
+                <button class="rev-cmp-chip rev-cmp-active" data-cmp="ly"><span class="rev-cmp-swatch" style="background:#2563EB"></span>Last Year</button>
+                <button class="rev-cmp-chip" data-cmp="stly"><span class="rev-cmp-swatch" style="background:#15803d"></span>Same Time Last Year</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ── Revenue Trend: Date Range + Granularity ── -->
+        <div class="filter-bar rev-filter-bar rev-filter-bar-row2" style="flex-wrap:wrap;gap:11px;align-items:center;justify-content:space-between">
+          <div style="position:relative;flex-shrink:0" id="revDRWrap">
+            <button id="revDRTrigger" onclick="revDRToggle()" style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;font-size:14px;color:#1c1c1c;cursor:pointer;white-space:nowrap;font-family:inherit;height:36px">
+              <span id="revDRLabel">8/1/2025 – 1/31/2026</span>
+              <span class="material-icons" style="font-size:16px">calendar_today</span>
+            </button>
+            <div id="revDRPanel" style="display:none;position:fixed;top:0;left:0;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);width:720px;max-width:95vw">
+              <div style="display:flex">
+                <div style="flex:1;padding:20px 20px 0">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <div style="display:flex;gap:4px">
+                      <button onclick="revDRNav(-12)" style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">«</button>
+                      <button onclick="revDRNav(-1)"  style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">‹</button>
+                    </div>
+                    <span id="revDRLeft"  style="font-size:14px;font-weight:700;color:#111827"></span>
+                    <div style="display:flex;gap:4px">
+                      <button onclick="revDRNav(1)"   style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">›</button>
+                      <button onclick="revDRNav(12)"  style="border:none;background:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#374151;font-size:13px">»</button>
+                    </div>
+                    <span style="width:60px"></span>
+                    <span id="revDRRight" style="font-size:14px;font-weight:700;color:#111827"></span>
+                    <div style="width:60px"></div>
+                  </div>
+                  <div id="revDRPickingBanner" style="display:none;padding:6px 12px;background:#e0f7f6;border-radius:6px;font-size:12px;color:#0f766e;font-weight:600;margin-bottom:10px">
+                    ✓ Start date selected — now click the end date
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="revDRGrids"></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 16px;border-top:1px solid #f1f5f9;margin-top:14px">
+                    <span id="revDRFooterLabel" style="font-size:13px;color:#374151;font-weight:500"></span>
+                    <div style="display:flex;gap:10px">
+                      <button onclick="revDRCancel()" style="padding:8px 18px;border:none;background:none;color:#374151;font-size:13px;cursor:pointer;border-radius:6px">Cancel</button>
+                      <button onclick="revDRApply()"  style="padding:8px 20px;background:#006461;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Apply</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="width:130px;border-left:1px solid #f1f5f9;padding:16px 0;display:flex;flex-direction:column">
+                  <div style="padding:8px 16px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Past:</div>
+                  <button onclick="revDRPreset('3m')"  class="caldr-preset">3 months</button>
+                  <button onclick="revDRPreset('6m')"  class="caldr-preset">6 months</button>
+                  <button onclick="revDRPreset('12m')" class="caldr-preset">12 months</button>
+                  <button onclick="revDRPreset('ytd')" class="caldr-preset">YTD</button>
+                  <div style="padding:8px 16px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-top:4px">Next:</div>
+                  <button onclick="revDRPreset('7d')"  class="caldr-preset">7 days</button>
+                  <button onclick="revDRPreset('30d')" class="caldr-preset">30 days</button>
+                  <button onclick="revDRPreset('90d')" class="caldr-preset">90 days</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="rev-gran-wrap">
+              <button type="button" id="revGranMonth" class="rev-gran-btn active" onclick="revSetGran('month')">Monthly</button>
+              <button type="button" id="revGranWeek"  class="rev-gran-btn"        onclick="revSetGran('week')">Weekly</button>
+              <button type="button" id="revGranDay"   class="rev-gran-btn"        onclick="revSetGran('day')" disabled>Daily</button>
+            </div>
+            <div class="rev-gran-wrap">
+              <button type="button" id="revChartLines" class="rev-gran-btn rev-gran-btn--icon" title="Line chart" onclick="revSetChartMode('lines')">
+                <span class="material-icons" style="font-size:16px">show_chart</span>
+                Line
+              </button>
+              <button type="button" id="revChartHisto" class="rev-gran-btn rev-gran-btn--icon active" title="Bar chart" onclick="revSetChartMode('histogram')">
+                <span class="material-icons" style="font-size:16px">bar_chart</span>
+                Bar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-y-axis" id="revYAxis">
+            <span>$350K</span>
+            <span>$262K</span>
+            <span>$175K</span>
+            <span>$87K</span>
+            <span>$0K</span>
+          </div>
+          <div class="chart-area">
+            <svg id="revChart" viewBox="0 0 1305 340" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="0" x2="1305" y2="0" stroke="#F5F5F5" stroke-width="1"/>
+              <line x1="0" y1="60" x2="1305" y2="60" stroke="#F5F5F5" stroke-width="1"/>
+              <line x1="0" y1="120" x2="1305" y2="120" stroke="#F5F5F5" stroke-width="1"/>
+              <line x1="0" y1="180" x2="1305" y2="180" stroke="#F5F5F5" stroke-width="1"/>
+              <line x1="0" y1="240" x2="1305" y2="240" stroke="#F5F5F5" stroke-width="1"/>
+            </svg>
+            <div class="chart-x-axis">
+              <span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend" id="revLegend">
+          <!-- dynamically populated by JS -->
+        </div>
+
+      </div>
+
+
       <div class="section-card" id="room-type">
         <div class="section-header">
           <div>
@@ -1752,12 +1755,12 @@
                     </button>
                     <div class="ins-dd-panel" id="insToDDPanel" style="display:none">
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="all"          onchange="insDDChange('to',this)" checked> All</label>
-                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="TUI Group"    onchange="insDDChange('to',this)"> TUI Group</label>
-                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Thomas Cook"  onchange="insDDChange('to',this)"> Thomas Cook</label>
-                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Jet2holidays" onchange="insDDChange('to',this)"> Jet2holidays</label>
-                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="FTI Group"    onchange="insDDChange('to',this)"> FTI Group</label>
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Sunwing"      onchange="insDDChange('to',this)"> Sunwing</label>
+                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="TUI"          onchange="insDDChange('to',this)"> TUI</label>
+                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Hotelbeds"    onchange="insDDChange('to',this)"> Hotelbeds</label>
+                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="World2Meet"   onchange="insDDChange('to',this)"> World2Meet</label>
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Club Med"     onchange="insDDChange('to',this)"> Club Med</label>
+                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Jet2holidays" onchange="insDDChange('to',this)"> Jet2holidays</label>
                     </div>
                   </div>
                 </div>
@@ -1812,11 +1815,12 @@
                   <div id="insCompareWrap" style="display:none;align-items:center;gap:6px">
                     <span style="font-size:11px;color:var(--text-muted)">vs</span>
                     <select class="ins-select" id="insCmpTO" onchange="insRender()">
-                      <option value="Thomas Cook">Thomas Cook</option>
-                      <option value="Jet2holidays">Jet2holidays</option>
-                      <option value="FTI Group">FTI Group</option>
                       <option value="Sunwing">Sunwing</option>
+                      <option value="TUI">TUI</option>
+                      <option value="Hotelbeds">Hotelbeds</option>
+                      <option value="World2Meet">World2Meet</option>
                       <option value="Club Med">Club Med</option>
+                      <option value="Jet2holidays">Jet2holidays</option>
                     </select>
                   </div>
                 </div>
