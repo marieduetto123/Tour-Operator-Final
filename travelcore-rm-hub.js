@@ -347,8 +347,8 @@ function getRadioVal(name) {
 }
 
 // Color palettes for TO/Source Geo/Source individual lines
-const TO_LINE_COLORS   = { tui:'#0ea5e9', jet2:'#10b981', fti:'#967EF3', sunwing:'#ec4899', 'club-med':'#f97316' };
-const TO_LINE_LABELS   = { tui:'TUI Group', jet2:'Jet2holidays', fti:'FTI Group', sunwing:'Sunwing', 'club-med':'Club Med' };
+const TO_LINE_COLORS   = { tui:'#0ea5e9', jet2:'#10b981', hotelbeds:'#967EF3', sunwing:'#ec4899', 'club-med':'#f97316', world2meet:'#8b5cf6' };
+const TO_LINE_LABELS   = { tui:'TUI Group', jet2:'Jet2holidays', hotelbeds:'Hotelbeds', sunwing:'Sunwing', 'club-med':'Club Med', world2meet:'World2Meet' };
 const ORIGIN_COLORS    = { UK:'#3b82f6', SP:'#f97316', US:'#10b981', MX:'#ec4899' };
 const SOURCE_COLORS    = { contract:'#006461', promo:'#967EF3', direct_web:'#0ea5e9', gds_source:'#f59e0b', walk_in:'#6b7280' };
 const SOURCE_LABELS    = { contract:'Contract', promo:'Promotion', direct_web:'Direct Web', gds_source:'GDS', walk_in:'Walk-in' };
@@ -10766,7 +10766,7 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
   if (!overlay || !modal) return;
 
   // ── Static data ────────────────────────────────────────────────
-  const OPERATORS  = ['TUI Group','Sunwing','Club Med','Jet2 Holidays'];
+  const OPERATORS  = ['TUI Group','Sunwing','Club Med','Jet2 Holidays','Hotelbeds','World2Meet'];
   const ROOM_TYPES = ['Standard Double','Superior Double','Junior Suite','Suite','Deluxe Ocean View'];
   const BOARD_TYPES = ['All Inclusive','Full Board','Half Board','Bed & Breakfast','Room Only'];
 
@@ -11253,7 +11253,7 @@ updateContractsStats({ y:2025, m:7, d:17 }, { y:2025, m:7, d:25 });
 
   // ── Shared: build a pre-populated rule from the active view's filter state ──
   function _coPrePopulateRule(ctx) {
-    var _TO_MAP    = { sunwing: 'Sunwing', tui: 'TUI Group', 'club-med': 'Club Med' };
+    var _TO_MAP    = { sunwing: 'Sunwing', tui: 'TUI Group', 'club-med': 'Club Med', hotelbeds: 'Hotelbeds', world2meet: 'World2Meet' };
     var _ROOM_MAP  = { standard: 'Standard Double', superior: 'Superior Double', deluxe: 'Deluxe Ocean View', suite: 'Suite' };
     var _BOARD_MAP = { ai: 'All Inclusive', bb: 'Bed & Breakfast', ro: 'Room Only', hb: 'Half Board', fb: 'Full Board' };
     var _opsSet = new Set(['all']), _roomsSet = new Set(['all']), _boardsSet = new Set(['all']);
@@ -12002,7 +12002,8 @@ setTimeout(function() { window.renderPickupMetricItems(); }, 600);
   var TOUR_OPS = [
     {name:'TUI Group',           baseSold:24, baseAdr:76},
     {name:'Jet2holidays',        baseSold:32, baseAdr:76},
-    {name:'FTI Group',           baseSold:33, baseAdr:80},
+    {name:'Hotelbeds',           baseSold:35, baseAdr:82},
+    {name:'World2Meet',          baseSold:29, baseAdr:79},
     {name:'DER Touristik',       baseSold:28, baseAdr:78},
     {name:'Alltours',            baseSold:25, baseAdr:76},
     {name:'Neckermann',          baseSold:28, baseAdr:76},
@@ -13566,7 +13567,8 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
   const INS_TOS = [
     { id:'TUI Group',    name:'TUI Group',    color:'#0ea5e9' },
     { id:'Jet2holidays', name:'Jet2holidays', color:'#10b981' },
-    { id:'FTI Group',    name:'FTI Group',    color:'#967EF3' },
+    { id:'Hotelbeds',    name:'Hotelbeds',    color:'#967EF3' },
+    { id:'World2Meet',   name:'World2Meet',   color:'#8b5cf6' },
     { id:'Sunwing',      name:'Sunwing',      color:'#ec4899' },
     { id:'Club Med',     name:'Club Med',     color:'#f97316' },
   ];
@@ -13574,7 +13576,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
     { id:'C-2025-TUI-001', name:'Summer 2025',    tos:['TUI Group','Jet2holidays'],  type:'Static', season:'Summer', releaseDate:'2025-04-15' },
     { id:'C-2025-TUI-002', name:'Winter 2025',    tos:['TUI Group','Jet2holidays'], type:'Static', season:'Winter', releaseDate:'2025-09-01' },
     { id:'C-2025-J2-001',  name:'Annual 2025',    tos:['Jet2holidays','Sunwing'],   type:'Static', season:'Annual', releaseDate:'2025-01-10' },
-    { id:'C-2025-FTI-001', name:'Q1 2025',        tos:['FTI Group','Club Med'],     type:'Static', season:'Q1',     releaseDate:'2024-12-01' },
+    { id:'C-2025-HB-001', name:'Q1 2025',        tos:['Hotelbeds','World2Meet'],     type:'Static', season:'Q1',     releaseDate:'2024-12-01' },
     { id:'C-2025-SW-001',  name:'Spring 2025',    tos:['Sunwing','Club Med'],    type:'Static', season:'Spring', releaseDate:'2025-02-28' },
   ];
   const INS_PROMOS = [
@@ -13621,7 +13623,7 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
   const DD_LABELS = {
     meal:     { all:'All Meal Plans', items:{ HB:'Half Board', AI:'All Inclusive', RO:'Room Only' } },
     origin:   { all:'All Origins',    items:{ UK:'UK', SP:'Spain', US:'US', MX:'Mexico' } },
-    to:       { all:'All TOs',        items:{ 'TUI Group':'TUI Group','Jet2holidays':'Jet2holidays','FTI Group':'FTI Group','Sunwing':'Sunwing','Club Med':'Club Med' } },
+    to:       { all:'All TOs',        items:{ 'TUI Group':'TUI Group','Jet2holidays':'Jet2holidays','Hotelbeds':'Hotelbeds','World2Meet':'World2Meet','Sunwing':'Sunwing','Club Med':'Club Med' } },
     contract: { all:'All Contracts',  items:{ 'C-2025-TUI-001':'Summer 2025','C-2025-TUI-002':'Winter 2025','C-2025-TC-001':'Winter 2025 II','C-2025-J2-001':'Annual 2025','C-2025-FTI-001':'Q1 2025','C-2025-SW-001':'Spring 2025' } },
   };
 
@@ -13714,7 +13716,8 @@ document.querySelectorAll('.ds-search-field').forEach(function(wrap) {
   const TO_PROFILES = {
     'TUI Group':    { rnBase:420, adrBase:112, lyMult:0.91, slyMult:0.84, losMod:3.8, leadMod:52 },
     'Jet2holidays': { rnBase:310, adrBase:96,  lyMult:0.93, slyMult:0.87, losMod:3.1, leadMod:41 },
-    'FTI Group':    { rnBase:265, adrBase:105, lyMult:0.88, slyMult:0.82, losMod:4.0, leadMod:35 },
+    'Hotelbeds':    { rnBase:285, adrBase:110, lyMult:0.90, slyMult:0.85, losMod:3.5, leadMod:38 },
+    'World2Meet':   { rnBase:270, adrBase:108, lyMult:0.89, slyMult:0.84, losMod:3.2, leadMod:36 },
     'Sunwing':      { rnBase:190, adrBase:122, lyMult:0.85, slyMult:0.78, losMod:5.2, leadMod:60 },
     'Club Med':     { rnBase:145, adrBase:195, lyMult:0.94, slyMult:0.89, losMod:6.5, leadMod:75 },
   };
@@ -15775,7 +15778,7 @@ window.calHideCapTip = function() {
 
   // Labels for display
   var LABELS = {
-    to:     { all: 'Operator', map: { sunwing:'Sunwing', tui:'TUI', 'club-med':'Club Med', jet2:'Jet2' } },
+    to:     { all: 'Operator', map: { sunwing:'Sunwing', tui:'TUI', hotelbeds:'Hotelbeds', world2meet:'World2Meet', 'club-med':'Club Med', jet2:'Jet2' } },
     rt:     { all: 'Room Type',     map: { standard:'Standard', superior:'Superior', deluxe:'Deluxe', suite:'Suite' } },
     mp:     { all: 'Meal Plan',     map: { ai:'All Incl.', hb:'Half Board', bb:'B&B', ro:'Room Only' } },
     origin: { all: 'Source Geo',        map: { UK:'UK', SP:'Spain', US:'US', MX:'Mexico' } },

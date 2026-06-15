@@ -282,7 +282,8 @@
                 <div class="rev-dd-divider"></div>
                 <label class="rev-board-opt"><input type="checkbox" value="tui" data-group="revTO" checked> TUI Group</label>
                 <label class="rev-board-opt"><input type="checkbox" value="jet2" data-group="revTO" checked> Jet2holidays</label>
-                <label class="rev-board-opt"><input type="checkbox" value="fti" data-group="revTO"> FTI Group</label>
+                <label class="rev-board-opt"><input type="checkbox" value="hotelbeds" data-group="revTO"> Hotelbeds</label>
+                <label class="rev-board-opt"><input type="checkbox" value="world2meet" data-group="revTO"> World2Meet</label>
                 <label class="rev-board-opt"><input type="checkbox" value="sunwing" data-group="revTO"> Sunwing</label>
                 <label class="rev-board-opt"><input type="checkbox" value="club-med" data-group="revTO"> Club Med</label>
               </div>
@@ -473,7 +474,7 @@
             <div class="cal-metrics-wrap" id="calMetricsWrap" style="order:5">
               <button class="wv-topbar-text-btn" id="calMetricsBtn">
                 <span class="material-icons" style="font-size:16px">tune</span>
-                Cell Metrics
+                Calendar Settings
                 <span class="material-icons cal-filters-chevron" style="font-size:14px">expand_more</span>
               </button>
 
@@ -702,6 +703,8 @@
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="calFiltTO" data-val="all"></span><span class="wv-ms-label">All Operators</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="sunwing"></span><span class="wv-ms-label">Sunwing</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="tui"></span><span class="wv-ms-label">TUI</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="hotelbeds"></span><span class="wv-ms-label">Hotelbeds</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="world2meet"></span><span class="wv-ms-label">World2Meet</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="club-med"></span><span class="wv-ms-label">Club Med</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="calFiltTO" data-val="jet2"></span><span class="wv-ms-label">Jet2holidays</span></label>
                 <div class="wv-ms-hdr wv-ms-hdr-divider"><span class="wv-ms-hdr-label">ROOM TYPE</span></div>
@@ -990,6 +993,8 @@
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltTO" data-val="all"></span><span class="wv-ms-label">All Operators</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="sunwing"></span><span class="wv-ms-label">Sunwing</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="tui"></span><span class="wv-ms-label">TUI</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="hotelbeds"></span><span class="wv-ms-label">Hotelbeds</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="world2meet"></span><span class="wv-ms-label">World2Meet</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="club-med"></span><span class="wv-ms-label">Club Med</span></label>
                 <!-- Room Type -->
                 <div class="wv-ms-hdr wv-ms-hdr-divider">
@@ -1751,7 +1756,8 @@
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="all"          onchange="insDDChange('to',this)" checked> All</label>
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="TUI Group"    onchange="insDDChange('to',this)"> TUI Group</label>
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Jet2holidays" onchange="insDDChange('to',this)"> Jet2holidays</label>
-                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="FTI Group"    onchange="insDDChange('to',this)"> FTI Group</label>
+                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Hotelbeds"    onchange="insDDChange('to',this)"> Hotelbeds</label>
+                      <label class="ins-dd-item"><input type="checkbox" data-group="to" value="World2Meet"   onchange="insDDChange('to',this)"> World2Meet</label>
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Sunwing"      onchange="insDDChange('to',this)"> Sunwing</label>
                       <label class="ins-dd-item"><input type="checkbox" data-group="to" value="Club Med"     onchange="insDDChange('to',this)"> Club Med</label>
                     </div>
@@ -1809,7 +1815,8 @@
                     <span style="font-size:11px;color:var(--text-muted)">vs</span>
                     <select class="ins-select" id="insCmpTO" onchange="insRender()">
                       <option value="Jet2holidays">Jet2holidays</option>
-                      <option value="FTI Group">FTI Group</option>
+                      <option value="Hotelbeds">Hotelbeds</option>
+                      <option value="World2Meet">World2Meet</option>
                       <option value="Sunwing">Sunwing</option>
                       <option value="Club Med">Club Med</option>
                     </select>
@@ -1947,7 +1954,8 @@
                   <option value="">All travel distribution hubs</option>
                   <option>TUI Group</option>
                   <option>Jet2holidays</option>
-                  <option>FTI Group</option>
+                  <option>Hotelbeds</option>
+                  <option>World2Meet</option>
                   <option>DER Touristik</option>
                   <option>Alltours</option>
                   <option>Neckermann</option>
