@@ -5761,9 +5761,7 @@ function buildDailyBView(days, month, activeDay) {
             _fCmpDefs.filter(function(x){ return wvCompare.has(x.k); }).forEach(function(x) {
               var _fDiff = _fNum - x.ref;
               var _fClr = _fDiff > 0 ? '#059669' : _fDiff < 0 ? '#dc2626' : '#6b7280';
-              var _fIco = _fDiff > 0 ? 'trending_up' : _fDiff < 0 ? 'trending_down' : 'remove';
               fcstChip += '<span style="font-size:10px;color:'+_fClr+';margin-left:4px;display:inline-flex;align-items:center;gap:1px;opacity:0.85">'
-                + '<span class="material-icons" style="font-size:11px">'+_fIco+'</span>'
                 + x.l+':'+x.ref+'</span>';
             });
           }
@@ -5920,9 +5918,8 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
     return _defs.filter(function(x){ return wvCompare.has(x.k); }).map(function(x) {
       var _v = Math.round(_n * x.m), _d2 = _n - _v;
       var _c = _d2 > 0 ? '#059669' : _d2 < 0 ? '#dc2626' : '#6b7280';
-      var _i = _d2 > 0 ? 'trending_up' : _d2 < 0 ? 'trending_down' : 'remove';
       return '<span style="font-size:10px;color:'+_c+';margin-left:3px;display:inline-flex;align-items:center;gap:1px;opacity:0.85">'
-        +'<span class="material-icons" style="font-size:11px">'+_i+'</span>'+x.l+':'+_v+'</span>';
+        +x.l+':'+_v+'</span>';
     }).join('');
   }
 
