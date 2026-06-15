@@ -508,17 +508,14 @@
                   </label>
                   <label class="cal-md-seg-row">
                     <span class="cal-md-cb checked" data-seg-key="fit" onclick="cmToggleSeg('fit',this)"></span>
-                    <span class="cal-md-swatch" style="background:#47c5bc"></span>
                     <span class="cal-md-seg-label">Static FIT Rates</span>
                   </label>
                   <label class="cal-md-seg-row">
                     <span class="cal-md-cb checked" data-seg-key="dynamic" onclick="cmToggleSeg('dynamic',this)"></span>
-                    <span class="cal-md-swatch" style="background:#7459ee"></span>
                     <span class="cal-md-seg-label">Operator Dynamic</span>
                   </label>
                   <label class="cal-md-seg-row">
                     <span class="cal-md-cb checked" data-seg-key="series" onclick="cmToggleSeg('series',this)"></span>
-                    <span class="cal-md-swatch" style="background:#ffb90f"></span>
                     <span class="cal-md-seg-label">Tour Series</span>
                   </label>
                 </div>
@@ -685,7 +682,7 @@
 
                 </div>
             <!-- Compare — Figma Selector (1315:38117) -->
-            <div class="cmp-select-wrap" id="calCompareWrap" style="order:6">
+            <div class="cmp-select-wrap" id="calCompareWrap" style="order:7">
               <button type="button" class="cmp-select-trigger" id="calCmpSelector" onclick="calCmpSelectToggle(event)" aria-haspopup="listbox" aria-expanded="false">
                 <span class="cmp-select-label" id="calCmpSelectLabel">Compare</span>
                 <span class="material-icons cmp-select-arrow" aria-hidden="true">expand_more</span>
@@ -698,7 +695,7 @@
               </div>
             </div>
             <!-- Filters (moved next to Cell Metrics) -->
-            <div class="cal-filters-wrap" id="calFiltersWrap" style="position:relative;order:3">
+            <div class="cal-filters-wrap" id="calFiltersWrap" style="position:relative;order:6">
               <button class="wv-topbar-text-btn" id="calFiltBtn" onclick="calToggleFilters(this)">
                 <span class="material-icons" style="font-size:16px">filter_list</span>
                 Filters
@@ -993,44 +990,33 @@
                 Filters
                 <span class="cal-filter-count" id="wvFilterCount" style="display:none"></span>
               </button>
-              <div class="cal-filters-dropdown wv-metrics-dropdown" id="wvFiltersDropdown" style="display:none">
-                <!-- Travel Distribution Hub -->
-                <div class="wv-ms-hdr">
-                  <span class="wv-ms-hdr-label">TOUR OPERATOR</span>
-                </div>
+              <div class="cal-filters-dropdown wv-metrics-dropdown" id="wvFiltersDropdown" style="display:none;right:0;left:auto">
+                <div class="wv-ms-hdr"><span class="wv-ms-hdr-label">OPERATOR</span></div>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltTO" data-val="all"></span><span class="wv-ms-label">All Operators</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="sunwing"></span><span class="wv-ms-label">Sunwing</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="tui"></span><span class="wv-ms-label">TUI</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="hotelbeds"></span><span class="wv-ms-label">Hotelbeds</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="world2meet"></span><span class="wv-ms-label">World2Meet</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="club-med"></span><span class="wv-ms-label">Club Med</span></label>
-                <!-- Room Type -->
-                <div class="wv-ms-hdr wv-ms-hdr-divider">
-                  <span class="wv-ms-hdr-label">ROOM TYPE</span>
-                </div>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltTO" data-val="jet2"></span><span class="wv-ms-label">Jet2holidays</span></label>
+                <div class="wv-ms-hdr wv-ms-hdr-divider"><span class="wv-ms-hdr-label">ROOM TYPE</span></div>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltRoom" data-val="all"></span><span class="wv-ms-label">All Rooms</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltRoom" data-val="standard"></span><span class="wv-ms-label">Standard</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltRoom" data-val="superior"></span><span class="wv-ms-label">Superior</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltRoom" data-val="deluxe"></span><span class="wv-ms-label">Deluxe</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltRoom" data-val="suite"></span><span class="wv-ms-label">Suite</span></label>
-                <!-- Meal Plan -->
-                <div class="wv-ms-hdr wv-ms-hdr-divider">
-                  <span class="wv-ms-hdr-label">BOARD TYPE</span>
-                </div>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltBoard" data-val="all"></span><span class="wv-ms-label">All Board</span></label>
+                <div class="wv-ms-hdr wv-ms-hdr-divider"><span class="wv-ms-hdr-label">MEAL PLAN</span></div>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltBoard" data-val="all"></span><span class="wv-ms-label">All Plans</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="ai"></span><span class="wv-ms-label">All Inclusive</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="hb"></span><span class="wv-ms-label">Half Board</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="bb"></span><span class="wv-ms-label">Bed &amp; Breakfast</span></label>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltBoard" data-val="ro"></span><span class="wv-ms-label">Room Only</span></label>
-                <!-- Source Geo -->
-                <div class="wv-ms-hdr wv-ms-hdr-divider">
-                  <span class="wv-ms-hdr-label">SOURCE GEO</span>
-                </div>
+                <div class="wv-ms-hdr wv-ms-hdr-divider"><span class="wv-ms-hdr-label">SOURCE GEO</span></div>
                 <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb checked" data-fid="wvFiltMarket" data-val="all"></span><span class="wv-ms-label">All Origins</span></label>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="uk"></span><span class="wv-ms-label">UK</span></label>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="de"></span><span class="wv-ms-label">Germany</span></label>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="fr"></span><span class="wv-ms-label">France</span></label>
-                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="es"></span><span class="wv-ms-label">Spain</span></label>
-                <!-- Pickup Window -->
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="UK"></span><span class="wv-ms-label">UK</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="SP"></span><span class="wv-ms-label">Spain</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="US"></span><span class="wv-ms-label">US</span></label>
+                <label class="wv-ms-item"><span class="wv-ms-cb wv-fi-rb" data-fid="wvFiltMarket" data-val="MX"></span><span class="wv-ms-label">Mexico</span></label>
                 <div class="wv-ms-hdr wv-ms-hdr-divider">
                   <span class="wv-ms-hdr-label">CUSTOMIZE PICKUP <span id="wvPickupLabel" style="color:#006461;font-weight:600;text-transform:none;letter-spacing:0">All time</span></span>
                 </div>
@@ -1038,7 +1024,6 @@
                   <input type="number" class="pickup-day-input" value="1" min="1" max="365" onfocus="pickupInputFocus(this,'wv')" oninput="pickupInputChange(this,'wv')">
                 </div>
                 <input type="hidden" id="wvFiltPickup" value="all">
-                <!-- Footer -->
                 <div class="cal-filters-footer">
                   <button class="cal-filter-reset" id="wvFilterReset">
                     <span class="material-icons" style="font-size:14px">close</span>
