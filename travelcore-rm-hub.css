@@ -1093,6 +1093,14 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   white-space: nowrap;
   font-size: 11px; font-weight: 700; line-height: 1.15;
   font-family: 'Lato', sans-serif;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+.cell-m-cmp[style*="#388C3F"], .cell-m-cmp[style*="rgb(56, 140, 63)"] {
+  background-color: #e8f5e9;
+}
+.cell-m-cmp[style*="#D32F2F"], .cell-m-cmp[style*="rgb(211, 47, 47)"] {
+  background-color: #ffebee;
 }
 .cal-months-grid.cal-cmp-visible .cell-content.cmp-active .cell-m-cmp-wrap {
   display: inline-flex;
@@ -1122,27 +1130,34 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   .cell-m-cmp-wrap { display: none !important; }
   .cell-content.cmp-active .cell-m-val { font-weight: 400; }
 }
-/* Comparison value styling - badge style */
+/* ─── Unified Compare Pill (Figma MELIA 1474-55613) ─── */
 .cell-cmp {
   font-size: 11px;
   font-family: 'Lato', sans-serif;
-  font-weight: 400;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2.5px 4px;
+  gap: 3px;
+  padding: 2px 8px;
   border-radius: 9999px;
   white-space: nowrap;
+  line-height: 1.3;
 }
 /* Light mode - up (positive) */
 .cell-cmp-up {
-  background-color: #e8f5e9;
-  color: #28592c;
+  background-color: #E8F5E9;
+  color: #28592C;
 }
 /* Light mode - down (negative) */
 .cell-cmp-dn {
-  background-color: #ffebee;
-  color: #991f1f;
+  background-color: #FFEBEE;
+  color: #991F1F;
+}
+/* Neutral / reference pill — outlined "STLY:201" style */
+.cell-cmp-ref {
+  background-color: transparent;
+  border: 1px solid #DDE1E2;
+  color: #006461;
 }
 /* Dark mode - up (positive) */
 body.dark .cell-cmp-up {
@@ -3847,11 +3862,24 @@ body.dark .wv-acc-title { color: #fff; }
 .wv-hdr-right { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
 .wv-occ-total { font-size: 14px; font-weight: 400; color: #1C1C1C; }
 /* Inline compare value (" / 97%") */
-.wv-cmp-sep  { color: #8a9096; }
-.wv-cmp-val-txt { color: #8a9096; font-size: 14px; }
-.wv-cmp-val-txt.wv-cmp-up { color: #388c3f; }
-.wv-cmp-val-txt.wv-cmp-dn { color: #d32f2f; }
-.wv-cmp-val-txt.wv-cmp-neutral { color: #8a9096; }
+.wv-cmp-sep  { display: none; }
+.wv-cmp-val-txt {
+  color: #006461;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Lato', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid #DDE1E2;
+  background: #fff;
+  margin-left: 6px;
+}
+.wv-cmp-val-txt.wv-cmp-up { color: #28592C; background:#E8F5E9; border-color:#E8F5E9; }
+.wv-cmp-val-txt.wv-cmp-dn { color: #991F1F; background:#FFEBEE; border-color:#FFEBEE; }
+.wv-cmp-val-txt.wv-cmp-neutral { color: #006461; }
 body.dark .wv-cmp-sep { color: #7aabad; }
 body.dark .wv-cmp-val-txt { color: #7aabad; }
 body.dark .wv-cmp-val-txt.wv-cmp-up { color: #5ceade; }
