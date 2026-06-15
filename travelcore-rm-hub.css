@@ -7660,7 +7660,8 @@ body.dark .cal-metrics-dropdown {
   padding: 3px 0; cursor: pointer;
 }
 .cal-md-seg-label {
-  font-size: 14px; line-height: 20px; color: #1C1C1C;
+  font-size: 14px; line-height: 20px; color: #006461;
+  font-weight: 500;
 }
 .cal-md-seg-label--strong { font-weight: 400; }
 .cal-md-swatch {
