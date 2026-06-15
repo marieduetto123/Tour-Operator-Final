@@ -5756,10 +5756,10 @@ function buildDailyBView(days, month, activeDay) {
             ];
             _fCmpDefs.filter(function(x){ return wvCompare.has(x.k); }).forEach(function(x) {
               var _fDiff = _fNum - x.ref;
-              var _fClr = _fDiff > 0 ? '#059669' : _fDiff < 0 ? '#dc2626' : '#6b7280';
-              var _fIco = _fDiff > 0 ? 'trending_up' : _fDiff < 0 ? 'trending_down' : 'remove';
-              fcstChip += '<span style="font-size:10px;color:'+_fClr+';margin-left:4px;display:inline-flex;align-items:center;gap:1px;opacity:0.85">'
-                + '<span class="material-icons" style="font-size:11px">'+_fIco+'</span>'
+              var _fBg = _fDiff > 0 ? '#E8F5E9' : _fDiff < 0 ? '#FFEBEE' : '#fff';
+              var _fTxt = _fDiff > 0 ? '#28592C' : _fDiff < 0 ? '#991F1F' : '#006461';
+              var _fBorder = _fDiff > 0 ? '#E8F5E9' : _fDiff < 0 ? '#FFEBEE' : '#B3DDDC';
+              fcstChip += '<span style="font-size:11px;color:'+_fTxt+';margin-left:6px;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:'+_fBg+';border:1px solid '+_fBorder+';border-radius:9999px;line-height:1.3">'
                 + x.l+':'+x.ref+'</span>';
             });
           }
@@ -5915,10 +5915,11 @@ function initDailyBGrid(days, month, activeDay, containerEl) {
     var _defs = [{k:'stly',m:0.84+_s*0.004,l:'STLY'},{k:'ly',m:0.89+_s*0.004,l:'LY'},{k:'fcst',m:0.92+_s*0.008,l:'Fc'}];
     return _defs.filter(function(x){ return wvCompare.has(x.k); }).map(function(x) {
       var _v = Math.round(_n * x.m), _d2 = _n - _v;
-      var _c = _d2 > 0 ? '#059669' : _d2 < 0 ? '#dc2626' : '#6b7280';
-      var _i = _d2 > 0 ? 'trending_up' : _d2 < 0 ? 'trending_down' : 'remove';
-      return '<span style="font-size:10px;color:'+_c+';margin-left:3px;display:inline-flex;align-items:center;gap:1px;opacity:0.85">'
-        +'<span class="material-icons" style="font-size:11px">'+_i+'</span>'+x.l+':'+_v+'</span>';
+      var _bg = _d2 > 0 ? '#E8F5E9' : _d2 < 0 ? '#FFEBEE' : '#fff';
+      var _txt = _d2 > 0 ? '#28592C' : _d2 < 0 ? '#991F1F' : '#006461';
+      var _border = _d2 > 0 ? '#E8F5E9' : _d2 < 0 ? '#FFEBEE' : '#B3DDDC';
+      return '<span style="font-size:11px;color:'+_txt+';margin-left:4px;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:'+_bg+';border:1px solid '+_border+';border-radius:9999px;line-height:1.3">'
+        +x.l+':'+_v+'</span>';
     }).join('');
   }
 
