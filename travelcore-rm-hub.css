@@ -29,7 +29,7 @@ input,select,textarea,button{font-family:'Lato',sans-serif}
   --hm-metric-high: #D33030;
   --hm-metric-mid:  #FDF6F6;
   --hm-metric-low:  #2E65E8;
-  --cal-day-height: 180px;
+  --cal-day-height: 220px;
   /* DS Checkbox — Figma MELIA node 1256-44370 */
   --ds-cb-size: 18px;
   --ds-cb-radius: 2px;
