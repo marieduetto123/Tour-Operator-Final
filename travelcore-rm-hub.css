@@ -1116,20 +1116,20 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
 }
 /* Comparison value styling - badge style */
 .cell-cmp {
-  font-size: 11px;
+  font-size: 12px;
   font-family: 'Lato', sans-serif;
   font-weight: 400;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2.5px 4px;
+  padding: 4px 6px;
   border-radius: 9999px;
   white-space: nowrap;
 }
 /* Light mode - up (positive) */
 .cell-cmp-up {
   background-color: #e8f5e9;
-  color: #28592c;
+  color: #388c3f;
 }
 /* Light mode - down (negative) */
 .cell-cmp-dn {
