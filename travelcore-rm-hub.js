@@ -4231,9 +4231,7 @@ function _wvMultiTrendBadge(curr, stlyVal, lyVal, fcstVal) {
   return _ORDER.filter(function(t){ return wvCompare.has(t[0]) && t[2]!=null && !isNaN(curr) && !isNaN(t[2]) && t[2]!==0; }).map(function(t) {
     var diff = curr - t[2], pct = Math.round(Math.abs(diff)/Math.abs(t[2])*100);
     var cls = diff>0?'cell-cmp-up':diff<0?'cell-cmp-dn':'';
-    var arrow = diff>0?'arrow_upward':diff<0?'arrow_downward':'';
-    var arrowHtml = arrow ? '<span class="material-icons" style="font-size:12px">'+arrow+'</span>' : '';
-    return '<span class="cell-cmp '+cls+'" style="margin-left:3px">'+arrowHtml+pct+'% vs '+t[1]+'</span>';
+    return '<span class="cell-cmp '+cls+'" style="margin-left:3px">'+pct+'% vs '+t[1]+'</span>';
   }).join('');
 }
 
