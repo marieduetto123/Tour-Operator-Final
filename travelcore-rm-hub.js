@@ -1382,7 +1382,7 @@ const WV_COLOR_OFFLINE   = '#f97316';
 let calStartIdx = 0; // start at January
 let calView = 2;        // default 2 months on load
 let calDisplayView = 2; // default 2 months on load
-const CAL_DAY_HEIGHT = '235px';
+const CAL_DAY_HEIGHT = '210px';
 
 /** Compact $ for monthly day cells — keeps full values readable in narrow cells */
 function calFmtCellMoney(n) {
