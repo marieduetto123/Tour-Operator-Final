@@ -1382,7 +1382,7 @@ const WV_COLOR_OFFLINE   = '#f97316';
 let calStartIdx = 0; // start at January
 let calView = 2;        // default 2 months on load
 let calDisplayView = 2; // default 2 months on load
-const CAL_DAY_HEIGHT = '220px';
+const CAL_DAY_HEIGHT = '260px';
 
 /** Compact $ for monthly day cells — keeps full values readable in narrow cells */
 function calFmtCellMoney(n) {
@@ -2034,7 +2034,10 @@ function renderCalendar() {
                 diffStr = String(Math.round(absDiff));
               }
               var cmpCls = diff > 0 ? 'cell-cmp-up' : 'cell-cmp-dn';
-              cmpHtml = '<span class="cell-m-cmp-wrap"><span class="cell-cmp ' + cmpCls + '">' + diffStr + '</span></span>';
+              var cmpArrow = diff > 0 ? 'call_made' : 'south_east';
+              cmpHtml = '<span class="cell-m-cmp-wrap"><span class="cell-cmp ' + cmpCls + '">'
+                + '<span class="material-icons cell-cmp-arrow">' + cmpArrow + '</span>'
+                + diffStr + '</span></span>';
             }
           }
 

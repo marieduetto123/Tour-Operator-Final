@@ -29,7 +29,7 @@ input,select,textarea,button{font-family:'Lato',sans-serif}
   --hm-metric-high: #D33030;
   --hm-metric-mid:  #FDF6F6;
   --hm-metric-low:  #2E65E8;
-  --cal-day-height: 220px;
+  --cal-day-height: 260px;
   /* DS Checkbox — Figma MELIA node 1256-44370 */
   --ds-cb-size: 18px;
   --ds-cb-radius: 2px;
@@ -1109,12 +1109,16 @@ body.dark .cal-nav-btn:hover { background: rgba(196,255,69,0.07); border-color: 
   font-weight: 400;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 2px;
+  padding: 2px 6px;
   border-radius: 9999px;
   white-space: nowrap;
 }
 /* Light mode - up (positive) */
+.cell-cmp .cell-cmp-arrow {
+  font-size: 14px !important;
+  line-height: 1;
+}
 .cell-cmp-up {
   background-color: #e8f5e9;
   color: #388c3f;
