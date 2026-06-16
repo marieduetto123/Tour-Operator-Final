@@ -7687,13 +7687,13 @@ label.cm-menu-row { cursor: pointer; }
 /* Snackbar */
 .cal-md-snackbar {
   display: none; align-items: center; gap: 8px;
-  margin: 0 12px 8px; padding: 12px 8px;
+  margin: 0 24px 12px; padding: 12px 8px;
   background: #FFEBEE; border-radius: 4px;
-  box-shadow: var(--shadow-sm);
-  font-size: 14px; color: #991F1F;
+  box-shadow: 0 1px 0.5px rgba(0,0,0,0.14), 0 2px 0.5px rgba(0,0,0,0.12), 0 1px 1.5px rgba(0,0,0,0.2);
+  font-family: 'Lato', sans-serif; font-size: 14px; color: #991F1F;
 }
 .cal-md-snackbar .material-icons { font-size: 24px; color: #991F1F; flex-shrink: 0; }
-.cal-md-snackbar-close { font-size: 20px !important; cursor: pointer; margin-left: auto; }
+.cal-md-snackbar-close { font-size: 24px !important; cursor: pointer; margin-left: auto; color: #991F1F; }
 
 /* Footer */
 .cal-md-foot {

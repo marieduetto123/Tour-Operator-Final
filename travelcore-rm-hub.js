@@ -15938,13 +15938,13 @@ window.calHideCapTip = function() {
   }
 
   function countCheckedMetrics() {
-    return document.querySelectorAll('#calMetricsDropdown .cal-md-cb[onclick*="cmToggleMetric"].checked').length;
+    return document.querySelectorAll('#calMetricsModal .cal-md-cb[onclick*="cmToggleMetric"].checked').length;
   }
 
   function syncDisabled() {
     var checked = countCheckedMetrics();
     var atLimit = checked >= 4;
-    document.querySelectorAll('#calMetricsDropdown .cal-md-cb[onclick*="cmToggleMetric"]').forEach(function(cb) {
+    document.querySelectorAll('#calMetricsModal .cal-md-cb[onclick*="cmToggleMetric"]').forEach(function(cb) {
       var isChecked = cb.classList.contains('checked');
       if (atLimit && !isChecked) {
         cb.classList.add('cm-disabled');
@@ -16079,7 +16079,7 @@ window.calHideCapTip = function() {
   // ── Apply: commit metric selections and re-render ──────────────
   // ── Called on dropdown open: sync checked state + apply disabled ─
   window.cmSyncOnOpen = function() {
-    document.querySelectorAll('#calMetricsDropdown .cal-md-cb[data-cm-key]').forEach(function(cb) {
+    document.querySelectorAll('#calMetricsModal .cal-md-cb[data-cm-key]').forEach(function(cb) {
       cb.classList.toggle('checked', cmMetrics.indexOf(cb.dataset.cmKey) >= 0);
     });
     var search = document.getElementById('cmSearchInput');
@@ -16431,7 +16431,7 @@ window.calHideCapTip = function() {
   // Init: pre-check default metrics in the UI and update hint
   setTimeout(function() {
     cmMetrics.forEach(function(key) {
-      var cb = document.querySelector('#calMetricsDropdown .cal-md-cb[data-cm-key="' + key + '"]');
+      var cb = document.querySelector('#calMetricsModal .cal-md-cb[data-cm-key="' + key + '"]');
       if (cb) cb.classList.add('checked');
     });
     updateHint();
