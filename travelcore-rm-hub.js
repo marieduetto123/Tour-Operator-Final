@@ -2033,11 +2033,8 @@ function renderCalendar() {
               } else {
                 diffStr = String(Math.round(absDiff));
               }
-              var cmpClr = diff > 0 ? '#388C3F' : '#D32F2F';
-              var arrow = diff > 0 ? 'arrow_upward' : 'arrow_downward';
-              cmpHtml = '<span class="cell-m-cmp-wrap"><span class="cell-m-cmp" style="color:' + cmpClr + '">'
-                + '<span class="material-icons cell-m-cmp-arrow">' + arrow + '</span>'
-                + '<span class="cell-m-cmp-amt">' + diffStr + '</span></span></span>';
+              var cmpCls = diff > 0 ? 'cell-cmp-up' : 'cell-cmp-dn';
+              cmpHtml = '<span class="cell-m-cmp-wrap"><span class="cell-cmp ' + cmpCls + '">' + diffStr + '</span></span>';
             }
           }
 
