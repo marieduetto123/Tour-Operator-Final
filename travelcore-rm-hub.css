@@ -12,6 +12,10 @@ input,select,textarea,button{font-family:'Lato',sans-serif}
 :root {
   --teal-700:  #006461;
   --teal-50:   #D7F7ED;
+  --btn-pink:        #EC4899;
+  --btn-pink-hover:  #DB2777;
+  --btn-pink-soft:   #FCE7F3;
+  --btn-pink-border: #F472B6;
   --lime:      #C4FF45;
   --indigo:    #3F3E78;
   --error:     #D32F2F;
@@ -9831,3 +9835,38 @@ body:not(.dark) .an-kpi-card {
 }
 .an-kpi-trend.up   { color: #34d399; }
 .an-kpi-trend.down { color: #f87171; }
+
+/* ══ Pink button theme — all buttons ══ */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  background: var(--btn-pink) !important;
+  background-color: var(--btn-pink) !important;
+  border-color: var(--btn-pink) !important;
+  color: #fff !important;
+}
+
+button:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+input[type="reset"]:hover:not(:disabled) {
+  background: var(--btn-pink-hover) !important;
+  background-color: var(--btn-pink-hover) !important;
+  border-color: var(--btn-pink-hover) !important;
+  color: #fff !important;
+}
+
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled {
+  opacity: 0.55 !important;
+}
+
+button[style*="#006461"],
+button[style*="006461"] {
+  background: var(--btn-pink) !important;
+  border-color: var(--btn-pink) !important;
+  color: #fff !important;
+}
